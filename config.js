@@ -3,6 +3,6 @@
    (Supabase Dashboard -> Settings -> API Keys).
    Until then the app runs in DEMO MODE (data stored on-device only). */
 window.MYGYM_CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: ""
+  SUPABASE_URL: "https://ldmksxyilykyfnqnuytv.supabase.co",
+  SUPABASE_ANON_KEY: "sb_pub…2Npw_ezH3H842"
 };

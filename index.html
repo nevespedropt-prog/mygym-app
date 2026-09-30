@@ -2,9 +2,11 @@
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; form-action 'none'; base-uri 'self'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MY GYM London</title>
-<meta name="description" content="Your private community gym in Bush Hill Park, Enfield. Classes, PT and memberships — all in your pocket.">
+<meta name="description" content="Your private community gym in Bush Hill Park, Enfield. Book classes, log workouts, track progress.">
 <meta name="theme-color" content="#101418">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -15,7 +17,7 @@
 <style>
 :root{
   --bg:#101418; --card:#1a2129; --card2:#212b36; --line:#2c3947;
-  --txt:#eef2f5; --mut:#93a1b0; --acc:#7ee081; --acc2:#ffb454;
+  --txt:#eef2f5; --mut:#93a1b0; --acc:#7ee081; --acc2:#ffb454; --red:#ff7b72;
   --rad:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -30,7 +32,6 @@ main{max-width:560px;margin:0 auto;padding:0 16px}
 .view.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* ---------- header ---------- */
 header{
   position:sticky;top:0;z-index:50;background:rgba(16,20,24,.92);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
@@ -40,12 +41,13 @@ header{
 .hwrap img{width:36px;height:36px;border-radius:9px}
 .hwrap b{font-size:17px;letter-spacing:.5px}
 .hwrap span{color:var(--acc);font-weight:800}
-.install-btn{
+.hbtn{
   margin-left:auto;background:var(--acc);color:#0c1a0d;font-weight:700;font-size:13px;
-  border:none;border-radius:999px;padding:8px 14px;cursor:pointer;display:none;
+  border:none;border-radius:999px;padding:8px 14px;cursor:pointer;
 }
+.hbtn.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+#installBtn{display:none;margin-left:8px}
 
-/* ---------- shared bits ---------- */
 h2{font-size:22px;margin:22px 0 4px}
 .sub{color:var(--mut);font-size:14px;margin-bottom:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:16px;margin-bottom:12px}
@@ -55,7 +57,7 @@ h2{font-size:22px;margin:22px 0 4px}
 a.btn{
   display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
   border-radius:var(--rad);padding:14px 16px;color:var(--txt);text-decoration:none;
-  font-weight:600;font-size:15px;margin-bottom:10px;
+  font-weight:600;font-size:15px;margin-bottom:10px;cursor:pointer;
 }
 a.btn:active{background:var(--card2)}
 a.btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
@@ -63,9 +65,10 @@ a.btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:cen
 a.btn small{display:block;color:var(--mut);font-weight:400;font-size:12.5px}
 .cta{
   display:block;text-align:center;background:var(--acc);color:#0c1a0d;font-weight:800;font-size:16px;
-  border-radius:var(--rad);padding:15px;text-decoration:none;margin:16px 0;
+  border-radius:var(--rad);padding:15px;text-decoration:none;margin:16px 0;border:none;width:100%;cursor:pointer;
 }
 .cta.warm{background:var(--acc2);color:#241503}
+.cta:disabled{opacity:.5;cursor:default}
 .hero{
   background:linear-gradient(135deg,#16211a 0%,#101418 55%),radial-gradient(circle at 80% 20%,rgba(126,224,129,.14),transparent 60%);
   border:1px solid var(--line);border-radius:22px;padding:24px 20px;margin-top:18px;
@@ -75,7 +78,6 @@ a.btn small{display:block;color:var(--mut);font-weight:400;font-size:12.5px}
 .quote{border-left:3px solid var(--acc);padding:4px 0 4px 14px;margin:14px 0;color:var(--txt);font-size:14.5px}
 .quote small{display:block;color:var(--mut);margin-top:4px}
 
-/* ---------- timetable ---------- */
 .day-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}
 .day-tabs::-webkit-scrollbar{display:none}
 .day-tabs button{
@@ -85,23 +87,80 @@ a.btn small{display:block;color:var(--mut);font-weight:400;font-size:12.5px}
 .day-tabs button.sel{background:var(--acc);border-color:var(--acc);color:#0c1a0d}
 .slot{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);
   border-radius:var(--rad);padding:13px 16px;margin-bottom:10px}
-.slot .time{color:var(--acc);font-weight:800;font-size:14px;min-width:62px}
+.slot .time{color:var(--acc);font-weight:800;font-size:14px;min-width:52px}
+.slot .what{flex:1;min-width:0}
 .slot .what b{font-size:15px}
 .slot .what small{display:block;color:var(--mut);font-size:12.5px}
+.slot .act{flex-shrink:0}
 .note{color:var(--mut);font-size:12.5px;text-align:center;margin:8px 0 20px}
 
-/* ---------- join / pricing ---------- */
 .price-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .price-row b{font-size:16px}
 .price-row .p{color:var(--acc2);font-weight:800;font-size:16px;white-space:nowrap}
 .price-row + small{color:var(--mut);font-size:12.5px}
 
-/* ---------- bottom nav ---------- */
+/* forms */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:5px}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;
+  color:var(--txt);font-size:15px;padding:12px 14px;font-family:inherit;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--acc);border-color:transparent}
+.row2{display:flex;gap:10px}
+.row2 .field{flex:1}
+.err{color:var(--red);font-size:13px;min-height:18px;margin:4px 0 8px}
+.ok{color:var(--acc);font-size:13px;min-height:18px;margin:4px 0 8px}
+.btn-small{
+  background:var(--acc);color:#0c1a0d;border:none;border-radius:10px;font-weight:800;
+  font-size:13px;padding:9px 14px;cursor:pointer;
+}
+.btn-small.outline{background:transparent;color:var(--acc);border:1.5px solid var(--acc)}
+.btn-small.danger{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+.btn-small:disabled{opacity:.5}
+
+/* booking date strip */
+.dates{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.dates button{flex-shrink:0;width:56px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:8px 0;color:var(--mut);cursor:pointer;text-align:center}
+.dates button.sel{background:var(--acc);border-color:var(--acc);color:#0c1a0d}
+.dates button .dow{display:block;font-size:11px;font-weight:700;text-transform:uppercase}
+.dates button .dnum{display:block;font-size:18px;font-weight:800}
+.spots{font-size:11.5px;font-weight:700}
+.spots.free{color:var(--acc)}
+.spots.full{color:var(--red)}
+
+/* segmented control */
+.seg{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:14px}
+.seg button{flex:1;background:none;border:none;color:var(--mut);font-weight:700;font-size:13.5px;padding:9px;border-radius:9px;cursor:pointer}
+.seg button.sel{background:var(--acc);color:#0c1a0d}
+
+/* member bits */
+.tpl{cursor:pointer}
+.tpl .ex{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:none}
+.tpl.open .ex{display:block}
+.tpl .ex div{font-size:13.5px;color:var(--mut);padding:3px 0}
+.tpl .ex div b{color:var(--txt);font-weight:600}
+.wlog{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.wlog:last-child{border-bottom:none}
+.wlog small{color:var(--mut);display:block}
+.wlog .del{background:none;border:none;color:var(--mut);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0}
+.stats{display:flex;gap:10px;margin-bottom:14px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:17px;color:var(--acc)}
+.stat small{color:var(--mut);font-size:11.5px}
+#demoBanner{display:none;max-width:560px;margin:10px auto -6px;padding:8px 16px;font-size:12.5px;color:var(--acc2);text-align:center}
+.offline-tag{display:none;text-align:center;font-size:12px;color:var(--acc2);padding:6px}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
+footer a{color:var(--mut)}
+
 nav{
-  position:fixed;bottom:0;left:0;right:0;z-index:60;
+  position:fixed;bottom:0;left:0;right:0;z-index:60;display:none;
   background:rgba(16,20,24,.95);backdrop-filter:blur(12px);
   border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-bottom));
 }
+nav.show{display:block}
 .nwrap{max-width:560px;margin:0 auto;display:flex}
 .nwrap button{
   flex:1;background:none;border:none;color:var(--mut);font-size:10.5px;font-weight:600;
@@ -109,8 +168,6 @@ nav{
 }
 .nwrap button .ic{font-size:21px;line-height:1}
 .nwrap button.sel{color:var(--acc)}
-.offline-tag{display:none;text-align:center;font-size:12px;color:var(--acc2);padding:6px}
-footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
 </style>
 </head>
 <body>
@@ -119,28 +176,28 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
   <div class="hwrap">
     <img src="icons/icon-192.png" alt="MY GYM London">
     <b><span>MY</span> GYM <small style="color:var(--mut);font-weight:400">London</small></b>
-    <button class="install-btn" id="installBtn">Install app</button>
+    <button class="hbtn ghost" id="authBtn">Log in</button>
+    <button class="hbtn" id="installBtn">Install app</button>
   </div>
 </header>
-<div class="offline-tag" id="offlineTag">You're offline — everything still works 💪</div>
+<div id="demoBanner">🧪 DEMO MODE — data stays on this device only. Add your free Supabase keys in config.js to go live.</div>
+<div class="offline-tag" id="offlineTag">You're offline — the app still works 💪</div>
 
 <main>
 
-<!-- ============ HOME ============ -->
+<!-- ============ HOME (guest) ============ -->
 <section class="view active" id="home">
   <div class="hero">
     <span class="chip">Bush Hill Park · Enfield</span>
     <h1>The private gym where everybody knows your name.</h1>
     <p>No queues. No intimidation. Just real coaches, real people and a community that actually wants you here.</p>
   </div>
-
-  <a class="cta" href="#join" onclick="go('join')">Start your free-friendly trial →</a>
-
+  <a class="cta" href="#join" data-goto="join">Classes from £6 · no contract →</a>
   <h2>Quick links</h2>
   <p class="sub">One tap to the things you need most.</p>
   <a class="btn" href="https://maps.app.goo.gl/EhoXHJ5Em9nMYn8U6" target="_blank" rel="noopener">
     <span class="ic" style="background:#233448">📍</span>
-    <span>Find us<small>Google Maps · Bush Hill Park, Enfield</small></span>
+    <span>Find us<small>Main Avenue, Bush Hill Park, Enfield EN1 1DS</small></span>
   </a>
   <a class="btn" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener">
     <span class="ic" style="background:#3a2436">📸</span>
@@ -150,7 +207,6 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
     <span class="ic" style="background:#1e3327">🌐</span>
     <span>Website<small>mygymlondon.co.uk</small></span>
   </a>
-
   <h2>Members say it better</h2>
   <div class="card">
     <div class="quote">“Finding MyGym has honestly been life changing for me.”</div>
@@ -159,21 +215,150 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
   </div>
 </section>
 
-<!-- ============ TIMETABLE ============ -->
+<!-- ============ HOME (member) ============ -->
+<section class="view" id="mhome">
+  <div class="hero">
+    <span class="chip">Member area</span>
+    <h1 id="helloName">Welcome back 💚</h1>
+    <p>Book classes, log workouts and watch your progress — all in one place.</p>
+  </div>
+  <div class="stats" style="margin-top:16px">
+    <div class="stat"><b id="statNext">–</b><small>next class</small></div>
+    <div class="stat"><b id="statWeek">0</b><small>workouts this week</small></div>
+    <div class="stat"><b id="statWeight">–</b><small>latest weight</small></div>
+  </div>
+  <div id="nextWrap" style="display:none">
+    <h2>Your next class</h2>
+    <div id="nextCard"></div>
+  </div>
+  <a class="cta" href="#book" data-goto="book">Book a class →</a>
+  <a class="btn" data-goto="log" href="#log"><span class="ic" style="background:#33301e">🏋️</span><span>Log a workout<small>sets, reps, weight — 10 seconds</small></span></a>
+  <a class="btn" data-goto="templates" href="#templates"><span class="ic" style="background:#1e3327">📋</span><span>Workout plans<small>coach-built templates for every level</small></span></a>
+</section>
+
+<!-- ============ PUBLIC TIMETABLE ============ -->
 <section class="view" id="timetable">
   <h2>Class timetable</h2>
-  <p class="sub">Tap a day. Times below — walk in, no booking app needed.</p>
+  <p class="sub">Tap a day. Members: grab your spot in the <b>Book</b> tab.</p>
   <div class="day-tabs" id="dayTabs"></div>
   <div id="slots"></div>
-  <p class="note">Timetable updates automatically when we change it — the app stays in sync (and works offline too).</p>
-  <a class="cta" href="#join" onclick="go('join')">Not a member yet? Join here →</a>
+  <a class="cta" href="#join" data-goto="join">Not a member yet? Join here →</a>
+</section>
+
+<!-- ============ BOOK (member) ============ -->
+<section class="view" id="book">
+  <h2>Book a class</h2>
+  <p class="sub">Pick a day, grab a spot. Cancel any time — no guilt, we promise.</p>
+  <div class="dates" id="dateStrip"></div>
+  <div id="bookSlots"></div>
+  <h2>Your bookings</h2>
+  <div id="myBookings"><p class="note">Nothing booked yet — your next session is one tap away.</p></div>
+</section>
+
+<!-- ============ LOG (member) ============ -->
+<section class="view" id="log">
+  <h2>My log</h2>
+  <p class="sub">Workouts and weigh-ins. Private — only you can see these.</p>
+  <div class="seg" id="logSeg">
+    <button data-t="workouts" class="sel">🏋️ Workouts</button>
+    <button data-t="weight">⚖️ Weight</button>
+  </div>
+  <div id="paneWorkouts">
+    <div class="card">
+      <div class="field"><label>Exercise / session</label><input id="wExercise" placeholder="e.g. Goblet squat or 'Monday Blast class'"></div>
+      <div class="row2">
+        <div class="field"><label>Sets</label><input id="wSets" type="number" inputmode="numeric" min="1" placeholder="3"></div>
+        <div class="field"><label>Reps</label><input id="wReps" placeholder="10"></div>
+        <div class="field"><label>Weight (kg)</label><input id="wWeight" type="number" inputmode="decimal" step="0.5" placeholder="12"></div>
+      </div>
+      <div class="field"><label>Notes (optional)</label><input id="wNotes" placeholder="Felt strong today!"></div>
+      <div class="err" id="wErr"></div>
+      <button class="cta" id="wSave" style="margin:4px 0 0">Save workout</button>
+    </div>
+    <h2 style="font-size:18px">History</h2>
+    <div class="card" id="wHistory"></div>
+  </div>
+  <div id="paneWeight" style="display:none">
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>Date</label><input id="kgDate" type="date"></div>
+        <div class="field"><label>Weight (kg)</label><input id="kgVal" type="number" inputmode="decimal" step="0.1" placeholder="72.5"></div>
+      </div>
+      <div class="err" id="kgErr"></div>
+      <button class="cta" id="kgSave" style="margin:4px 0 0">Save weigh-in</button>
+    </div>
+    <div class="card"><canvas id="kgChart" width="640" height="260" style="width:100%;height:auto"></canvas></div>
+    <div class="card" id="kgHistory"></div>
+  </div>
+</section>
+
+<!-- ============ TEMPLATES (member) ============ -->
+<section class="view" id="templates">
+  <h2>Workout plans</h2>
+  <p class="sub">Coach-built templates. Tap one to see the exercises, then log it in one tap.</p>
+  <div id="tplList"></div>
+  <div class="card">
+    <b>💾 Build your own plan</b>
+    <p class="sub" style="margin:6px 0 10px">Saves your last 5 logged exercises as a private template.</p>
+    <button class="btn-small outline" id="tplFromLog">Create from my log</button>
+    <div class="ok" id="tplMsg"></div>
+  </div>
+</section>
+
+<!-- ============ PROFILE (member) ============ -->
+<section class="view" id="profile">
+  <h2>My profile</h2>
+  <p class="sub">Helps your coaches help you. Private — never shared.</p>
+  <div class="card">
+    <div class="field"><label>Full name</label><input id="pName" placeholder="Your name"></div>
+    <div class="field"><label>Phone (optional)</label><input id="pPhone" type="tel" autocomplete="tel" placeholder="07..."></div>
+    <div class="row2">
+      <div class="field"><label>Current weight (kg)</label><input id="pWeight" type="number" inputmode="decimal" step="0.1" placeholder="72.5"></div>
+      <div class="field"><label>Main goal</label>
+        <select id="pGoal">
+          <option value="">Choose…</option>
+          <option>Lose body fat</option>
+          <option>Build strength / muscle</option>
+          <option>General fitness &amp; energy</option>
+          <option>Mobility &amp; longevity</option>
+          <option>Confidence with exercise</option>
+          <option>Sport-specific training</option>
+        </select>
+      </div>
+    </div>
+    <div class="ok" id="pMsg"></div>
+    <button class="cta" id="pSave" style="margin:4px 0 0">Save profile</button>
+  </div>
+  <div class="card">
+    <b>Account</b>
+    <p class="sub" style="margin:6px 0 12px" id="pEmail"></p>
+    <button class="btn-small danger" id="logoutBtn">Log out</button>
+  </div>
+  <p class="note">Questions? <a href="mailto:info@mygymlondon.co.uk" style="color:var(--acc)">info@mygymlondon.co.uk</a> · we reply fast.</p>
+</section>
+
+<!-- ============ LOGIN / SIGNUP ============ -->
+<section class="view" id="login">
+  <h2 id="authTitle">Member login</h2>
+  <p class="sub" id="authSub">Welcome back! Log in to book classes and track progress.</p>
+  <div class="seg" id="authSeg">
+    <button data-t="in" class="sel">Log in</button>
+    <button data-t="up">Create account</button>
+  </div>
+  <div class="card">
+    <div class="field" id="nameField" style="display:none"><label>Your name</label><input id="aName" autocomplete="name" placeholder="e.g. Sam"></div>
+    <div class="field"><label>Email</label><input id="aEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="aPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <div class="err" id="aErr"></div>
+    <button class="cta" id="aSubmit" style="margin:4px 0 0">Log in</button>
+  </div>
+  <p class="note">No account? Tap “Create account” — it's free, no contract, classes from £6.</p>
 </section>
 
 <!-- ============ JOIN ============ -->
 <section class="view" id="join">
   <h2>Memberships & training</h2>
-  <p class="sub">From £6 a class to full memberships. No sneaky joining fees, no lock-in nonsense.</p>
-
+  <p class="sub">From £6 a class to full memberships. No sneaky joining fees, no contract needed.</p>
   <div class="card">
     <span class="chip">Most popular</span>
     <div class="price-row"><b>Gym + Classes Membership</b><span class="p">from £35</span></div>
@@ -203,9 +388,7 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
     <div class="price-row"><b>Gym / Studio Rental for PTs</b><span class="p">by arrangement</span></div>
     <small>Coaches: bring your clients to a proper private space. Chat to us.</small>
   </div>
-
   <a class="cta warm" href="https://www.mygymlondon.co.uk" target="_blank" rel="noopener">Book your trial / ask a question</a>
-  <p class="note">Prefer a human? Pop in, DM us on Instagram, or call — we reply fast.</p>
 </section>
 
 <!-- ============ ABOUT ============ -->
@@ -221,28 +404,28 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
 <!-- ============ CONTACT ============ -->
 <section class="view" id="contact">
   <h2>Find us</h2>
-  <p class="sub">Bush Hill Park · Enfield Town · London</p>
+  <p class="sub">Main Avenue, Bush Hill Park, Enfield EN1 1DS</p>
   <div class="card">
     <b>📍 Address</b>
-    <p class="sub" style="margin:4px 0 12px">Bush Hill Park, Enfield, London — tap below for exact directions & parking.</p>
+    <p class="sub" style="margin:4px 0 12px">Main Avenue, Bush Hill Park, Enfield, EN1 1DS — tap for directions & parking.</p>
     <a class="cta" style="margin:0" href="https://maps.app.goo.gl/EhoXHJ5Em9nMYn8U6" target="_blank" rel="noopener">Open in Google Maps</a>
   </div>
+  <a class="btn" href="mailto:info@mygymlondon.co.uk">
+    <span class="ic" style="background:#233448">✉️</span><span>Email us<small>info@mygymlondon.co.uk</small></span>
+  </a>
   <a class="btn" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener">
     <span class="ic" style="background:#3a2436">📸</span><span>Instagram DM<small>Usually replies within the hour</small></span>
   </a>
   <a class="btn" href="https://www.mygymlondon.co.uk" target="_blank" rel="noopener">
     <span class="ic" style="background:#1e3327">🌐</span><span>Website<small>mygymlondon.co.uk</small></span>
   </a>
-  <div class="card" style="text-align:center">
-    <b>Opening hours</b>
-    <p class="sub" style="margin:6px 0 0">Mon–Fri: early till late<br>Sat–Sun: class times<br><span style="color:var(--acc)">Members get exact access hours on joining.</span></p>
-  </div>
 </section>
 
-<footer>MY GYM London · made with 💚 in Bush Hill Park</footer>
+<footer>MY GYM London · Main Avenue, Bush Hill Park, Enfield EN1 1DS · <a href="mailto:info@mygymlondon.co.uk">info@mygymlondon.co.uk</a></footer>
 </main>
 
-<nav>
+<!-- guest nav -->
+<nav id="navGuest" class="show">
   <div class="nwrap">
     <button data-v="home" class="sel"><span class="ic">🏠</span>Home</button>
     <button data-v="timetable"><span class="ic">🗓️</span>Classes</button>
@@ -251,56 +434,21 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
     <button data-v="contact"><span class="ic">📍</span>Find us</button>
   </div>
 </nav>
+<!-- member nav -->
+<nav id="navMember">
+  <div class="nwrap">
+    <button data-v="mhome" class="sel"><span class="ic">🏠</span>Home</button>
+    <button data-v="book"><span class="ic">🗓️</span>Book</button>
+    <button data-v="log"><span class="ic">🏋️</span>Log</button>
+    <button data-v="templates"><span class="ic">📋</span>Plans</button>
+    <button data-v="profile"><span class="ic">👤</span>Me</button>
+  </div>
+</nav>
 
-<script>
-/* ---------- timetable data (edit me: app/timetable.js) ---------- */
-</script>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script src="db.js"></script>
 <script src="timetable.js"></script>
-<script>
-/* ---------- navigation ---------- */
-function go(v){
-  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
-  document.querySelectorAll('.nwrap button').forEach(b=>b.classList.toggle('sel',b.dataset.v===v));
-  window.scrollTo({top:0});
-}
-document.querySelectorAll('.nwrap button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
-if(location.hash){const h=location.hash.slice(1);if(document.getElementById(h))go(h);}
-
-/* ---------- timetable render ---------- */
-const days=Object.keys(TIMETABLE);
-const tabsEl=document.getElementById('dayTabs'),slotsEl=document.getElementById('slots');
-function renderDay(d){
-  tabsEl.querySelectorAll('button').forEach(b=>b.classList.toggle('sel',b.textContent===d));
-  const slots=TIMETABLE[d];
-  slotsEl.innerHTML = slots.length ? slots.map(s=>
-    `<div class="slot"><span class="time">${s.time}</span><span class="what"><b>${s.name}</b><small>${s.coach||''}${s.info?' · '+s.info:''}</small></span></div>`
-  ).join('') : `<div class="card" style="text-align:center;color:var(--mut)">Rest day — see you tomorrow! 🛋️</div>`;
-}
-days.forEach((d,i)=>{
-  const b=document.createElement('button');b.textContent=d;
-  b.onclick=()=>renderDay(d);tabsEl.appendChild(b);
-});
-const todayName=new Date().toLocaleDateString('en-GB',{weekday:'long'});
-renderDay(days.includes(todayName)?todayName:days[0]);
-
-/* ---------- install prompt ---------- */
-let deferredPrompt;
-const installBtn=document.getElementById('installBtn');
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='block';});
-installBtn.addEventListener('click',async()=>{
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt=null;installBtn.style.display='none';
-});
-
-/* ---------- offline indicator + service worker ---------- */
-const tag=document.getElementById('offlineTag');
-function net(){tag.style.display=navigator.onLine?'none':'block';}
-window.addEventListener('online',net);window.addEventListener('offline',net);net();
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>

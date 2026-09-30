@@ -1,10 +1,14 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v1';
+const CACHE = 'mygym-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './timetable.js',
+  './app.js',
+  './db.js',
+  './config.js',
+  './vendor/supabase.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-512.png',
@@ -29,7 +33,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return; // never touch external links
 
-  if (e.request.url.includes('timetable.js') || e.request.url.includes('index.html') || url.pathname.endsWith('/')) {
+  if (e.request.url.includes('timetable.js') || e.request.url.includes('app.js') || e.request.url.includes('index.html') || url.pathname.endsWith('/')) {
     e.respondWith(
       fetch(e.request)
         .then(res => {

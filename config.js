@@ -1,8 +1,5 @@
-/* MY GYM London — backend config
-   Paste your Supabase Project URL and anon public key below
-   (Supabase Dashboard -> Settings -> API Keys).
-   Until then the app runs in DEMO MODE (data stored on-device only). */
+/* MY GYM London - backend config (Supabase free tier) */
 window.MYGYM_CONFIG = {
   SUPABASE_URL: "https://ldmksxyilykyfnqnuytv.supabase.co",
-  SUPABASE_ANON_KEY: "sb_pub…2Npw_ezH3H842"
+  SUPABASE_ANON_KEY: "sb_publishable_6IjSUjrfZNgKG_denb2Npw_ezH3H842"
 };

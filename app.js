@@ -88,8 +88,8 @@
     $('#aSubmit').disabled = true;
     try {
       if (authMode === 'up') {
-        await DB.signUp(email, pass, $('#aName').value.trim());
-        if (DB.isLive()) {
+        const res = await DB.signUp(email, pass, $('#aName').value.trim());
+        if (DB.isLive() && !(res && res.session)) {
           $('#authSub').textContent = '✅ Account created — check your email to confirm, then log in.';
           authMode = 'in';
           $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === 'in'));

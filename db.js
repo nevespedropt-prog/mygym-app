@@ -54,7 +54,7 @@
       });
       if (error) throw error;
       if (data.user && !data.session) throw new Error('CHECK_EMAIL');
-      return { email };
+      return { email, session: data.session };
     },
 
     async signIn(email, password) {

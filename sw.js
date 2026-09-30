@@ -1,5 +1,5 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v3';
+const CACHE = 'mygym-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return; // never touch external links
 
-  if (e.request.url.includes('timetable.js') || e.request.url.includes('app.js') || e.request.url.includes('index.html') || url.pathname.endsWith('/')) {
+  if (e.request.url.includes('timetable.js') || e.request.url.includes('app.js') || e.request.url.includes('config.js') || e.request.url.includes('db.js') || e.request.url.includes('index.html') || url.pathname.endsWith('/')) {
     e.respondWith(
       fetch(e.request)
         .then(res => {

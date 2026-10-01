@@ -51,11 +51,12 @@ create table if not exists public.workout_logs (
   user_id uuid not null references auth.users(id) on delete cascade,
   date text not null,
   title text default '',
-  exercise text not null,
+  exercise text,
   sets int,
   reps text,
   weight_kg numeric,
   notes text default '',
+  exercises jsonb,
   created_at timestamptz not null default now()
 );
 

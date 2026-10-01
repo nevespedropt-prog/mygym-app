@@ -322,46 +322,112 @@
     if (b.dataset.t === 'body') { $('#kgDate').value = fmtISO(new Date()); renderBody(); }
   }));
 
-  function renderLog() { renderWorkouts(); }
+  function renderLog() { renderWorkouts(); ensureBuilder(); }
+
+  /* ---- multi-exercise workout builder ---- */
+  function fieldNum(label, cls, type, ph, val, step) {
+    const f = el('div', 'field');
+    f.appendChild(el('label', '', label));
+    const i = el('input'); i.className = cls; i.type = type; i.placeholder = ph;
+    if (type === 'number') { i.inputMode = 'decimal'; if (step) i.step = step; else i.min = '1'; }
+    if (val != null && val !== '') i.value = val;
+    f.appendChild(i); return f;
+  }
+  function exerciseRow(data) {
+    data = data || {};
+    const row = el('div', 'exrow');
+    const del = el('button', 'ex-del', '✕'); del.type = 'button'; del.title = 'Remove exercise';
+    del.addEventListener('click', () => {
+      row.remove(); renumberEx();
+      if (!$('#exList .exrow')) addExercise();
+    });
+    row.appendChild(del);
+    row.appendChild(el('div', 'exhead', 'Exercise'));
+    const nf = el('div', 'field');
+    nf.appendChild(el('label', '', 'Name'));
+    const name = el('input'); name.className = 'ex-name'; name.placeholder = 'e.g. Goblet squat'; name.value = data.name || '';
+    nf.appendChild(name); row.appendChild(nf);
+    const r3 = el('div', 'row3');
+    r3.appendChild(fieldNum('Sets', 'ex-sets', 'number', '3', data.sets));
+    r3.appendChild(fieldNum('Reps', 'ex-reps', 'text', '10', data.reps));
+    r3.appendChild(fieldNum('Weight (kg)', 'ex-weight', 'number', '12', data.weight, '0.5'));
+    row.appendChild(r3);
+    return row;
+  }
+  function addExercise(data) { $('#exList').appendChild(exerciseRow(data)); renumberEx(); }
+  function renumberEx() {
+    $$('#exList .exrow').forEach((r, i) => { const h = r.querySelector('.exhead'); if (h) h.textContent = 'Exercise ' + (i + 1); });
+  }
+  function ensureBuilder() { if (!$('#exList .exrow')) addExercise(); }
+  function collectExercises() {
+    return $$('#exList .exrow').map((r) => ({
+      name: (r.querySelector('.ex-name').value || '').trim(),
+      sets: parseInt(r.querySelector('.ex-sets').value, 10) || null,
+      reps: (r.querySelector('.ex-reps').value || '').trim() || null,
+      weight: parseFloat(r.querySelector('.ex-weight').value) || null
+    })).filter((x) => x.name || x.sets || x.reps || x.weight);
+  }
+
+  $('#addEx').addEventListener('click', () => { addExercise(); const n = $$('#exList .ex-name'); if (n.length) n[n.length - 1].focus(); });
 
   $('#wSave').addEventListener('click', async () => {
-    const exercise = $('#wExercise').value.trim();
-    if (!exercise) return toast($('#wErr'), 'What did you do? e.g. Goblet squat', true);
+    const exs = collectExercises();
+    if (!exs.length || !exs.some((x) => x.name)) return toast($('#wErr'), 'Add at least one exercise with a name.', true);
+    const title = ($('#wTitle').value || '').trim();
     const entry = {
-      date: fmtISO(new Date()), title: '', exercise,
-      sets: parseInt($('#wSets').value, 10) || null,
-      reps: $('#wReps').value.trim() || null,
-      weight_kg: parseFloat($('#wWeight').value) || null,
-      notes: $('#wNotes').value.trim() || ''
+      date: fmtISO(new Date()),
+      title: title,
+      exercise: (exs.map((x) => x.name).filter(Boolean).join(', ') || (exs.length + ' exercises')).slice(0, 140),
+      exercises: exs,
+      notes: ''
     };
     $('#wSave').disabled = true;
     try {
       await DB.addWorkout(entry);
-      ['#wExercise', '#wSets', '#wReps', '#wWeight', '#wNotes'].forEach((s) => ($(s).value = ''));
+      $('#wTitle').value = ''; $('#exList').textContent = ''; addExercise();
       renderWorkouts(); renderDash();
     } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); }
     $('#wSave').disabled = false;
   });
 
+  function exListOf(w) {
+    if (Array.isArray(w.exercises) && w.exercises.length) return w.exercises;
+    return [{ name: w.exercise || 'Exercise', sets: w.sets, reps: w.reps, weight: (w.weight_kg != null ? w.weight_kg : null), note: w.notes }];
+  }
+  function exDesc(x) {
+    const sr = (x.sets ? x.sets + '×' : '') + (x.reps ? x.reps : '');
+    const wt = (x.weight != null && x.weight !== '') ? x.weight + 'kg' : '';
+    if (sr && wt) return sr + ' @ ' + wt;
+    return sr || wt || '';
+  }
+
   async function renderWorkouts() {
     const box = $('#wHistory'); box.textContent = '';
-    let logs = []; try { logs = await DB.getWorkouts(50); } catch (e) {}
+    let logs = []; try { logs = await DB.getWorkouts(60); } catch (e) {}
     if (!logs.length) { box.appendChild(el('p', 'note', 'No workouts logged yet. Your first one is waiting 💪')); return; }
     logs.forEach((w) => {
-      const row = el('div', 'wlog');
-      const left = el('div');
-      left.appendChild(el('b', '', w.title ? w.title + ' — ' + w.exercise : w.exercise));
-      const bits = [];
-      if (w.sets) bits.push(w.sets + ' sets');
-      if (w.reps) bits.push(w.reps + ' reps');
-      if (w.weight_kg) bits.push(w.weight_kg + ' kg');
-      if (w.notes) bits.push(w.notes);
-      left.appendChild(el('small', '', fmtShort(w.date) + (bits.length ? ' · ' + bits.join(' · ') : '')));
-      row.appendChild(left);
+      const exs = exListOf(w);
+      const sess = el('div', 'wlog-session');
+      const head = el('div', 'wlog-head');
+      const t = el('div');
+      t.appendChild(el('b', '', w.title || 'Workout'));
+      t.appendChild(el('small', '', fmtShort(w.date) + ' · ' + exs.length + (exs.length === 1 ? ' exercise' : ' exercises')));
+      head.appendChild(t);
       const del = el('button', 'del', '✕');
-      del.addEventListener('click', async () => { await DB.deleteWorkout(w.id).catch(() => {}); renderWorkouts(); });
-      row.appendChild(del);
-      box.appendChild(row);
+      del.addEventListener('click', async () => { await DB.deleteWorkout(w.id).catch(() => {}); renderWorkouts(); renderDash(); });
+      head.appendChild(del);
+      sess.appendChild(head);
+      const ul = el('div', 'wlog-ex');
+      exs.forEach((x) => {
+        const line = el('div', 'wlog-line');
+        line.appendChild(el('b', '', x.name || 'Exercise'));
+        const d = exDesc(x);
+        if (d) line.appendChild(el('span', 'nn', ' — ' + d));
+        if (x.note) line.appendChild(el('span', 'nn', ' · ' + x.note));
+        ul.appendChild(line);
+      });
+      sess.appendChild(ul);
+      box.appendChild(sess);
     });
   }
 
@@ -555,9 +621,8 @@
       logBtn.addEventListener('click', async (e) => {
         e.stopPropagation(); logBtn.disabled = true;
         try {
-          for (const x of (t.exercises || [])) {
-            await DB.addWorkout({ date: fmtISO(new Date()), title: t.name, exercise: x.name, sets: x.sets || null, reps: x.reps ? String(x.reps) : null, weight_kg: null, notes: x.note || '' });
-          }
+          const exs = (t.exercises || []).map((x) => ({ name: x.name, sets: x.sets || null, reps: x.reps ? String(x.reps) : null, weight: null, note: x.note || '' }));
+          await DB.addWorkout({ date: fmtISO(new Date()), title: t.name, exercise: (exs.map((x) => x.name).join(', ') || t.name).slice(0, 140), exercises: exs, notes: '' });
           logBtn.textContent = '✅ Logged!';
           setTimeout(() => { logBtn.textContent = '🏋️ Log this plan'; }, 2500);
         } catch (err) { logBtn.textContent = 'Error'; }

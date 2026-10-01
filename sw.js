@@ -1,5 +1,5 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v7';
+const CACHE = 'mygym-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,9 @@ const ASSETS = [
   './icons/icon-512.png',
   './icons/maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/logo-header.png'
+  './icons/logo-header.png',
+  './icons/favicon.ico',
+  './icons/favicon-32.png'
 ];
 
 self.addEventListener('install', e => {

@@ -9,8 +9,11 @@
 <meta name="description" content="Your private community gym in Bush Hill Park, Enfield. Book classes, log workouts, track progress.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/favicon.ico?v=8" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=8">
+<link rel="shortcut icon" href="icons/favicon.ico?v=8">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="MY GYM">
@@ -136,6 +139,29 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .wlog:last-child{border-bottom:none}
 .wlog small{color:var(--mut);display:block}
 .wlog .del{background:none;border:none;color:var(--mut);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0}
+.del{background:none;border:none;color:var(--mut);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0}
+/* multi-exercise builder */
+.row3{display:flex;gap:8px}
+.row3 .field{flex:1;min-width:0}
+.exrow{position:relative;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--card2)}
+.exrow .ex-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--mut);font-size:15px;cursor:pointer;padding:2px 7px;z-index:2}
+.exrow .ex-del:active{color:var(--acc)}
+.exrow .field{margin-bottom:8px}
+.exrow .row3{margin-bottom:0}
+.exrow .row3 .field{margin-bottom:0}
+.exrow label{font-size:11px}
+.exhead{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.4px;margin-bottom:8px;padding-right:26px;text-transform:uppercase}
+/* grouped session history */
+.wlog-session{padding:12px 0;border-bottom:1px solid var(--line)}
+.wlog-session:first-child{padding-top:0}
+.wlog-session:last-child{border-bottom:none;padding-bottom:0}
+.wlog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.wlog-head b{font-size:15px}
+.wlog-head small{display:block;color:var(--mut);font-size:12.5px;margin-top:1px}
+.wlog-ex{margin-top:8px}
+.wlog-line{font-size:13.5px;padding:3px 0;color:var(--mut)}
+.wlog-line b{color:var(--txt);font-weight:700}
+.wlog-line .nn{color:var(--mut)}
 .price-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .price-row b{font-size:15.5px}
 .price-row .p{color:var(--acc);font-weight:800;font-size:15.5px;white-space:nowrap}
@@ -285,13 +311,9 @@ nav.show{display:block}
   </div>
   <div id="paneWorkouts">
     <div class="card">
-      <div class="field"><label>Exercise / session</label><input id="wExercise" placeholder="e.g. Goblet squat or 'Monday Blast'"></div>
-      <div class="row2">
-        <div class="field"><label>Sets</label><input id="wSets" type="number" inputmode="numeric" min="1" placeholder="3"></div>
-        <div class="field"><label>Reps</label><input id="wReps" placeholder="10"></div>
-        <div class="field"><label>Weight (kg)</label><input id="wWeight" type="number" inputmode="decimal" step="0.5" placeholder="12"></div>
-      </div>
-      <div class="field"><label>Notes (optional)</label><input id="wNotes" placeholder="Felt strong today!"></div>
+      <div class="field"><label>Session name (optional)</label><input id="wTitle" placeholder="e.g. Push day · Full body · Monday Blast"></div>
+      <div id="exList"></div>
+      <button class="btn-small mut" id="addEx" type="button" style="margin:2px 0 12px;width:100%">+ Add exercise</button>
       <div class="err" id="wErr"></div>
       <button class="cta" id="wSave" style="margin:4px 0 0">Save workout</button>
     </div>

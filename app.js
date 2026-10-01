@@ -10,10 +10,8 @@
     const p = (n) => String(n).padStart(2, '0');
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   };
-  const fmtShort = (iso) => {
-    const d = new Date(iso + 'T12:00:00');
-    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-  };
+  const fmtShort = (iso) => new Date(iso + 'T12:00:00')
+    .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   function el(tag, cls, text) {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -21,29 +19,37 @@
     return n;
   }
   const toast = (node, msg, isErr) => {
+    if (!node) return;
     node.textContent = msg || '';
     node.className = isErr ? 'err' : 'ok';
     if (msg) setTimeout(() => { if (node.textContent === msg) node.textContent = ''; }, 4000);
   };
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dowOf = (iso) => DAY_NAMES[new Date(iso + 'T12:00:00').getDay()];
 
   /* ---------- state ---------- */
   let authed = false;
-  let me = null;        // {id,email}
+  let me = null;
   let profile = null;
-  let classes = [];     // DB classes (live) or demo list
+  let classes = [];
   let selDate = fmtISO(new Date());
+  const MEMBER_VIEWS = ['bookings', 'log', 'progress'];
+  const WEEK_GOAL = 3;
 
   /* ---------- navigation ---------- */
   function go(v) {
-    $$('.view').forEach((s) => s.classList.toggle('active', s.id === v));
+    if (MEMBER_VIEWS.indexOf(v) !== -1 && !authed) v = 'login';
+    const actual = (v === 'home') ? (authed ? 'mhome' : 'home') : v;
+    $$('.view').forEach((s) => s.classList.toggle('active', s.id === actual));
     $$('.nwrap button').forEach((b) => b.classList.toggle('sel', b.dataset.v === v));
     window.scrollTo({ top: 0 });
-    if (v === 'book' && authed) renderBook();
-    if (v === 'log' && authed) renderLog();
-    if (v === 'templates' && authed) renderTemplates();
-    if (v === 'profile' && authed) renderProfile();
-    if (v === 'mhome' && authed) renderMHome();
-    if (v === 'timetable') renderPublicTimetable();
+    if (actual === 'mhome') renderDash();
+    if (actual === 'timetable') renderTimetable();
+    if (actual === 'bookings') renderBookings();
+    if (actual === 'log') renderLog();
+    if (actual === 'progress') renderProgress();
+    if (actual === 'profile') renderProfile();
+    if (actual === 'message' && profile) $('#msgName').value = profile.full_name || '';
   }
   window.__mygymGo = go;
 
@@ -51,20 +57,17 @@
   $$('[data-goto]').forEach((a) => a.addEventListener('click', (e) => {
     e.preventDefault();
     go(a.dataset.goto);
-    history.replaceState(null, '', '#' + a.dataset.goto);
   }));
 
   function setNav() {
-    $('#navGuest').classList.toggle('show', !authed);
-    $('#navMember').classList.toggle('show', authed);
     const ab = $('#authBtn');
     ab.textContent = authed ? '👤 Me' : 'Log in';
+    ab.classList.toggle('ghost', !authed);
     $('#demoBanner').style.display = DB.isLive() ? 'none' : 'block';
   }
-
   $('#authBtn').addEventListener('click', () => go(authed ? 'profile' : 'login'));
 
-  /* ---------- auth flow ---------- */
+  /* ---------- auth ---------- */
   let authMode = 'in';
   $$('#authSeg button').forEach((b) => b.addEventListener('click', () => {
     authMode = b.dataset.t;
@@ -75,7 +78,7 @@
     $('#authTitle').textContent = authMode === 'up' ? 'Join MY GYM' : 'Member login';
     $('#authSub').textContent = authMode === 'up'
       ? 'Free account — book classes, log workouts, track progress. No contract.'
-      : 'Welcome back! Log in to book classes and track progress.';
+      : 'Log in to book classes and track progress.';
     $('#aErr').textContent = '';
   }));
 
@@ -126,225 +129,206 @@
     classes = await DB.getClasses().catch(() => []);
     setNav();
     $('#aPass').value = '';
-    go('mhome');
+    go('home');
   }
 
-  /* ---------- public timetable (guests) ---------- */
-  const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  let pubTT = null;
-
-  async function renderPublicTimetable() {
-    if (pubTT) return;
-    let byDay = {};
-    if (DB.isLive()) {
-      try {
-        const rows = await DB.getClasses();
-        if (rows && rows.length) {
-          DAY_ORDER.forEach((d) => (byDay[d] = []));
-          rows.forEach((c) => {
-            (byDay[c.day_name] = byDay[c.day_name] || []).push(
-              { time: c.start_time, name: c.name, coach: c.coach || '', info: c.info || '' });
-          });
-          DAY_ORDER.forEach((d) => {
-            const arr = byDay[d] || [];
-            arr.sort((a, b) => a.time.localeCompare(b.time));
-            if (!arr.length) delete byDay[d];
-          });
-        }
-      } catch (e) { byDay = {}; }
-    }
-    if (!Object.keys(byDay).length) byDay = (typeof TIMETABLE !== 'undefined') ? TIMETABLE : {};
-    pubTT = byDay;
-    const tabsEl = $('#dayTabs');
-    tabsEl.textContent = '';
-    Object.keys(pubTT).forEach((d) => {
-      const b = el('button', '', d.slice(0, 3));
-      b.dataset.day = d;
-      b.addEventListener('click', () => renderPubDay(d));
-      tabsEl.appendChild(b);
-    });
-    const today = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
-    renderPubDay(pubTT[today] ? today : Object.keys(pubTT)[0]);
-  }
-
-  function renderPubDay(d) {
-    $$('#dayTabs button').forEach((b) => b.classList.toggle('sel', b.dataset.day === d));
-    const box = $('#slots');
-    box.textContent = '';
-    const slots = pubTT[d] || [];
-    if (!slots.length) {
-      box.appendChild(el('div', 'card note', 'Rest day — see you tomorrow! 🛋️'));
-      return;
-    }
-    slots.forEach((s) => {
-      const row = el('div', 'slot');
-      row.appendChild(el('span', 'time', s.time));
-      const what = el('span', 'what');
-      what.appendChild(el('b', '', s.name));
-      what.appendChild(el('small', '', [s.coach, s.info].filter(Boolean).join(' · ')));
-      row.appendChild(what);
-      box.appendChild(row);
-    });
-  }
-
-  /* ---------- member home ---------- */
-  async function renderMHome() {
-    const name = (profile && profile.full_name) ? profile.full_name.split(' ')[0] : '';
-    $('#helloName').textContent = name ? 'Hi ' + name + ' 💚' : 'Welcome back 💚';
-    try {
-      const wins = await DB.getWorkouts(100);
-      const monday = new Date();
-      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-      const monISO = fmtISO(monday);
-      $('#statWeek').textContent = wins.filter((w) => w.date >= monISO).length;
-      const wts = await DB.getWeights();
-      $('#statWeight').textContent = wts.length ? wts[wts.length - 1].kg + 'kg' : '–';
-      const upcoming = await myUpcoming();
-      if (upcoming.length) {
-        const nx = upcoming[0];
-        $('#statNext').textContent = fmtShort(nx.date).replace(/ \d{4}$/, '');
-        $('#nextWrap').style.display = 'block';
-        const c = $('#nextCard');
-        c.textContent = '';
-        const row = el('div', 'slot');
-        row.appendChild(el('span', 'time', nx.class.start_time));
-        const what = el('span', 'what');
-        what.appendChild(el('b', '', nx.class.name));
-        what.appendChild(el('small', '', fmtShort(nx.date) + ' · manage in Book tab'));
-        row.appendChild(what);
-        c.appendChild(row);
-      } else {
-        $('#statNext').textContent = '–';
-        $('#nextWrap').style.display = 'none';
-      }
-    } catch (e) { /* offline / not ready */ }
-  }
-
-  async function myUpcoming() {
-    const today = fmtISO(new Date());
-    const dates = [];
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(); d.setDate(d.getDate() + i); dates.push(fmtISO(d));
-    }
-    const all = await DB.getBookingsForDates(dates);
-    const mine = all.filter((b) => b.user_id === me.id && b.date >= today);
-    mine.sort((a, b) => a.date.localeCompare(b.date));
-    return mine.map((b) => ({ booking: b, date: b.date, class: classes.find((c) => c.id === b.class_id) }))
-      .filter((x) => x.class);
-  }
-
-  /* ---------- booking view ---------- */
-  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-  async function renderBook() {
+  /* ---------- shared: fetch classes ---------- */
+  async function ensureClasses() {
     if (!classes.length) classes = await DB.getClasses().catch(() => []);
+    return classes;
+  }
+
+  /* ---------- TIMETABLE (everyone; booking for members) ---------- */
+  async function renderTimetable() {
+    await ensureClasses();
     const strip = $('#dateStrip');
     strip.textContent = '';
-    const dates = [];
     for (let i = 0; i < 14; i++) {
       const d = new Date(); d.setDate(d.getDate() + i);
       const iso = fmtISO(d);
-      dates.push(iso);
       const b = el('button');
       b.appendChild(el('span', 'dow', i === 0 ? 'Today' : DAY_NAMES[d.getDay()].slice(0, 3)));
       b.appendChild(el('span', 'dnum', String(d.getDate())));
       if (iso === selDate) b.classList.add('sel');
-      b.addEventListener('click', () => { selDate = iso; renderBook(); });
+      b.addEventListener('click', () => { selDate = iso; renderTimetable(); });
       strip.appendChild(b);
     }
-    let allBookings = [];
-    try { allBookings = await DB.getBookingsForDates(dates); } catch (e) {}
+    $('#ttHeadline').textContent = authed
+      ? 'Pick a day and grab your spot. Cancel any time.'
+      : 'Our weekly classes. Join free to book your spot.';
 
-    const dayName = DAY_NAMES[new Date(selDate + 'T12:00:00').getDay()];
-    const dayClasses = classes.filter((c) => c.day_name === dayName);
+    let allBookings = [];
+    if (authed) { try { allBookings = await DB.getBookingsForDates(window14()); } catch (e) {} }
+
+    const dayClasses = classes.filter((c) => c.day_name === dowOf(selDate));
     const box = $('#bookSlots');
     box.textContent = '';
     if (!dayClasses.length) {
-      box.appendChild(el('div', 'card note', 'No classes on ' + dayName + ' — rest days build muscle too 🛋️'));
+      box.appendChild(el('div', 'card note', 'No classes on ' + dowOf(selDate) + ' — rest days build muscle too 🛋️'));
     }
-    dayClasses.forEach((c) => {
-      const cbs = allBookings.filter((b) => b.class_id === c.id && b.date === selDate);
-      const mine = cbs.find((b) => b.user_id === me.id);
+    dayClasses.forEach((c) => box.appendChild(slotRow(c, selDate, allBookings)));
+    $('#ttNote').textContent = authed ? '' : 'Tap “Log in” to book — it takes 10 seconds.';
+  }
+
+  function window14() {
+    const dates = [];
+    for (let i = 0; i < 14; i++) { const d = new Date(); d.setDate(d.getDate() + i); dates.push(fmtISO(d)); }
+    return dates;
+  }
+
+  function slotRow(c, iso, allBookings) {
+    const row = el('div', 'slot');
+    const t = el('span', 'time', c.start_time);
+    row.appendChild(t);
+    const what = el('span', 'what');
+    what.appendChild(el('b', '', c.name));
+    what.appendChild(el('small', '', [c.coach, c.info].filter(Boolean).join(' · ')));
+    if (authed) {
+      const cbs = allBookings.filter((b) => b.class_id === c.id && b.date === iso);
       const left = (c.capacity || 8) - cbs.length;
-      const row = el('div', 'slot');
-      row.appendChild(el('span', 'time', c.start_time));
-      const what = el('span', 'what');
-      what.appendChild(el('b', '', c.name));
-      what.appendChild(el('small', '', [c.coach, c.info].filter(Boolean).join(' · ')));
       what.appendChild(el('small', 'spots ' + (left > 0 ? 'free' : 'full'),
         left > 0 ? left + ' spot' + (left === 1 ? '' : 's') + ' left' : 'FULL'));
-      row.appendChild(what);
-      const act = el('span', 'act');
-      const btn = el('button', 'btn-small');
-      if (mine) {
-        btn.textContent = 'Cancel';
-        btn.className = 'btn-small danger';
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          try { await DB.cancel(mine.id); renderBook(); } catch (e) { btn.disabled = false; }
-        });
-      } else {
-        btn.textContent = 'Book';
-        btn.disabled = left <= 0;
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          try { await DB.book(c.id, selDate); renderBook(); } catch (e) { btn.disabled = false; }
-        });
-      }
-      act.appendChild(btn);
-      row.appendChild(act);
-      box.appendChild(row);
-    });
-    renderMyBookings(allBookings);
-  }
-
-  function renderMyBookings(allBookings) {
-    const box = $('#myBookings');
-    box.textContent = '';
-    const today = fmtISO(new Date());
-    const mine = allBookings
-      .filter((b) => b.user_id === me.id && b.date >= today)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    if (!mine.length) {
-      box.appendChild(el('p', 'note', 'Nothing booked yet — your next session is one tap away.'));
-      return;
     }
-    mine.forEach((b) => {
-      const c = classes.find((x) => x.id === b.class_id);
-      if (!c) return;
-      const row = el('div', 'slot');
-      row.appendChild(el('span', 'time', c.start_time));
-      const what = el('span', 'what');
-      what.appendChild(el('b', '', c.name));
-      what.appendChild(el('small', '', fmtShort(b.date)));
-      row.appendChild(what);
-      const act = el('span', 'act');
-      const btn = el('button', 'btn-small danger', 'Cancel');
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        try { await DB.cancel(b.id); renderBook(); } catch (e) { btn.disabled = false; }
-      });
-      act.appendChild(btn);
-      row.appendChild(act);
-      box.appendChild(row);
-    });
+    row.appendChild(what);
+    const act = el('span', 'act');
+    if (!authed) {
+      const b = el('button', 'btn-small', 'Log in');
+      b.addEventListener('click', () => go('login'));
+      act.appendChild(b);
+    } else {
+      const mine = allBookings.find((b) => b.class_id === c.id && b.date === iso && b.user_id === me.id);
+      const cbs = allBookings.filter((b) => b.class_id === c.id && b.date === iso);
+      const left = (c.capacity || 8) - cbs.length;
+      const b = el('button', 'btn-small');
+      if (mine) {
+        b.textContent = 'Cancel'; b.className = 'btn-small ghost';
+        b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); renderTimetable(); } catch (e) { b.disabled = false; } });
+      } else {
+        b.textContent = 'Book'; b.disabled = left <= 0;
+        b.addEventListener('click', async () => { b.disabled = true; try { await DB.book(c.id, iso); renderTimetable(); } catch (e) { b.disabled = false; } });
+      }
+      act.appendChild(b);
+    }
+    row.appendChild(act);
+    return row;
   }
 
-  /* ---------- workout log ---------- */
+  /* ---------- DASHBOARD (member home) ---------- */
+  async function renderDash() {
+    const first = (profile && profile.full_name) ? profile.full_name.split(' ')[0] : '';
+    $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
+    try {
+      const wins = await DB.getWorkouts(200);
+      const monday = new Date(); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      const monISO = fmtISO(monday);
+      const weekCount = wins.filter((w) => w.date >= monISO).length;
+      $('#statWeek').textContent = weekCount;
+      const pct = Math.min(100, Math.round((weekCount / WEEK_GOAL) * 100));
+      $('#goalBar').style.width = pct + '%';
+      $('#goalTxt').textContent = weekCount + '/' + WEEK_GOAL + (weekCount >= WEEK_GOAL ? ' done — goal smashed! 🎉' : ' done — keep going!');
+
+      const up = await upcomingBookings();
+      $('#statBooked').textContent = up.length;
+      if (up.length) {
+        $('#nextWrap').style.display = 'block';
+        const c = $('#nextCard'); c.textContent = '';
+        const x = up[0];
+        const row = el('div', 'slot');
+        row.appendChild(el('span', 'time', x.class.start_time));
+        const what = el('span', 'what');
+        what.appendChild(el('b', '', x.class.name));
+        what.appendChild(el('small', '', fmtShort(x.date) + ' · ' + dowOf(x.date)));
+        row.appendChild(what);
+        c.appendChild(row);
+      } else {
+        $('#nextWrap').style.display = 'none';
+      }
+
+      const wts = await DB.getWeights();
+      const lastW = wts.filter((w) => w.kg).slice(-1)[0];
+      $('#statWeight').textContent = lastW ? lastW.kg + 'kg' : '–';
+
+      // today's classes
+      const today = fmtISO(new Date());
+      await ensureClasses();
+      let todayBookings = [];
+      try { todayBookings = await DB.getBookingsForDates([today]); } catch (e) {}
+      const todays = classes.filter((c) => c.day_name === dowOf(today));
+      const tl = $('#todayList'); tl.textContent = '';
+      if (!todays.length) tl.appendChild(el('div', 'card note', 'No classes today — perfect day to log a workout 💪'));
+      todays.forEach((c) => tl.appendChild(slotRow(c, today, todayBookings)));
+    } catch (e) { /* offline */ }
+  }
+
+  async function upcomingBookings() {
+    const today = fmtISO(new Date());
+    const all = await DB.getBookingsForDates(window14());
+    return all
+      .filter((b) => b.user_id === me.id && b.date >= today)
+      .sort((a, b) => (a.date + a.class_id).localeCompare(b.date + b.class_id))
+      .map((b) => ({ booking: b, date: b.date, class: classes.find((c) => c.id === b.class_id) }))
+      .filter((x) => x.class);
+  }
+
+  /* ---------- BOOKINGS (member) ---------- */
+  async function renderBookings() {
+    await ensureClasses();
+    const up = $('#upcomingBox'); up.textContent = '';
+    let upcoming = [];
+    try { upcoming = await upcomingBookings(); } catch (e) {}
+    if (!upcoming.length) {
+      up.appendChild(el('p', 'note', 'Nothing booked yet — your next session is one tap away in Timetable.'));
+    }
+    upcoming.forEach((x) => {
+      const row = el('div', 'slot');
+      row.appendChild(el('span', 'time', x.class.start_time));
+      const what = el('span', 'what');
+      what.appendChild(el('b', '', x.class.name));
+      what.appendChild(el('small', '', fmtShort(x.date) + ' · ' + dowOf(x.date)));
+      row.appendChild(what);
+      const act = el('span', 'act');
+      const b = el('button', 'btn-small ghost', 'Cancel');
+      b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(x.booking.id); renderBookings(); } catch (e) { b.disabled = false; } });
+      act.appendChild(b);
+      row.appendChild(act);
+      up.appendChild(row);
+    });
+
+    // recent history (past 30 days)
+    const past = $('#pastBox'); past.textContent = '';
+    let hist = [];
+    try { hist = await DB.getPastBookings(30); } catch (e) {}
+    if (!hist.length) {
+      past.appendChild(el('p', 'note', 'Attended classes will show up here.'));
+    } else {
+      hist.forEach((b) => {
+        const c = classes.find((x) => x.id === b.class_id);
+        const row = el('div', 'wlog');
+        const left = el('div');
+        left.appendChild(el('b', '', c ? c.name : 'Class'));
+        left.appendChild(el('small', '', fmtShort(b.date) + (c ? ' · ' + c.start_time : '')));
+        row.appendChild(left);
+        row.appendChild(el('small', '✅', ''));
+        past.appendChild(row);
+      });
+    }
+  }
+
+  /* ---------- LOG (member) ---------- */
   $$('#logSeg button').forEach((b) => b.addEventListener('click', () => {
     $$('#logSeg button').forEach((x) => x.classList.toggle('sel', x === b));
     $('#paneWorkouts').style.display = b.dataset.t === 'workouts' ? 'block' : 'none';
-    $('#paneWeight').style.display = b.dataset.t === 'weight' ? 'block' : 'none';
-    if (b.dataset.t === 'weight') { $('#kgDate').value = fmtISO(new Date()); renderWeights(); }
+    $('#paneBody').style.display = b.dataset.t === 'body' ? 'block' : 'none';
+    if (b.dataset.t === 'body') { $('#kgDate').value = fmtISO(new Date()); renderBody(); }
   }));
+
+  function renderLog() { renderWorkouts(); }
 
   $('#wSave').addEventListener('click', async () => {
     const exercise = $('#wExercise').value.trim();
     if (!exercise) return toast($('#wErr'), 'What did you do? e.g. Goblet squat', true);
     const entry = {
-      date: fmtISO(new Date()),
-      title: '',
-      exercise,
+      date: fmtISO(new Date()), title: '', exercise,
       sets: parseInt($('#wSets').value, 10) || null,
       reps: $('#wReps').value.trim() || null,
       weight_kg: parseFloat($('#wWeight').value) || null,
@@ -354,19 +338,14 @@
     try {
       await DB.addWorkout(entry);
       ['#wExercise', '#wSets', '#wReps', '#wWeight', '#wNotes'].forEach((s) => ($(s).value = ''));
-      renderWorkouts();
-      renderMHome().catch(() => {});
+      renderWorkouts(); renderDash();
     } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); }
     $('#wSave').disabled = false;
   });
 
-  async function renderLog() { renderWorkouts(); }
-
   async function renderWorkouts() {
-    const box = $('#wHistory');
-    box.textContent = '';
-    let logs = [];
-    try { logs = await DB.getWorkouts(50); } catch (e) {}
+    const box = $('#wHistory'); box.textContent = '';
+    let logs = []; try { logs = await DB.getWorkouts(50); } catch (e) {}
     if (!logs.length) { box.appendChild(el('p', 'note', 'No workouts logged yet. Your first one is waiting 💪')); return; }
     logs.forEach((w) => {
       const row = el('div', 'wlog');
@@ -380,10 +359,7 @@
       left.appendChild(el('small', '', fmtShort(w.date) + (bits.length ? ' · ' + bits.join(' · ') : '')));
       row.appendChild(left);
       const del = el('button', 'del', '✕');
-      del.addEventListener('click', async () => {
-        await DB.deleteWorkout(w.id).catch(() => {});
-        renderWorkouts();
-      });
+      del.addEventListener('click', async () => { await DB.deleteWorkout(w.id).catch(() => {}); renderWorkouts(); });
       row.appendChild(del);
       box.appendChild(row);
     });
@@ -392,88 +368,179 @@
   $('#kgSave').addEventListener('click', async () => {
     const date = $('#kgDate').value || fmtISO(new Date());
     const kg = parseFloat($('#kgVal').value);
-    if (!kg || kg < 20 || kg > 400) return toast($('#kgErr'), 'Enter a weight in kg (20–400).', true);
+    const bf = parseFloat($('#bfVal').value);
+    if ((!kg || kg < 20 || kg > 400) && (!bf || bf < 3 || bf > 70))
+      return toast($('#kgErr'), 'Enter a weight (kg) and/or body fat (%).', true);
     $('#kgSave').disabled = true;
     try {
-      await DB.addWeight(date, kg);
-      $('#kgVal').value = '';
-      renderWeights();
-      renderMHome().catch(() => {});
+      await DB.addWeight(date, kg || null, bf || null);
+      $('#kgVal').value = ''; $('#bfVal').value = '';
+      renderBody(); renderDash();
     } catch (e) { toast($('#kgErr'), (e && e.message) || 'Could not save', true); }
     $('#kgSave').disabled = false;
   });
 
-  async function renderWeights() {
-    const box = $('#kgHistory');
-    box.textContent = '';
-    let ws = [];
-    try { ws = await DB.getWeights(); } catch (e) {}
-    if (!ws.length) { box.appendChild(el('p', 'note', 'No weigh-ins yet. Track weekly — trends beat single numbers.')); drawChart([]); return; }
-    drawChart(ws);
-    ws.slice().reverse().slice(0, 10).forEach((w) => {
+  async function renderBody() {
+    const box = $('#kgHistory'); box.textContent = '';
+    let ws = []; try { ws = await DB.getWeights(); } catch (e) {}
+    if (!ws.length) { box.appendChild(el('p', 'note', 'No measurements yet. Track weekly — trends beat single numbers.')); return; }
+    ws.slice().reverse().slice(0, 12).forEach((w) => {
       const row = el('div', 'wlog');
-      row.appendChild(el('b', '', w.kg + ' kg'));
-      row.appendChild(el('small', '', fmtShort(w.date)));
+      const left = el('div');
+      const bits = [];
+      if (w.kg) bits.push(w.kg + ' kg');
+      if (w.body_fat_pct) bits.push(w.body_fat_pct + '% BF');
+      left.appendChild(el('b', '', bits.join(' · ') || '—'));
+      left.appendChild(el('small', '', fmtShort(w.date)));
+      row.appendChild(left);
       box.appendChild(row);
     });
   }
 
-  function drawChart(ws) {
-    const cv = $('#kgChart');
-    const ctx = cv.getContext('2d');
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    if (ws.length < 2) {
-      ctx.fillStyle = '#93a1b0';
-      ctx.font = '20px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Add 2+ weigh-ins to see your trend', cv.width / 2, cv.height / 2);
-      return;
+  /* ---------- PROGRESS (member) ---------- */
+  let progMode = 'weight';
+  $$('#progSeg button').forEach((b) => b.addEventListener('click', () => {
+    progMode = b.dataset.t;
+    $$('#progSeg button').forEach((x) => x.classList.toggle('sel', x === b));
+    renderProgress();
+  }));
+
+  async function renderProgress() {
+    const cv = $('#progChart');
+    const stats = $('#progStats'); stats.textContent = '';
+    let ws = [], wos = [];
+    try { ws = await DB.getWeights(); } catch (e) {}
+    try { wos = await DB.getWorkouts(500); } catch (e) {}
+
+    if (progMode === 'weight') {
+      const pts = ws.filter((w) => w.kg).map((w) => ({ label: fmtShort(w.date), v: Number(w.kg) }));
+      lineChart(cv, pts, 'kg');
+      statCards(stats, pts, 'kg');
+    } else if (progMode === 'bf') {
+      const pts = ws.filter((w) => w.body_fat_pct).map((w) => ({ label: fmtShort(w.date), v: Number(w.body_fat_pct) }));
+      lineChart(cv, pts, '%');
+      statCards(stats, pts, '% BF');
+    } else {
+      // weekly workout volume (last 8 weeks)
+      const weeks = [], labels = [];
+      const now = new Date();
+      for (let i = 7; i >= 0; i--) {
+        const start = new Date(now); start.setDate(now.getDate() - ((now.getDay() + 6) % 7) - i * 7);
+        const end = new Date(start); end.setDate(start.getDate() + 6);
+        const sISO = fmtISO(start), eISO = fmtISO(end);
+        weeks.push(wos.filter((w) => w.date >= sISO && w.date <= eISO).length);
+        labels.push(start.getDate() + '/' + (start.getMonth() + 1));
+      }
+      barChart(cv, weeks, labels);
+      const total = wos.length;
+      const best = weeks.length ? Math.max.apply(null, weeks) : 0;
+      const avg = weeks.length ? (weeks.reduce((a, b) => a + b, 0) / weeks.length).toFixed(1) : 0;
+      [['Total', total], ['Best week', best], ['Avg/week', avg]].forEach((s) => {
+        const d = el('div', 'stat'); d.appendChild(el('b', '', String(s[1]))); d.appendChild(el('small', '', s[0])); stats.appendChild(d);
+      });
     }
-    const pad = 46;
-    const kgs = ws.map((w) => Number(w.kg));
-    let min = Math.min.apply(null, kgs), max = Math.max.apply(null, kgs);
-    if (min === max) { min -= 1; max += 1; }
-    const X = (i) => pad + (i * (cv.width - pad * 2)) / (ws.length - 1);
-    const Y = (v) => cv.height - pad - ((v - min) * (cv.height - pad * 2)) / (max - min);
-    ctx.strokeStyle = '#2c3947'; ctx.lineWidth = 1;
-    for (let g = 0; g <= 4; g++) {
-      const y = pad / 2 + (g * (cv.height - pad)) / 4;
-      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(cv.width - pad, y); ctx.stroke();
-    }
-    ctx.strokeStyle = '#7ee081'; ctx.lineWidth = 3;
-    ctx.beginPath();
-    ws.forEach((w, i) => (i ? ctx.lineTo(X(i), Y(Number(w.kg))) : ctx.moveTo(X(i), Y(Number(w.kg)))));
-    ctx.stroke();
-    ctx.fillStyle = '#7ee081';
-    ws.forEach((w, i) => { ctx.beginPath(); ctx.arc(X(i), Y(Number(w.kg)), 4, 0, 7); ctx.fill(); });
-    ctx.fillStyle = '#93a1b0'; ctx.font = '14px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(max.toFixed(1), 6, Y(max) + 5);
-    ctx.fillText(min.toFixed(1), 6, Y(min) + 5);
-    ctx.fillText(fmtShort(ws[0].date), pad, cv.height - 14);
-    ctx.textAlign = 'right';
-    ctx.fillText(fmtShort(ws[ws.length - 1].date), cv.width - pad, cv.height - 14);
+    renderTemplates();
   }
 
-  /* ---------- templates ---------- */
-  async function renderTemplates() {
-    const box = $('#tplList');
-    box.textContent = '';
-    let tpls = [];
-    try { tpls = await DB.getTemplates(); } catch (e) {}
-    if (!DB.isLive()) {
-      try {
-        const mine = JSON.parse(localStorage.getItem('mygym_demo_my_templates') || '[]');
-        tpls = tpls.concat(mine);
-      } catch (e) {}
+  function statCards(box, pts, unit) {
+    if (!pts.length) {
+      const d = el('div', 'stat'); d.appendChild(el('b', '', '–')); d.appendChild(el('small', '', 'no data yet')); box.appendChild(d);
+      return;
     }
+    const first = pts[0].v, last = pts[pts.length - 1].v;
+    const diff = (last - first);
+    const arrow = diff === 0 ? '→' : (diff < 0 ? '▼' : '▲');
+    [['Start', first.toFixed(1)], ['Latest', last.toFixed(1)], ['Change', arrow + ' ' + Math.abs(diff).toFixed(1)]].forEach((s) => {
+      const d = el('div', 'stat'); d.appendChild(el('b', '', s[1] + (s[0] === 'Change' ? '' : unit === '%' ? '%' : ''))); d.appendChild(el('small', '', s[0])); box.appendChild(d);
+    });
+  }
+
+  const RED = '#e03939';
+  function lineChart(cv, pts, unit) {
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (pts.length < 2) { emptyChart(ctx, cv, 'Add 2+ entries to see your trend'); return; }
+    const pad = 52;
+    const vals = pts.map((p) => p.v);
+    let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if (min === max) { min -= 1; max += 1; }
+    const X = (i) => pad + (i * (cv.width - pad * 2)) / (pts.length - 1);
+    const Y = (v) => cv.height - pad - ((v - min) * (cv.height - pad * 2)) / (max - min);
+    gridlines(ctx, cv, pad);
+    // area fill
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(pts[0].v));
+    pts.forEach((p, i) => ctx.lineTo(X(i), Y(p.v)));
+    ctx.lineTo(X(pts.length - 1), cv.height - pad);
+    ctx.lineTo(X(0), cv.height - pad);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(224,57,57,.10)'; ctx.fill();
+    // line
+    ctx.beginPath();
+    pts.forEach((p, i) => (i ? ctx.lineTo(X(i), Y(p.v)) : ctx.moveTo(X(i), Y(p.v))));
+    ctx.strokeStyle = RED; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+    // points
+    ctx.fillStyle = RED;
+    pts.forEach((p, i) => { ctx.beginPath(); ctx.arc(X(i), Y(p.v), 4, 0, 7); ctx.fill(); });
+    // labels
+    ctx.fillStyle = '#77767c'; ctx.font = '15px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(max.toFixed(1) + unit, pad - 8, Y(max) + 5);
+    ctx.fillText(min.toFixed(1) + unit, pad - 8, Y(min) + 5);
+    ctx.textAlign = 'left'; ctx.fillText(pts[0].label, pad, cv.height - 16);
+    ctx.textAlign = 'right'; ctx.fillText(pts[pts.length - 1].label, cv.width - pad + 20, cv.height - 16);
+  }
+
+  function barChart(cv, vals, labels) {
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (!vals.some((v) => v > 0)) { emptyChart(ctx, cv, 'Log workouts to see your weekly volume'); return; }
+    const pad = 44;
+    const max = Math.max.apply(null, vals.concat([1]));
+    const n = vals.length;
+    const gap = 14;
+    const bw = (cv.width - pad * 2 - gap * (n - 1)) / n;
+    gridlines(ctx, cv, pad);
+    vals.forEach((v, i) => {
+      const h = (v / max) * (cv.height - pad * 2);
+      const x = pad + i * (bw + gap);
+      const y = cv.height - pad - h;
+      ctx.fillStyle = v > 0 ? RED : '#e7e7ea';
+      roundRect(ctx, x, y, bw, Math.max(h, 3), 6); ctx.fill();
+      ctx.fillStyle = '#77767c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+      if (v > 0) ctx.fillText(String(v), x + bw / 2, y - 6);
+      ctx.fillText(labels[i], x + bw / 2, cv.height - 16);
+    });
+  }
+
+  function gridlines(ctx, cv, pad) {
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const y = pad / 1.6 + (g * (cv.height - pad * 1.8)) / 4;
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(cv.width - pad + 20, y); ctx.stroke();
+    }
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, 0);
+    ctx.lineTo(x, y + h); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function emptyChart(ctx, cv, msg) {
+    ctx.fillStyle = '#9a9aa0'; ctx.font = '19px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(msg, cv.width / 2, cv.height / 2);
+  }
+
+  /* ---------- templates (in Progress) ---------- */
+  async function renderTemplates() {
+    const box = $('#tplList'); if (!box) return;
+    box.textContent = '';
+    let tpls = []; try { tpls = await DB.getTemplates(); } catch (e) {}
     tpls.forEach((t) => {
       const card = el('div', 'card tpl');
       const head = el('div');
       head.appendChild(el('span', 'chip', t.level || 'All levels'));
       head.appendChild(el('b', '', t.name));
-      const desc = el('p', 'sub', t.description || '');
-      desc.style.margin = '6px 0 10px';
+      const desc = el('p', 'sub', t.description || ''); desc.style.margin = '6px 0 10px';
       head.appendChild(desc);
       card.appendChild(head);
       const ex = el('div', 'ex');
@@ -483,22 +550,17 @@
         row.appendChild(document.createTextNode(x.sets ? x.sets + '×' + (x.reps || '') : (x.reps || '')));
         ex.appendChild(row);
       });
-      const btnRow = el('div');
-      btnRow.style.marginTop = '10px';
+      const btnRow = el('div'); btnRow.style.marginTop = '10px';
       const logBtn = el('button', 'btn-small', '🏋️ Log this plan');
       logBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        logBtn.disabled = true;
+        e.stopPropagation(); logBtn.disabled = true;
         try {
           for (const x of (t.exercises || [])) {
-            await DB.addWorkout({
-              date: fmtISO(new Date()), title: t.name, exercise: x.name,
-              sets: x.sets || null, reps: x.reps ? String(x.reps) : null,
-              weight_kg: null, notes: x.note || ''
-            });
+            await DB.addWorkout({ date: fmtISO(new Date()), title: t.name, exercise: x.name, sets: x.sets || null, reps: x.reps ? String(x.reps) : null, weight_kg: null, notes: x.note || '' });
           }
-          toast($('#tplMsg'), '✅ Logged "' + t.name + '" — nice work!');
-        } catch (err) { toast($('#tplMsg'), (err && err.message) || 'Could not log', true); }
+          logBtn.textContent = '✅ Logged!';
+          setTimeout(() => { logBtn.textContent = '🏋️ Log this plan'; }, 2500);
+        } catch (err) { logBtn.textContent = 'Error'; }
         logBtn.disabled = false;
       });
       btnRow.appendChild(logBtn);
@@ -509,30 +571,23 @@
     });
   }
 
-  $('#tplFromLog').addEventListener('click', async () => {
-    let logs = [];
-    try { logs = await DB.getWorkouts(5); } catch (e) {}
-    if (!logs.length) return toast($('#tplMsg'), 'Log a few workouts first!', true);
-    const seen = {};
-    const exercises = [];
-    logs.forEach((w) => {
-      if (seen[w.exercise]) return;
-      seen[w.exercise] = true;
-      exercises.push({ name: w.exercise, sets: w.sets || 3, reps: w.reps || '10', note: '' });
-    });
-    try {
-      await DB.addTemplate({
-        name: 'My plan · ' + fmtShort(fmtISO(new Date())),
-        level: 'Mine', goal: 'Personal',
-        description: 'Built from my logged workouts.',
-        exercises
-      });
-      toast($('#tplMsg'), '✅ Saved to your plans!');
-      renderTemplates();
-    } catch (e) { toast($('#tplMsg'), (e && e.message) || 'Could not save', true); }
+  /* ---------- MESSAGE (mailto) ---------- */
+  $('#msgSend').addEventListener('click', () => {
+    const name = $('#msgName').value.trim();
+    const topic = $('#msgTopic').value;
+    const body = $('#msgBody').value.trim();
+    if (!body) return toast($('#msgErr'), 'Write a message first 🙂', true);
+    const subject = encodeURIComponent('[MY GYM App] ' + topic + (name ? ' — ' + name : ''));
+    const text = encodeURIComponent(body + (name ? '\n\n— ' + name : '') + ((me && me.email) ? '\n(' + me.email + ')' : ''));
+    window.location.href = 'mailto:info@mygymlondon.co.uk?subject=' + subject + '&body=' + text;
+    toast($('#msgErr'), '');
+    $('#msgErr').textContent = '';
+    const okn = $('#msgErr');
+    okn.className = 'ok'; okn.textContent = '✉️ Opening your email app…';
+    setTimeout(() => { okn.textContent = ''; }, 4000);
   });
 
-  /* ---------- profile ---------- */
+  /* ---------- PROFILE ---------- */
   async function renderProfile() {
     if (!profile) profile = (await DB.getProfile().catch(() => null)) || {};
     $('#pName').value = profile.full_name || '';
@@ -541,7 +596,6 @@
     $('#pGoal').value = profile.goal || '';
     $('#pEmail').textContent = (me && me.email) || '';
   }
-
   $('#pSave').addEventListener('click', async () => {
     const patch = {
       full_name: $('#pName').value.trim(),
@@ -553,8 +607,7 @@
     try {
       await DB.saveProfile(patch);
       profile = Object.assign(profile || {}, patch);
-      toast($('#pMsg'), '✅ Saved!');
-      renderMHome().catch(() => {});
+      toast($('#pMsg'), '✅ Saved!'); renderDash();
     } catch (e) { toast($('#pMsg'), (e && e.message) || 'Could not save', true); }
     $('#pSave').disabled = false;
   });
@@ -562,31 +615,21 @@
   /* ---------- install prompt ---------- */
   let deferredPrompt = null;
   const installBtn = $('#installBtn');
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'block';
-  });
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; });
   installBtn.addEventListener('click', () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
-    });
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
   });
 
-  /* ---------- offline indicator ---------- */
+  /* ---------- offline ---------- */
   const tag = $('#offlineTag');
   function net() { tag.style.display = navigator.onLine ? 'none' : 'block'; }
-  window.addEventListener('online', net);
-  window.addEventListener('offline', net);
-  net();
+  window.addEventListener('online', net); window.addEventListener('offline', net); net();
 
   /* ---------- boot ---------- */
   (async function boot() {
     setNav();
-    renderPublicTimetable();
     try {
       me = await DB.getUser();
       if (me) {
@@ -594,17 +637,15 @@
         profile = await DB.getProfile().catch(() => null);
         classes = await DB.getClasses().catch(() => []);
         setNav();
-        const h = location.hash.slice(1);
-        if (h && document.getElementById(h)) go(h); else go('mhome');
-        return;
       }
     } catch (e) {}
     const h = location.hash.slice(1);
+    const map = { book: 'timetable', templates: 'progress', join: 'home', about: 'home', contact: 'message' };
     if (h && document.getElementById(h)) go(h);
+    else if (h && map[h]) go(map[h]);
+    else go('home');
   })();
 
   /* ---------- service worker ---------- */
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
-  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 })();

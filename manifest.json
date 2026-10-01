@@ -1,13 +1,13 @@
 {
   "name": "MY GYM London",
   "short_name": "MY GYM",
-  "description": "Your private community gym in Bush Hill Park, Enfield. Classes, PT, memberships — all in your pocket.",
+  "description": "Your private community gym in Bush Hill Park, Enfield. Book classes, log workouts, track progress.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#101418",
-  "theme_color": "#101418",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "categories": ["health", "fitness", "lifestyle"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
@@ -15,8 +15,9 @@
     { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Class Timetable", "url": "./index.html#timetable" },
-    { "name": "Join / Trial", "url": "./index.html#join" },
-    { "name": "Find Us", "url": "./index.html#contact" }
+    { "name": "Timetable", "url": "./index.html#timetable" },
+    { "name": "My bookings", "url": "./index.html#bookings" },
+    { "name": "Log workout", "url": "./index.html#log" },
+    { "name": "Progress", "url": "./index.html#progress" }
   ]
 }

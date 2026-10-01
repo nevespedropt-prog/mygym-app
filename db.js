@@ -149,6 +149,24 @@
       if (error) throw error;
     },
 
+    async getPastBookings(days = 30) {
+      const u = await DB.getUser(); if (!u) return [];
+      const today = DB._iso(new Date());
+      const start = new Date(); start.setDate(start.getDate() - days);
+      const startISO = DB._iso(start);
+      if (!LIVE) {
+        return dGet('bookings_' + u.email, [])
+          .filter(b => b.date < today && b.date >= startISO)
+          .sort((a, b) => b.date.localeCompare(a.date));
+      }
+      const { data, error } = await sb.from('class_bookings')
+        .select('id,class_id,date').eq('user_id', u.id)
+        .lt('date', today).gte('date', startISO)
+        .order('date', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+
     /* ---- workouts ---- */
     async addWorkout(entry) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
@@ -175,16 +193,21 @@
       await sb.from('workout_logs').delete().eq('id', id).eq('user_id', u.id);
     },
 
-    /* ---- weight ---- */
-    async addWeight(date, kg) {
+    /* ---- weight & body composition ---- */
+    _iso(d) { const p = (n) => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); },
+
+    async addWeight(date, kg, bf) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      const row = { date };
+      if (kg != null) row.kg = Number(kg);
+      if (bf != null) row.body_fat_pct = Number(bf);
       if (!LIVE) {
         const all = dGet('weights_' + u.email, []);
-        all.push({ id: uid(), date, kg: Number(kg) });
+        all.push(Object.assign({ id: uid() }, row));
         all.sort((a, b) => a.date.localeCompare(b.date));
         dSet('weights_' + u.email, all); return;
       }
-      const { error } = await sb.from('weight_logs').insert({ user_id: u.id, date, kg: Number(kg) });
+      const { error } = await sb.from('weight_logs').insert(Object.assign({ user_id: u.id }, row));
       if (error) throw error;
     },
 

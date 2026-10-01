@@ -17,7 +17,7 @@
 <style>
 :root{
   --bg:#f4f4f5; --card:#ffffff; --card2:#f6f6f7; --line:#e7e7ea;
-  --txt:#262626; --mut:#77767c; --acc:#e03939; --accd:#a03535; --accs:#fdecec;
+  --txt:#262626; --mut:#63626a; --acc:#e03939; --accd:#a03535; --accs:#fdecec;
   --ok:#2e9e5b; --rad:18px;
   --shadow:0 1px 3px rgba(20,20,25,.06),0 4px 14px rgba(20,20,25,.05);
 }
@@ -78,8 +78,8 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 /* date pills */
 .dates{display:flex;gap:8px;overflow-x:auto;padding:6px 0 14px;scrollbar-width:none}
 .dates::-webkit-scrollbar{display:none}
-.dates button{flex-shrink:0;min-width:64px;background:#fff;border:1px solid var(--line);
-  border-radius:999px;padding:8px 12px;color:var(--mut);cursor:pointer;text-align:center;box-shadow:var(--shadow)}
+.dates button{flex:0 0 62px;width:62px;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:8px 4px;color:var(--mut);cursor:pointer;text-align:center;box-shadow:var(--shadow)}
 .dates button.sel{background:var(--acc);border-color:var(--acc);color:#fff}
 .dates button .dow{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
 .dates button .dnum{display:block;font-size:15px;font-weight:800}
@@ -166,7 +166,7 @@ nav.show{display:block}
   <div class="hwrap">
     <img src="icons/logo-header.png" alt="MY GYM London">
     <button class="hbtn ghost" id="authBtn">Log in</button>
-    <button class="hbtn" id="installBtn">Install</button>
+    <button class="hbtn ghost" id="installBtn">Install</button>
   </div>
 </header>
 <div id="demoBanner">🧪 DEMO MODE — data stays on this device only.</div>

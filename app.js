@@ -237,7 +237,7 @@
         row.appendChild(el('span', 'time', x.class.start_time));
         const what = el('span', 'what');
         what.appendChild(el('b', '', x.class.name));
-        what.appendChild(el('small', '', fmtShort(x.date) + ' · ' + dowOf(x.date)));
+        what.appendChild(el('small', '', fmtShort(x.date)));
         row.appendChild(what);
         c.appendChild(row);
       } else {
@@ -284,7 +284,7 @@
       row.appendChild(el('span', 'time', x.class.start_time));
       const what = el('span', 'what');
       what.appendChild(el('b', '', x.class.name));
-      what.appendChild(el('small', '', fmtShort(x.date) + ' · ' + dowOf(x.date)));
+      what.appendChild(el('small', '', fmtShort(x.date)));
       row.appendChild(what);
       const act = el('span', 'act');
       const b = el('button', 'btn-small ghost', 'Cancel');

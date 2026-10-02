@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   const name = String(body.name ?? "").trim().slice(0, 100);
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(req, 400, { error: "Enter a valid email." });
-  if (password.length < 6) return json(req, 400, { error: "Password must be at least 6 characters." });
+  if (password.length < 8) return json(req, 400, { error: "Password must be at least 8 characters." });
 
   // rate limit: 10 attempts / IP and 5 / email per 15 minutes (stops membership guessing and Wix API abuse)
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

@@ -100,7 +100,7 @@
   $('#rSave').addEventListener('click', async () => {
     const pw = $('#rPass').value;
     const err = $('#rErr');
-    if (pw.length < 6) return toast(err, 'Password must be at least 6 characters.', true);
+    if (pw.length < 8) return toast(err, 'Password must be at least 8 characters.', true);
     try {
       await DB.updatePassword(pw);
       $('#rPass').value = '';
@@ -116,7 +116,7 @@
     const pass = $('#aPass').value;
     const err = $('#aErr');
     if (!email || !pass) return toast(err, 'Enter your email and password.', true);
-    if (pass.length < 6) return toast(err, 'Password must be at least 6 characters.', true);
+    if (authMode === 'up' && pass.length < 8) return toast(err, 'Password must be at least 8 characters.', true);
     $('#aSubmit').disabled = true;
     try {
       if (authMode === 'up') {

@@ -389,8 +389,20 @@ nav.show{display:block}
     <div class="field"><label>Password</label><input id="aPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <div class="err" id="aErr"></div>
     <button class="cta" id="aSubmit" style="margin:4px 0 0">Log in</button>
+    <p class="note" id="forgotWrap" style="margin:12px 0 0"><a href="#" id="forgotLink" style="color:var(--acc);font-weight:700">Forgot password?</a></p>
   </div>
   <p class="note">Free account · no contract · classes from £6</p>
+</section>
+
+<!-- ============ RESET PASSWORD (from emailed link) ============ -->
+<section class="view" id="resetpw">
+  <h2>Set a new password</h2>
+  <p class="sub">Choose a new password for your MY GYM account.</p>
+  <div class="card">
+    <div class="field"><label>New password</label><input id="rPass" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+    <div class="err" id="rErr"></div>
+    <button class="cta" id="rSave" style="margin:4px 0 0">Save new password</button>
+  </div>
 </section>
 
 <!-- ============ PROFILE (via header Me button) ============ -->

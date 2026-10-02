@@ -80,7 +80,36 @@
       ? 'Free account — book classes, log workouts, track progress. No contract.'
       : 'Log in to book classes and track progress.';
     $('#aErr').textContent = '';
+    $('#forgotWrap').style.display = authMode === 'in' ? 'block' : 'none';
   }));
+
+  $('#forgotLink').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = $('#aEmail').value.trim();
+    const err = $('#aErr');
+    if (!email) return toast(err, 'Enter your email above, then tap Forgot password.', true);
+    try {
+      await DB.sendReset(email);
+      toast(err, 'If that email has an account, a reset link is on its way. Check your inbox (and spam).', false);
+    } catch (x) {
+      toast(err, (x && x.message) || 'Could not send the email. Try again.', true);
+    }
+  });
+
+  DB.onRecovery(() => go('resetpw'));
+  $('#rSave').addEventListener('click', async () => {
+    const pw = $('#rPass').value;
+    const err = $('#rErr');
+    if (pw.length < 6) return toast(err, 'Password must be at least 6 characters.', true);
+    try {
+      await DB.updatePassword(pw);
+      $('#rPass').value = '';
+      history.replaceState(null, '', location.pathname);
+      await afterAuth();
+    } catch (x) {
+      toast(err, (x && x.message) || 'Could not save. Try again.', true);
+    }
+  });
 
   $('#aSubmit').addEventListener('click', async () => {
     const email = $('#aEmail').value.trim();
@@ -706,7 +735,8 @@
     } catch (e) {}
     const h = location.hash.slice(1);
     const map = { book: 'timetable', templates: 'progress', join: 'home', about: 'home', contact: 'message' };
-    if (h && document.getElementById(h)) go(h);
+    if (/type=recovery/.test(h)) go('resetpw');
+    else if (h && document.getElementById(h)) go(h);
     else if (h && map[h]) go(map[h]);
     else go('home');
   })();

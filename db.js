@@ -80,6 +80,23 @@
       return data.user ? { email: data.user.email, id: data.user.id } : null;
     },
 
+    async sendReset(email) {
+      if (!LIVE) return;
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/' });
+      if (error) throw error;
+    },
+
+    async updatePassword(password) {
+      if (!LIVE) return;
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) throw error;
+    },
+
+    onRecovery(cb) {
+      if (!LIVE) return;
+      sb.auth.onAuthStateChange((event) => { if (event === 'PASSWORD_RECOVERY') cb(); });
+    },
+
     onAuthChange(cb) {
       if (!LIVE) { window.addEventListener('mygym-demo-auth', () => cb()); return () => {}; }
       const { data } = sb.auth.onAuthStateChange(() => cb());

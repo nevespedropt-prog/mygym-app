@@ -2,3 +2,5 @@ PROJECT-NOTES.md
 *.json.bak
 free-android-ios-gym-app-.json
 .mcp.json
+SECURITY-REPORT.md
+supabase/.temp/

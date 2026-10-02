@@ -141,9 +141,19 @@
         return all.filter(b => dates.includes(b.date));
       }
       if (!u) return [];
-      const { data, error } = await sb.from('class_bookings').select('id,class_id,date,user_id').in('date', dates);
-      if (error) throw error;
-      return data;
+      /* own bookings (real rows) + anonymous placeholders for everyone else's, so spot counts still work */
+      const [mine, counts] = await Promise.all([
+        sb.from('class_bookings').select('id,class_id,date,user_id').in('date', dates),
+        sb.rpc('booking_counts', { dates })
+      ]);
+      if (mine.error) throw mine.error;
+      if (counts.error) throw counts.error;
+      const rows = mine.data.slice();
+      (counts.data || []).forEach((c) => {
+        const own = mine.data.filter((b) => b.class_id === c.class_id && b.date === c.date).length;
+        for (let i = 0; i < c.n - own; i++) rows.push({ id: null, class_id: c.class_id, date: c.date, user_id: null });
+      });
+      return rows;
     },
 
     async book(classId, date) {

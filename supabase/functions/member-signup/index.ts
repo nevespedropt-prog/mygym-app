@@ -55,6 +55,22 @@ Deno.serve(async (req) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(req, 400, { error: "Enter a valid email." });
   if (password.length < 6) return json(req, 400, { error: "Password must be at least 6 characters." });
 
+  // rate limit: 10 attempts / IP and 5 / email per 15 minutes (stops membership guessing and Wix API abuse)
+  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const ip = (req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email));
+  const emailHash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const [byIp, byEmail] = await Promise.all([
+    admin.from("signup_attempts").select("id", { count: "exact", head: true }).eq("ip", ip).gte("at", since),
+    admin.from("signup_attempts").select("id", { count: "exact", head: true }).eq("email_hash", emailHash).gte("at", since),
+  ]);
+  if ((byIp.count ?? 0) >= 10 || (byEmail.count ?? 0) >= 5) {
+    return json(req, 429, { error: "Too many attempts. Please wait 15 minutes and try again." });
+  }
+  await admin.from("signup_attempts").insert({ ip, email_hash: emailHash });
+  await admin.from("signup_attempts").delete().lt("at", new Date(Date.now() - 24 * 3600 * 1000).toISOString());
+
   let member: boolean;
   try {
     member = await isWixMember(email);
@@ -68,7 +84,6 @@ Deno.serve(async (req) => {
     });
   }
 
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { error } = await admin.auth.admin.createUser({
     email,
     password,

@@ -48,12 +48,15 @@
         dSet('profile_' + email, { full_name: fullName || '', phone: '', weight_kg: null, goal: '', is_admin: false });
         return { email };
       }
-      const { data, error } = await sb.auth.signUp({
-        email, password,
-        options: { data: { full_name: fullName || '' } }
+      const r = await fetch(CFG.SUPABASE_URL + '/functions/v1/member-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email, password, name: fullName || '' })
       });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || 'Could not create the account. Please try again.');
+      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (error) throw error;
-      if (data.user && !data.session) throw new Error('CHECK_EMAIL');
       return { email, session: data.session };
     },
 

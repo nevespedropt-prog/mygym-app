@@ -168,7 +168,8 @@
   }
 
   /* ---------- TIMETABLE (everyone; booking for members) ---------- */
-  async function renderTimetable() {
+  let bkCache = null; // { t, data } — reused for 30s when only the day changes
+  async function renderTimetable(reuse) {
     await ensureClasses();
     const strip = $('#dateStrip');
     strip.textContent = '';
@@ -179,7 +180,7 @@
       b.appendChild(el('span', 'dow', i === 0 ? 'Today' : DAY_NAMES[d.getDay()].slice(0, 3)));
       b.appendChild(el('span', 'dnum', String(d.getDate())));
       if (iso === selDate) b.classList.add('sel');
-      b.addEventListener('click', () => { selDate = iso; renderTimetable(); });
+      b.addEventListener('click', () => { selDate = iso; renderTimetable(true); });
       strip.appendChild(b);
     }
     $('#ttHeadline').textContent = authed
@@ -187,7 +188,10 @@
       : 'Our weekly classes. Join free to book your spot.';
 
     let allBookings = [];
-    if (authed) { try { allBookings = await DB.getBookingsForDates(window14()); } catch (e) {} }
+    if (authed) {
+      if (reuse && bkCache && Date.now() - bkCache.t < 30000) allBookings = bkCache.data;
+      else { try { allBookings = await DB.getBookingsForDates(window14()); bkCache = { t: Date.now(), data: allBookings }; } catch (e) {} }
+    }
 
     const dayClasses = classes.filter((c) => c.day_name === dowOf(selDate));
     const box = $('#bookSlots');
@@ -247,7 +251,12 @@
     const first = (profile && profile.full_name) ? profile.full_name.split(' ')[0] : '';
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
     try {
-      const wins = await DB.getWorkouts(200);
+      await ensureClasses();
+      const [wins, allBk, wts] = await Promise.all([
+        DB.getWorkouts(200),
+        DB.getBookingsForDates(window14()),
+        DB.getWeights()
+      ]);
       const monday = new Date(); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
       const monISO = fmtISO(monday);
       const weekCount = wins.filter((w) => w.date >= monISO).length;
@@ -256,7 +265,7 @@
       $('#goalBar').style.width = pct + '%';
       $('#goalTxt').textContent = weekCount + '/' + WEEK_GOAL + (weekCount >= WEEK_GOAL ? ' done — goal smashed! 🎉' : ' done — keep going!');
 
-      const up = await upcomingBookings();
+      const up = upcomingFrom(allBk);
       $('#statBooked').textContent = up.length;
       if (up.length) {
         $('#nextWrap').style.display = 'block';
@@ -273,15 +282,12 @@
         $('#nextWrap').style.display = 'none';
       }
 
-      const wts = await DB.getWeights();
       const lastW = wts.filter((w) => w.kg).slice(-1)[0];
       $('#statWeight').textContent = lastW ? lastW.kg + 'kg' : '–';
 
       // today's classes
       const today = fmtISO(new Date());
-      await ensureClasses();
-      let todayBookings = [];
-      try { todayBookings = await DB.getBookingsForDates([today]); } catch (e) {}
+      const todayBookings = allBk.filter((b) => b.date === today);
       const todays = classes.filter((c) => c.day_name === dowOf(today));
       const tl = $('#todayList'); tl.textContent = '';
       if (!todays.length) tl.appendChild(el('div', 'card note', 'No classes today — perfect day to log a workout 💪'));
@@ -290,8 +296,11 @@
   }
 
   async function upcomingBookings() {
+    return upcomingFrom(await DB.getBookingsForDates(window14()));
+  }
+
+  function upcomingFrom(all) {
     const today = fmtISO(new Date());
-    const all = await DB.getBookingsForDates(window14());
     return all
       .filter((b) => b.user_id === me.id && b.date >= today)
       .sort((a, b) => (a.date + a.class_id).localeCompare(b.date + b.class_id))
@@ -503,9 +512,10 @@
   async function renderProgress() {
     const cv = $('#progChart');
     const stats = $('#progStats'); stats.textContent = '';
-    let ws = [], wos = [];
-    try { ws = await DB.getWeights(); } catch (e) {}
-    try { wos = await DB.getWorkouts(500); } catch (e) {}
+    const [ws, wos] = await Promise.all([
+      DB.getWeights().catch(() => []),
+      DB.getWorkouts(500).catch(() => [])
+    ]);
 
     if (progMode === 'weight') {
       const pts = ws.filter((w) => w.kg).map((w) => ({ label: fmtShort(w.date), v: Number(w.kg) }));

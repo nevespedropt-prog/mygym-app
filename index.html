@@ -9,6 +9,7 @@
 <meta name="description" content="Your private community gym in Bush Hill Park, Enfield. Book classes, log workouts, track progress.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.json">
+<link rel="preload" href="fonts/barlow-condensed-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="icons/favicon.ico?v=8" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=8">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=8">
@@ -18,79 +19,114 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="MY GYM">
 <style>
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-700.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:800;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-800.woff2) format("woff2")}
 :root{
-  --bg:#f4f4f5; --card:#ffffff; --card2:#f6f6f7; --line:#e7e7ea;
-  --txt:#262626; --mut:#63626a; --acc:#e03939; --accd:#a03535; --accs:#fdecec;
-  --ok:#2e9e5b; --rad:18px;
-  --shadow:0 1px 3px rgba(20,20,25,.06),0 4px 14px rgba(20,20,25,.05);
+  --bg:#f6f5f4; --card:#ffffff; --card2:#f6f6f7; --line:#ececee;
+  --txt:#1d1d20; --mut:#66656d; --acc:#e03939; --accd:#a03535; --accs:#fdecec;
+  --ok:#2e9e5b; --rad:20px;
+  --shadow:0 1px 3px rgba(20,20,25,.05);
+  --disp:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   background:var(--bg); color:var(--txt); line-height:1.5;
-  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom));
 }
 main{max-width:560px;margin:0 auto;padding:0 16px}
-.view{display:none;animation:fade .22s ease}
-.view.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.view{display:none}
+.view.active{display:block;animation:fade .16s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
 header{
-  position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
-  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  position:sticky;top:0;z-index:50;background:#fff;
+  border-bottom:1px solid var(--line);
+  padding:calc(8px + env(safe-area-inset-top)) 16px 8px;
 }
-.hwrap{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px}
-.hwrap img{height:40px;width:auto;border-radius:8px;display:block}
+.hwrap{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:8px}
+.hwrap img{height:46px;width:auto;border-radius:8px;display:block}
 .hbtn{
   margin-left:auto;background:var(--acc);color:#fff;font-weight:700;font-size:13px;
-  border:none;border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:var(--shadow);
+  border:none;border-radius:999px;padding:10px 16px;cursor:pointer;
 }
 .hbtn.ghost{background:#fff;color:var(--txt);border:1px solid var(--line)}
-#installBtn{display:none;margin-left:8px}
+#installBtn{display:none;margin-left:0}
 
-h2{font-size:21px;margin:22px 0 4px;letter-spacing:-.2px}
+h2{font:800 28px/1.05 var(--disp);text-transform:uppercase;letter-spacing:.03em;margin:26px 0 6px}
+.view>h2:first-child{margin-top:20px}
+h2[style]{font-size:22px !important}
 .sub{color:var(--mut);font-size:14px;margin-bottom:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .chip{display:inline-block;background:var(--accs);color:var(--acc);
-  font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
-  border-radius:999px;padding:4px 11px;margin-bottom:8px}
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  border-radius:999px;padding:5px 11px;margin-bottom:8px}
+.cta{
+  display:block;text-align:center;background:var(--acc);color:#fff;font:700 20px/1 var(--disp);
+  letter-spacing:.08em;text-transform:uppercase;
+  border-radius:14px;padding:15px;text-decoration:none;margin:16px 0;border:none;width:100%;cursor:pointer;
+}
+.cta:disabled{opacity:.45;cursor:default}
+.cta:active,.btn-small:active{transform:scale(.98)}
+.hero{
+  background:linear-gradient(160deg,#e03939,#a03535);color:#fff;
+  border-radius:24px;padding:24px 20px;margin-top:16px;box-shadow:0 10px 28px rgba(160,53,53,.28);
+}
+.hero .chip{background:rgba(255,255,255,.18);color:#fff}
+.hero h1{font:800 44px/.98 var(--disp);text-transform:uppercase;margin:10px 0 10px}
+.hero p{font-size:14.5px;opacity:.94}
+.hero .cta{background:#fff;color:var(--accd);margin:18px 0 0}
+#mhome .hero h1{font-size:34px}
+.quote{border-left:4px solid var(--acc);padding:2px 0 2px 14px;margin:14px 0;font-size:15px;font-weight:500}
+.quote small{display:block;color:var(--mut);margin-top:4px;font-weight:400}
+
+/* quick links row */
+.qrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0}
+a.q{display:block;background:var(--card);border-radius:16px;padding:14px 6px;text-align:center;
+  color:var(--txt);text-decoration:none;font-size:12.5px;font-weight:600;box-shadow:var(--shadow);border:1px solid var(--line)}
+a.q svg{display:block;margin:0 auto 6px;color:var(--acc);width:24px;height:24px}
 a.btn{
   display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
   border-radius:var(--rad);padding:14px 16px;color:var(--txt);text-decoration:none;
   font-weight:600;font-size:15px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);
 }
-a.btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;background:var(--accs)}
+a.btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--accs);color:var(--acc)}
 a.btn small{display:block;color:var(--mut);font-weight:400;font-size:12.5px}
 a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
-.cta{
-  display:block;text-align:center;background:var(--acc);color:#fff;font-weight:800;font-size:16px;
-  border-radius:999px;padding:15px;text-decoration:none;margin:16px 0;border:none;width:100%;cursor:pointer;
-  box-shadow:0 4px 14px rgba(224,57,57,.28);
-}
-.cta:disabled{opacity:.45;cursor:default;box-shadow:none}
-.hero{
-  background:linear-gradient(135deg,#fff 0%,#fdecec 100%);
-  border:1px solid var(--line);border-radius:24px;padding:24px 20px;margin-top:18px;box-shadow:var(--shadow);
-}
-.hero h1{font-size:25px;line-height:1.22;margin-bottom:8px;letter-spacing:-.4px}
-.hero p{color:var(--mut);font-size:14.5px}
-.quote{border-left:3px solid var(--acc);padding:4px 0 4px 14px;margin:14px 0;font-size:14.5px}
-.quote small{display:block;color:var(--mut);margin-top:4px}
+
+/* pricing grid */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:16px;box-shadow:var(--shadow)}
+.pcard b{display:block;font-size:14.5px}
+.pcard small{display:block;color:var(--mut);font-size:12px;line-height:1.4;margin-top:4px}
+.pcard .pr{font:800 34px/1 var(--disp);color:var(--acc);margin-top:10px}
+.pcard .pr span{display:block;font:600 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.pcard.big{grid-column:span 2;background:var(--txt);border-color:var(--txt);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pcard.big small{color:#c3c3ca}
+.pcard.big .pr{margin:0;color:#ff6b6b;text-align:right}
+.pcard.big .pr span{color:#c3c3ca}
+.pcard.big .chip{background:rgba(255,255,255,.14);color:#fff;margin-bottom:6px}
+
+/* why cards */
+.why{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:14px;margin-bottom:10px}
+.why .wi{flex:none;width:40px;height:40px;border-radius:12px;background:var(--accs);color:var(--acc);display:grid;place-items:center}
+.why b{font-size:14.5px}
+.why p{font-size:13px;color:var(--mut);margin-top:2px;line-height:1.4}
 
 /* date pills */
 .dates{display:flex;gap:8px;overflow-x:auto;padding:6px 0 14px;scrollbar-width:none}
 .dates::-webkit-scrollbar{display:none}
 .dates button{flex:0 0 62px;width:62px;background:#fff;border:1px solid var(--line);
-  border-radius:999px;padding:8px 4px;color:var(--mut);cursor:pointer;text-align:center;box-shadow:var(--shadow)}
+  border-radius:16px;padding:8px 4px;color:var(--mut);cursor:pointer;text-align:center}
 .dates button.sel{background:var(--acc);border-color:var(--acc);color:#fff}
-.dates button .dow{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.dates button .dnum{display:block;font-size:15px;font-weight:800}
+.dates button .dow{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.dates button .dnum{display:block;font:800 24px/1.1 var(--disp)}
 
 /* activity/class rows */
 .slot{display:flex;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);
   border-radius:var(--rad);padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow)}
-.slot .time{font-weight:800;font-size:13.5px;min-width:52px;color:var(--acc)}
+.slot .time{font:800 25px/1 var(--disp);min-width:58px;color:var(--txt)}
 .slot .what{flex:1;min-width:0}
 .slot .what b{font-size:15px;display:block}
 .slot .what small{display:block;color:var(--mut);font-size:12.5px}
@@ -102,10 +138,10 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 
 /* forms */
 .field{margin-bottom:12px}
-.field label{display:block;font-size:12.5px;font-weight:800;color:var(--mut);margin-bottom:5px;letter-spacing:.2px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--mut);margin-bottom:5px}
 .field input,.field select,.field textarea{
-  width:100%;background:var(--card2);border:1px solid var(--line);border-radius:13px;
-  color:var(--txt);font-size:15px;padding:12px 14px;font-family:inherit;
+  width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  color:var(--txt);font-size:16px;padding:12px 14px;font-family:inherit;
 }
 .field textarea{min-height:110px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--acc);border-color:transparent;background:#fff}
@@ -113,22 +149,22 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .row2 .field{flex:1}
 .err{color:var(--acc);font-size:13px;min-height:18px;margin:4px 0 8px}
 .ok{color:var(--ok);font-size:13px;min-height:18px;margin:4px 0 8px}
-.btn-small{background:var(--acc);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13px;padding:9px 16px;cursor:pointer}
-.btn-small.ghost{background:#fff;color:var(--acc);border:1.5px solid var(--acc)}
-.btn-small.mut{background:#fff;color:var(--mut);border:1.5px solid var(--line)}
+.btn-small{background:var(--acc);color:#fff;border:none;border-radius:999px;font:700 15px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase;padding:10px 17px;cursor:pointer}
+.btn-small.ghost{background:var(--accs);color:var(--acc);border:none}
+.btn-small.mut{background:#fff;color:var(--acc);border:1.5px dashed var(--acc)}
 .btn-small:disabled{opacity:.45}
 
 /* segmented control */
-.seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:14px;box-shadow:var(--shadow)}
-.seg button{flex:1;background:none;border:none;color:var(--mut);font-weight:800;font-size:13px;padding:9px 4px;border-radius:999px;cursor:pointer}
-.seg button.sel{background:var(--acc);color:#fff}
+.seg{display:flex;background:#ebeaea;border-radius:14px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;background:none;border:none;color:var(--mut);font:700 16px/1 var(--disp);letter-spacing:.06em;text-transform:uppercase;padding:11px 4px;border-radius:11px;cursor:pointer}
+.seg button.sel{background:#fff;color:var(--acc);box-shadow:0 1px 4px rgba(0,0,0,.1)}
 
 /* dashboard widgets */
 .stats{display:flex;gap:10px;margin:14px 0}
-.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:13px 10px;text-align:center;box-shadow:var(--shadow)}
-.stat b{display:block;font-size:19px;color:var(--acc)}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font:800 32px/1 var(--disp);color:var(--acc)}
 .stat small{color:var(--mut);font-size:11px;font-weight:600}
-.pbar{height:7px;background:var(--card2);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.pbar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:8px 0 4px}
 .pbar i{display:block;height:100%;background:var(--acc);border-radius:99px}
 .tpl{cursor:pointer}
 .tpl .ex{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:none}
@@ -143,7 +179,7 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 /* multi-exercise builder */
 .row3{display:flex;gap:8px}
 .row3 .field{flex:1;min-width:0}
-.exrow{position:relative;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--card2)}
+.exrow{position:relative;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--bg)}
 .exrow .ex-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--mut);font-size:15px;cursor:pointer;padding:2px 7px;z-index:2}
 .exrow .ex-del:active{color:var(--acc)}
 .exrow .field{margin-bottom:8px}
@@ -164,7 +200,7 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .wlog-line .nn{color:var(--mut)}
 .price-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .price-row b{font-size:15.5px}
-.price-row .p{color:var(--acc);font-weight:800;font-size:15.5px;white-space:nowrap}
+.price-row .p{color:var(--acc);font:800 24px/1 var(--disp);white-space:nowrap}
 .price-row + small{color:var(--mut);font-size:12.5px}
 #demoBanner{display:none;max-width:560px;margin:10px auto -6px;padding:8px 16px;font-size:12.5px;color:var(--accd);text-align:center;background:var(--accs)}
 .offline-tag{display:none;text-align:center;font-size:12px;color:var(--accd);padding:6px;background:var(--accs)}
@@ -172,18 +208,18 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 10px}
 footer a{color:var(--mut)}
 
 nav{
-  position:fixed;bottom:0;left:0;right:0;z-index:60;display:none;
-  background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
-  border-top:1px solid var(--line);padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+  position:fixed;bottom:calc(10px + env(safe-area-inset-bottom));left:12px;right:12px;z-index:60;display:none;
+  background:#fff;border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.16);
+  padding:7px 4px;max-width:536px;margin:0 auto;
 }
 nav.show{display:block}
-.nwrap{max-width:560px;margin:0 auto;display:flex}
+.nwrap{display:flex}
 .nwrap button{
-  flex:1;background:none;border:none;color:var(--mut);font-size:9.5px;font-weight:700;
+  flex:1;background:none;border:none;color:var(--mut);font-size:10.5px;font-weight:600;
   display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 1px;
 }
-.nwrap button .ic{font-size:20px;line-height:1}
 .nwrap button.sel{color:var(--acc)}
+.nwrap button.sel svg.i{stroke-width:2.3}
 </style>
 </head>
 <body>
@@ -206,48 +242,29 @@ nav.show{display:block}
     <span class="chip">Bush Hill Park · Enfield</span>
     <h1>The private gym where everybody knows your name.</h1>
     <p>No queues. No intimidation. Real coaches, real people and a community that wants you here. Classes from £6 — no contract.</p>
+    <a class="cta" href="#login" data-goto="login">Become a member →</a>
   </div>
-  <a class="cta" href="#login" data-goto="login">Become a member →</a>
 
-  <h2>Quick links</h2>
-  <a class="btn" href="https://maps.app.goo.gl/EhoXHJ5Em9nMYn8U6" target="_blank" rel="noopener">
-    <span class="ic">📍</span><span>Find us<small>Main Avenue, Bush Hill Park, Enfield EN1 1DS</small></span><span class="chev">›</span>
-  </a>
-  <a class="btn" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener">
-    <span class="ic">📸</span><span>Instagram<small>@mygym_london</small></span><span class="chev">›</span>
-  </a>
-  <a class="btn" href="https://www.mygymlondon.co.uk" target="_blank" rel="noopener">
-    <span class="ic">🌐</span><span>Website<small>mygymlondon.co.uk</small></span><span class="chev">›</span>
-  </a>
+  <div class="qrow">
+    <a class="q" href="https://maps.app.goo.gl/EhoXHJ5Em9nMYn8U6" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Find us</a>
+    <a class="q" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>Instagram</a>
+    <a class="q" href="https://www.mygymlondon.co.uk" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Website</a>
+  </div>
 
   <h2>Memberships & training</h2>
   <p class="sub">No sneaky joining fees, no contract needed.</p>
-  <div class="card">
-    <span class="chip">Most popular</span>
-    <div class="price-row"><b>Gym + Classes Membership</b><span class="p">from £35</span></div>
-    <small>Unlimited gym access plus every fitness class.</small>
-  </div>
-  <div class="card">
-    <div class="price-row"><b>Fitness Classes</b><span class="p">from £6</span></div>
-    <small>Pay per class or bundle up.</small>
-  </div>
-  <div class="card">
-    <div class="price-row"><b>1-2-1 Personal Training</b><span class="p">from £35</span></div>
-    <small>Your coach, your plan, your pace.</small>
-  </div>
-  <div class="card">
-    <div class="price-row"><b>Small Group PT</b><span class="p">from £15</span></div>
-    <small>Train with 2–4 friends, split the cost.</small>
-  </div>
-  <div class="card">
-    <div class="price-row"><b>Kids · Over 50s · Studio rental</b><span class="p">from £8</span></div>
-    <small>Classes for every age, and space for other coaches.</small>
+  <div class="pgrid">
+    <div class="pcard big"><div><span class="chip">Most popular</span><b>Gym + Classes Membership</b><small>Unlimited gym access plus every fitness class.</small></div><div class="pr"><span>from</span>£35</div></div>
+    <div class="pcard"><b>Fitness Classes</b><small>Pay per class or bundle up.</small><div class="pr"><span>from</span>£6</div></div>
+    <div class="pcard"><b>1-2-1 Personal Training</b><small>Your coach, your plan, your pace.</small><div class="pr"><span>from</span>£35</div></div>
+    <div class="pcard"><b>Small Group PT</b><small>Train with 2–4 friends, split the cost.</small><div class="pr"><span>from</span>£15</div></div>
+    <div class="pcard"><b>Kids · Over 50s · Studio</b><small>Classes for every age, and space for other coaches.</small><div class="pr"><span>from</span>£8</div></div>
   </div>
 
   <h2>Why MY GYM?</h2>
-  <div class="card"><b>🏠 Private, not packed</b><br><small class="sub" style="margin:4px 0 0">A private studio gym — no sea of treadmills, no waiting, no audience.</small></div>
-  <div class="card"><b>🤝 Coaches who know you</b><br><small class="sub" style="margin:4px 0 0">We know your name, your goals and your dodgy knee.</small></div>
-  <div class="card"><b>❤️ Beginners loved here</b><br><small class="sub" style="margin:4px 0 0">Over 50? Never trained? Coming back? You're exactly who we're for.</small></div>
+  <div class="why"><span class="wi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span><div><b>Private, not packed</b><p>A private studio gym — no sea of treadmills, no waiting, no audience.</p></div></div>
+  <div class="why"><span class="wi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z"/></svg></span><div><b>Coaches who know you</b><p>We know your name, your goals and your dodgy knee.</p></div></div>
+  <div class="why"><span class="wi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span><div><b>Beginners loved here</b><p>Over 50? Never trained? Coming back? You're exactly who we're for.</p></div></div>
 
   <h2>Members say it better</h2>
   <div class="card">
@@ -371,7 +388,7 @@ nav.show{display:block}
     <p class="note" style="margin:10px 0 0">Opens your email app, addressed to info@mygymlondon.co.uk</p>
   </div>
   <a class="btn" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener">
-    <span class="ic">📸</span><span>Or DM us on Instagram<small>@mygym_london</small></span><span class="chev">›</span>
+    <span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg></span><span>Or DM us on Instagram<small>@mygym_london</small></span><span class="chev">›</span>
   </a>
 </section>
 
@@ -441,12 +458,12 @@ nav.show{display:block}
 
 <nav id="navMain" class="show">
   <div class="nwrap">
-    <button data-v="home" class="sel"><span class="ic">🏠</span>Home</button>
-    <button data-v="timetable"><span class="ic">🗓️</span>Timetable</button>
-    <button data-v="bookings"><span class="ic">🎟️</span>Bookings</button>
-    <button data-v="log"><span class="ic">🏋️</span>Log</button>
-    <button data-v="progress"><span class="ic">📈</span>Progress</button>
-    <button data-v="message"><span class="ic">✉️</span>Message</button>
+    <button data-v="home" class="sel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button data-v="timetable"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Timetable</button>
+    <button data-v="bookings"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Bookings</button>
+    <button data-v="log"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 9h6M9 13h6"/></svg>Log</button>
+    <button data-v="progress"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/></svg>Progress</button>
+    <button data-v="message"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message</button>
   </div>
 </nav>
 

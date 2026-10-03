@@ -1,5 +1,5 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v9';
+const CACHE = 'mygym-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,9 @@ const ASSETS = [
   './icons/apple-touch-icon.png',
   './icons/logo-header.png',
   './icons/favicon.ico',
-  './icons/favicon-32.png'
+  './icons/favicon-32.png',
+  './fonts/barlow-condensed-700.woff2',
+  './fonts/barlow-condensed-800.woff2'
 ];
 
 self.addEventListener('install', e => {
@@ -30,13 +32,15 @@ self.addEventListener('activate', e => {
   );
 });
 
-/* Network-first for timetable (fresh updates), cache fallback offline.
-   Cache-first for everything else (instant loads). */
+/* Timetable data file: network-first (fresh class changes), cache fallback offline.
+   Everything else (pages, scripts, fonts, icons): serve from cache instantly and
+   refresh the cache in the background, so the app opens fast even on weak signal. */
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return; // never touch external links
 
-  if (e.request.url.includes('timetable.js') || e.request.url.includes('app.js') || e.request.url.includes('config.js') || e.request.url.includes('db.js') || e.request.url.includes('index.html') || url.pathname.endsWith('/')) {
+  if (url.pathname.endsWith('timetable.js')) {
     e.respondWith(
       fetch(e.request)
         .then(res => {
@@ -44,15 +48,18 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, copy));
           return res;
         })
-        .catch(() => caches.match(e.request).then(m => m || caches.match('./index.html')))
+        .catch(() => caches.match(e.request))
     );
-  } else {
-    e.respondWith(
-      caches.match(e.request).then(m => m || fetch(e.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
-        return res;
-      }))
-    );
+    return;
   }
+
+  e.respondWith(
+    caches.match(e.request, { ignoreSearch: true }).then(hit => {
+      const refresh = fetch(e.request).then(res => {
+        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+        return res;
+      }).catch(() => hit || caches.match('./index.html'));
+      return hit || refresh;
+    })
+  );
 });

@@ -16,15 +16,35 @@
   const uid = () => 'demo-' + Math.random().toString(36).slice(2, 10);
 
   const DEMO_CLASSES = [
-    { id: 1, day_name: 'Monday', start_time: '07:00', name: 'Morning Blast', coach: 'Team MY GYM', info: '45 min full-body class', capacity: 8 },
-    { id: 2, day_name: 'Monday', start_time: '09:30', name: 'Over 50s Strength & Mobility', coach: '', info: 'gentle, friendly, effective', capacity: 10 },
-    { id: 3, day_name: 'Monday', start_time: '18:00', name: 'Circuit Training', coach: '', info: 'all levels', capacity: 8 },
-    { id: 4, day_name: 'Tuesday', start_time: '07:00', name: 'Sunrise HIIT', coach: '', info: '30 min, coffee after', capacity: 8 },
-    { id: 5, day_name: 'Tuesday', start_time: '16:30', name: 'Kids Class', coach: '', info: 'ages 6-11, fun first', capacity: 10 },
-    { id: 6, day_name: 'Wednesday', start_time: '18:00', name: 'Boxing Fit', coach: '', info: 'no contact, all levels', capacity: 8 },
-    { id: 7, day_name: 'Thursday', start_time: '18:30', name: 'Strength Basics', coach: '', info: 'perfect for beginners', capacity: 8 },
-    { id: 8, day_name: 'Friday', start_time: '17:30', name: 'Friday Finisher', coach: '', info: 'team workout, great vibes', capacity: 12 },
-    { id: 9, day_name: 'Saturday', start_time: '09:00', name: 'Weekend Warrior', coach: '', info: '60 min mixed class', capacity: 12 }
+    { id: 1, day_name: 'Monday', start_time: '07:00', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 8 },
+    { id: 2, day_name: 'Monday', start_time: '07:30', name: 'HIIT', coach: '', info: '30 min', capacity: 8 },
+    { id: 3, day_name: 'Monday', start_time: '09:00', name: 'BoxFit', coach: '', info: '30 min', capacity: 8 },
+    { id: 4, day_name: 'Monday', start_time: '09:30', name: 'Strength', coach: '', info: '30 min', capacity: 10 },
+    { id: 5, day_name: 'Monday', start_time: '10:00', name: 'Vitality 50+ Circuit', coach: '', info: '1 hr', capacity: 8 },
+    { id: 6, day_name: 'Monday', start_time: '18:00', name: 'Cardio n Abs', coach: '', info: '1 hr', capacity: 8 },
+    { id: 7, day_name: 'Monday', start_time: '18:30', name: 'Pilates', coach: '', info: '1 hr', capacity: 10 },
+    { id: 8, day_name: 'Monday', start_time: '19:00', name: 'Strength', coach: '', info: '1 hr', capacity: 10 },
+    { id: 9, day_name: 'Tuesday', start_time: '09:00', name: 'HIIT', coach: '', info: '30 min', capacity: 8 },
+    { id: 10, day_name: 'Tuesday', start_time: '09:30', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 8 },
+    { id: 11, day_name: 'Tuesday', start_time: '18:00', name: 'Abs Attack', coach: '', info: '1 hr', capacity: 10 },
+    { id: 12, day_name: 'Wednesday', start_time: '07:00', name: 'HIIT Glow', coach: '', info: '30 min', capacity: 8 },
+    { id: 13, day_name: 'Wednesday', start_time: '07:30', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 8 },
+    { id: 14, day_name: 'Wednesday', start_time: '09:00', name: 'BoxFit', coach: '', info: '30 min', capacity: 8 },
+    { id: 15, day_name: 'Wednesday', start_time: '09:30', name: 'Strength', coach: '', info: '30 min', capacity: 10 },
+    { id: 16, day_name: 'Wednesday', start_time: '18:00', name: 'Strength', coach: '', info: '1 hr', capacity: 10 },
+    { id: 17, day_name: 'Wednesday', start_time: '19:00', name: 'BoxFit', coach: '', info: '30 min', capacity: 8 },
+    { id: 18, day_name: 'Thursday', start_time: '09:00', name: 'HIIT', coach: '', info: '30 min', capacity: 8 },
+    { id: 19, day_name: 'Thursday', start_time: '09:30', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 8 },
+    { id: 20, day_name: 'Thursday', start_time: '18:00', name: 'HIIT', coach: '', info: '1 hr', capacity: 8 },
+    { id: 21, day_name: 'Friday', start_time: '07:00', name: 'Strength', coach: '', info: '30 min', capacity: 10 },
+    { id: 22, day_name: 'Friday', start_time: '07:30', name: 'Abs Attack', coach: '', info: '30 min', capacity: 10 },
+    { id: 23, day_name: 'Friday', start_time: '09:00', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 8 },
+    { id: 24, day_name: 'Friday', start_time: '09:30', name: 'Strength', coach: '', info: '30 min', capacity: 10 },
+    { id: 25, day_name: 'Friday', start_time: '10:00', name: 'Vitality 50+ Circuit', coach: '', info: '1 hr', capacity: 8 },
+    { id: 26, day_name: 'Friday', start_time: '18:30', name: 'Body Conditioning', coach: '', info: '1 hr', capacity: 10 },
+    { id: 27, day_name: 'Friday', start_time: '19:00', name: 'Body Conditioning', coach: '', info: '1 hr', capacity: 10 },
+    { id: 28, day_name: 'Saturday', start_time: '10:00', name: 'Strength', coach: '', info: '1 hr', capacity: 10 },
+    { id: 29, day_name: 'Sunday', start_time: '09:00', name: 'Strength', coach: '', info: '1 hr', capacity: 10 }
   ];
   /* demo open-gym hours: one-hour slots, 6 spaces each (Mon-Fri 7am-9pm, Sat 7am-5pm, Sun 7am-4pm) */
   (function () {

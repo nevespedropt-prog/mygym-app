@@ -1,41 +1,50 @@
 /* ============================================================
-   MY GYM London — class timetable
-   EDIT THIS FILE to change what members see. Keep the format:
-   Day: [ {time, name, coach, info}, ... ]
-   The app picks this up automatically (online users get updates
-   on their next open thanks to the service worker).
+   MY GYM London: class timetable (same as www.mygymlondon.co.uk/our-classes).
+   NOTE: the live app reads classes from the Supabase `classes` table, not from this file.
+   See supabase/migration-real-timetable.sql.
    ============================================================ */
 const TIMETABLE = {
   "Monday": [
-    { time: "07:00", name: "Morning Blast",   coach: "Team MY GYM", info: "45 min full-body class" },
-    { time: "09:30", name: "Over 50s Strength & Mobility", coach: "", info: "gentle, friendly, effective" },
-    { time: "18:00", name: "Circuit Training", coach: "", info: "all levels" },
-    { time: "19:00", name: "Small Group PT",   coach: "", info: "max 4 people" }
+    { time: "07:00", name: "Cardio n Abs", coach: "", info: "30 min" },
+    { time: "07:30", name: "HIIT", coach: "", info: "30 min" },
+    { time: "09:00", name: "BoxFit", coach: "", info: "30 min" },
+    { time: "09:30", name: "Strength", coach: "", info: "30 min" },
+    { time: "10:00", name: "Vitality 50+ Circuit", coach: "", info: "1 hr" },
+    { time: "18:00", name: "Cardio n Abs", coach: "", info: "1 hr" },
+    { time: "18:30", name: "Pilates", coach: "", info: "1 hr" },
+    { time: "19:00", name: "Strength", coach: "", info: "1 hr" }
   ],
   "Tuesday": [
-    { time: "07:00", name: "Sunrise HIIT",     coach: "", info: "30 min, coffee after" },
-    { time: "16:30", name: "Kids Class",       coach: "", info: "ages 6–11, fun first" },
-    { time: "18:30", name: "Gym + Classes Open Session", coach: "", info: "coach on floor" }
+    { time: "09:00", name: "HIIT", coach: "", info: "30 min" },
+    { time: "09:30", name: "Cardio n Abs", coach: "", info: "30 min" },
+    { time: "18:00", name: "Abs Attack", coach: "", info: "1 hr" }
   ],
   "Wednesday": [
-    { time: "07:00", name: "Morning Blast",    coach: "", info: "45 min full-body class" },
-    { time: "09:30", name: "Over 50s Circuit", coach: "", info: "strength + balance" },
-    { time: "18:00", name: "Boxing Fit",       coach: "", info: "no contact, all fitness levels" },
-    { time: "19:00", name: "1-2-1 PT slots",   coach: "", info: "book at reception" }
+    { time: "07:00", name: "HIIT Glow", coach: "", info: "30 min" },
+    { time: "07:30", name: "Cardio n Abs", coach: "", info: "30 min" },
+    { time: "09:00", name: "BoxFit", coach: "", info: "30 min" },
+    { time: "09:30", name: "Strength", coach: "", info: "30 min" },
+    { time: "18:00", name: "Strength", coach: "", info: "1 hr" },
+    { time: "19:00", name: "BoxFit", coach: "", info: "30 min" }
   ],
   "Thursday": [
-    { time: "07:00", name: "Sunrise HIIT",     coach: "", info: "30 min" },
-    { time: "16:30", name: "Kids Class",       coach: "", info: "ages 6–11" },
-    { time: "18:30", name: "Strength Basics",  coach: "", info: "perfect for beginners" }
+    { time: "09:00", name: "HIIT", coach: "", info: "30 min" },
+    { time: "09:30", name: "Cardio n Abs", coach: "", info: "30 min" },
+    { time: "18:00", name: "HIIT", coach: "", info: "1 hr" }
   ],
   "Friday": [
-    { time: "07:00", name: "Morning Blast",    coach: "", info: "45 min" },
-    { time: "09:30", name: "Over 50s Class",   coach: "", info: "finish the week strong" },
-    { time: "17:30", name: "Friday Finisher",  coach: "", info: "team workout, great vibes" }
+    { time: "07:00", name: "Strength", coach: "", info: "30 min" },
+    { time: "07:30", name: "Abs Attack", coach: "", info: "30 min" },
+    { time: "09:00", name: "Cardio n Abs", coach: "", info: "30 min" },
+    { time: "09:30", name: "Strength", coach: "", info: "30 min" },
+    { time: "10:00", name: "Vitality 50+ Circuit", coach: "", info: "1 hr" },
+    { time: "18:30", name: "Body Conditioning", coach: "", info: "1 hr" },
+    { time: "19:00", name: "Body Conditioning", coach: "", info: "1 hr" }
   ],
   "Saturday": [
-    { time: "09:00", name: "Weekend Warrior",  coach: "", info: "60 min mixed class" },
-    { time: "10:30", name: "Family Session",   coach: "", info: "bring the kids" }
+    { time: "10:00", name: "Strength", coach: "", info: "1 hr" }
   ],
-  "Sunday": []
+  "Sunday": [
+    { time: "09:00", name: "Strength", coach: "", info: "1 hr" }
+  ]
 };

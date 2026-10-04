@@ -56,6 +56,50 @@
       }
     });
   })();
+  const DEMO_EXERCISES = [
+    {"name": "Barbell back squat", "muscle_group": "Legs", "equipment": "Barbell", "how_to": "Bar on upper back, brace, sit down between the hips, drive up through mid-foot.", "sort": 1},
+    {"name": "Goblet squat", "muscle_group": "Legs", "equipment": "Kettlebell", "how_to": "Hold a kettlebell at the chest, elbows inside the knees, squat to depth with an upright torso.", "sort": 2},
+    {"name": "Smith squat", "muscle_group": "Legs", "equipment": "Smith bar", "how_to": "Feet slightly forward of the bar, brace, sit down between the hips and drive up through mid-foot.", "sort": 3},
+    {"name": "Smith split squat", "muscle_group": "Legs", "equipment": "Smith bar", "how_to": "Back foot on a bench or the floor, lower the back knee towards the floor, push through the front heel.", "sort": 4},
+    {"name": "Romanian deadlift", "muscle_group": "Legs", "equipment": "Barbell", "how_to": "Soft knees, push hips back with a flat back until the hamstrings stretch, then stand tall.", "sort": 5},
+    {"name": "Walking lunge", "muscle_group": "Legs", "equipment": "Dumbbell", "how_to": "Long step, back knee towards the floor, push through the front heel into the next step.", "sort": 6},
+    {"name": "Calf raise", "muscle_group": "Legs", "equipment": "Dumbbell", "how_to": "Hold dumbbells, rise onto the balls of the feet, pause at the top, lower slowly.", "sort": 7},
+    {"name": "Hip thrust", "muscle_group": "Glutes", "equipment": "Barbell", "how_to": "Upper back on a bench, bar over hips, drive hips up and squeeze at the top.", "sort": 8},
+    {"name": "Smith hip thrust", "muscle_group": "Glutes", "equipment": "Smith bar", "how_to": "Upper back on a bench, bar across the hips, drive up and squeeze the glutes at the top.", "sort": 9},
+    {"name": "Cable pull-through", "muscle_group": "Glutes", "equipment": "Cable", "how_to": "Face away from a low pulley, rope between the legs, hinge back and snap the hips forward.", "sort": 10},
+    {"name": "Glute bridge", "muscle_group": "Glutes", "equipment": "Bodyweight", "how_to": "Lie on your back, feet flat, lift hips until shoulders, hips and knees line up.", "sort": 11},
+    {"name": "Conventional deadlift", "muscle_group": "Back", "equipment": "Barbell", "how_to": "Bar over mid-foot, flat back, push the floor away and stand up with the bar close to the legs.", "sort": 12},
+    {"name": "Pull-up", "muscle_group": "Back", "equipment": "Pull-up bar", "how_to": "Hang with hands just wider than shoulders, pull the chest to the bar, lower under control.", "sort": 13},
+    {"name": "Lat pulldown", "muscle_group": "Back", "equipment": "Cable", "how_to": "Pull the bar to the upper chest, elbows down and back, control the way up.", "sort": 14},
+    {"name": "Bent-over row", "muscle_group": "Back", "equipment": "Barbell", "how_to": "Hinge to a flat back, pull the bar to the lower ribs, squeeze the shoulder blades.", "sort": 15},
+    {"name": "Seated cable row", "muscle_group": "Back", "equipment": "Cable", "how_to": "Sit tall, pull the handle to the stomach, keep shoulders down, pause, then return slowly.", "sort": 16},
+    {"name": "Single-arm cable row", "muscle_group": "Back", "equipment": "Cable", "how_to": "Stand or kneel facing a low or mid pulley, pull the handle to the hip, keep the torso still.", "sort": 17},
+    {"name": "Single-arm dumbbell row", "muscle_group": "Back", "equipment": "Dumbbell", "how_to": "Hand and knee on a bench, pull the dumbbell to the hip without twisting.", "sort": 18},
+    {"name": "Face pull", "muscle_group": "Shoulders", "equipment": "Cable", "how_to": "Rope at face height, pull towards the eyes with elbows high and hands apart.", "sort": 19},
+    {"name": "Bench press", "muscle_group": "Chest", "equipment": "Barbell", "how_to": "Shoulder blades tucked, lower the bar to the mid-chest, press up over the shoulders.", "sort": 20},
+    {"name": "Smith bench press", "muscle_group": "Chest", "equipment": "Smith bar", "how_to": "Bench under the bar, shoulder blades tucked, lower to the mid-chest and press up.", "sort": 21},
+    {"name": "Incline dumbbell press", "muscle_group": "Chest", "equipment": "Dumbbell", "how_to": "Bench at 30 degrees, lower to chest level, press up and slightly together.", "sort": 22},
+    {"name": "Push-up", "muscle_group": "Chest", "equipment": "Bodyweight", "how_to": "Hands under shoulders, body in a straight line, chest to the floor, push back up.", "sort": 23},
+    {"name": "Cable fly", "muscle_group": "Chest", "equipment": "Cable", "how_to": "Slight elbow bend, bring the handles together in a wide arc, stretch slowly on the way back.", "sort": 24},
+    {"name": "Overhead press", "muscle_group": "Shoulders", "equipment": "Barbell", "how_to": "Brace the core, press the bar straight overhead, head through at the top.", "sort": 25},
+    {"name": "Smith shoulder press", "muscle_group": "Shoulders", "equipment": "Smith bar", "how_to": "Seated bench under the bar, lower to chin height, press straight up without locking out hard.", "sort": 26},
+    {"name": "Lateral raise", "muscle_group": "Shoulders", "equipment": "Dumbbell", "how_to": "Lift dumbbells out to the sides to shoulder height, lead with the elbows, lower slowly.", "sort": 27},
+    {"name": "Cable lateral raise", "muscle_group": "Shoulders", "equipment": "Cable", "how_to": "Stand side-on to a low pulley, raise the handle out to shoulder height, lower under control.", "sort": 28},
+    {"name": "Biceps curl", "muscle_group": "Arms", "equipment": "Dumbbell", "how_to": "Elbows pinned to the sides, curl up, squeeze, lower for a count of three.", "sort": 29},
+    {"name": "Cable biceps curl", "muscle_group": "Arms", "equipment": "Cable", "how_to": "Low pulley with the bar or handle, elbows pinned, curl up and lower slowly.", "sort": 30},
+    {"name": "Hammer curl", "muscle_group": "Arms", "equipment": "Dumbbell", "how_to": "Palms facing in, curl without swinging, keep wrists neutral.", "sort": 31},
+    {"name": "Triceps pushdown", "muscle_group": "Arms", "equipment": "Cable", "how_to": "Elbows tight to the ribs, push the handle down until the arms are straight.", "sort": 32},
+    {"name": "Overhead triceps extension", "muscle_group": "Arms", "equipment": "Dumbbell", "how_to": "Hold one dumbbell overhead with both hands, lower behind the head, extend.", "sort": 33},
+    {"name": "Plank", "muscle_group": "Core", "equipment": "Bodyweight", "how_to": "Forearms down, body in a straight line, squeeze glutes and abs, breathe steadily.", "sort": 34},
+    {"name": "Dead bug", "muscle_group": "Core", "equipment": "Bodyweight", "how_to": "On your back, lower opposite arm and leg while the lower back stays flat to the floor.", "sort": 35},
+    {"name": "Hanging knee raise", "muscle_group": "Core", "equipment": "Pull-up bar", "how_to": "Hang from a bar, lift the knees to the chest without swinging, lower slowly.", "sort": 36},
+    {"name": "Cable crunch", "muscle_group": "Core", "equipment": "Cable", "how_to": "Kneel under a high pulley with the rope at the head, curl the ribs towards the hips, return slowly.", "sort": 37},
+    {"name": "Cable woodchop", "muscle_group": "Core", "equipment": "Cable", "how_to": "Pulley set high or low, rotate through the torso and pull the handle across the body with straight arms.", "sort": 38},
+    {"name": "Russian twist", "muscle_group": "Core", "equipment": "Dumbbell", "how_to": "Lean back slightly, feet raised or down, rotate the weight side to side.", "sort": 39},
+    {"name": "Kettlebell swing", "muscle_group": "Full body", "equipment": "Kettlebell", "how_to": "Hinge, snap the hips forward and float the bell to chest height, let it fall back between the legs.", "sort": 40},
+    {"name": "Farmer carry", "muscle_group": "Full body", "equipment": "Dumbbell", "how_to": "Hold heavy dumbbells at your sides, stand tall and walk with short, steady steps.", "sort": 41}
+  ];
+
   const DEMO_TEMPLATES = [
     { id: 't1', name: 'Beginner Full-Body', level: 'Beginner', goal: 'General fitness', description: 'Your first month at MY GYM — everything guided.', exercises: [{ name: 'Treadmill warm-up walk', sets: 1, reps: '5 min' }, { name: 'Goblet squat', sets: 3, reps: '10' }, { name: 'Chest press machine', sets: 3, reps: '10' }, { name: 'Seated row', sets: 3, reps: '10' }, { name: 'Plank', sets: 3, reps: '20 sec' }] },
     { id: 't2', name: 'Over 50s Strength & Mobility', level: 'Over 50s', goal: 'Strength + mobility', description: 'Bone strength, balance and mobility — kind to joints.', exercises: [{ name: 'Marching warm-up', sets: 1, reps: '3 min' }, { name: 'Sit-to-stand', sets: 3, reps: '8' }, { name: 'Wall press-up', sets: 3, reps: '10' }, { name: 'Heel raises', sets: 3, reps: '12' }] },
@@ -292,6 +336,14 @@
       if (!LIVE) return dGet('weights_' + u.email, []);
       const { data, error } = await sb.from('weight_logs').select('*').eq('user_id', u.id).order('date');
       if (error) throw error;
+      return data;
+    },
+
+    /* ---- exercise library (falls back to the built-in list if the table is missing) ---- */
+    async getExercises() {
+      if (!LIVE) return DEMO_EXERCISES;
+      const { data, error } = await sb.from('exercises').select('*').order('sort').order('name');
+      if (error || !data || !data.length) return DEMO_EXERCISES;
       return data;
     },
 

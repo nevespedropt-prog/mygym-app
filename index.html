@@ -175,7 +175,9 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .exlib .how{margin-top:8px;font-size:13.5px;color:var(--mut);display:none}
 .exlib.open .how{display:block}
 .exlib{cursor:pointer}
-.exlib .chip{margin-right:8px}
+.exlib b{display:block;margin-top:8px}
+.exlib .chip{margin-right:6px}
+.exlib .chip.eq{background:var(--bg);color:var(--mut)}
 #exGroups button{white-space:nowrap;flex:0 0 auto;padding:11px 14px}
 .tpl .ex{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:none}
 .tpl.open .ex{display:block}
@@ -388,7 +390,10 @@ nav.show{display:block}
     <button data-t="workouts">Workouts</button>
   </div>
   <div id="libExercises">
-    <div class="field"><input id="exSearch" type="search" placeholder="Search exercises" aria-label="Search exercises"></div>
+    <div class="row2">
+      <div class="field"><input id="exSearch" type="search" placeholder="Search exercises" aria-label="Search exercises"></div>
+      <div class="field"><select id="exEquip" aria-label="Filter by equipment"><option value="All">All equipment</option></select></div>
+    </div>
     <div class="seg" id="exGroups" style="overflow-x:auto"></div>
     <div id="exLibList"></div>
   </div>

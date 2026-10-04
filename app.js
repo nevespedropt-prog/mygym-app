@@ -734,42 +734,7 @@
   }
 
   /* ---------- LIBRARY (exercises + workouts) ---------- */
-  const EXERCISES = [
-    ['Barbell back squat', 'Legs', 'Bar on upper back, brace, sit down between the hips, drive up through mid-foot.'],
-    ['Goblet squat', 'Legs', 'Hold a dumbbell at the chest, elbows inside the knees, squat to depth with an upright torso.'],
-    ['Romanian deadlift', 'Legs', 'Soft knees, push hips back with a flat back until the hamstrings stretch, then stand tall.'],
-    ['Walking lunge', 'Legs', 'Long step, back knee towards the floor, push through the front heel into the next step.'],
-    ['Leg press', 'Legs', 'Feet shoulder width, lower until knees reach about 90 degrees, press without locking out.'],
-    ['Hip thrust', 'Glutes', 'Upper back on a bench, bar over hips, drive hips up and squeeze at the top.'],
-    ['Glute bridge', 'Glutes', 'Lie on your back, feet flat, lift hips until shoulders, hips and knees line up.'],
-    ['Calf raise', 'Legs', 'Rise onto the balls of the feet, pause at the top, lower slowly past flat.'],
-    ['Conventional deadlift', 'Back', 'Bar over mid-foot, flat back, push the floor away and stand up with the bar close to the legs.'],
-    ['Pull-up', 'Back', 'Hang with hands just wider than shoulders, pull the chest to the bar, lower under control.'],
-    ['Lat pulldown', 'Back', 'Pull the bar to the upper chest, elbows down and back, control the way up.'],
-    ['Bent-over row', 'Back', 'Hinge to a flat back, pull the bar to the lower ribs, squeeze the shoulder blades.'],
-    ['Seated cable row', 'Back', 'Sit tall, pull the handle to the stomach, keep shoulders down, pause, then return slowly.'],
-    ['Single-arm dumbbell row', 'Back', 'Hand and knee on a bench, pull the dumbbell to the hip without twisting.'],
-    ['Face pull', 'Shoulders', 'Rope at face height, pull towards the eyes with elbows high and hands apart.'],
-    ['Bench press', 'Chest', 'Shoulder blades tucked, lower the bar to the mid-chest, press up over the shoulders.'],
-    ['Incline dumbbell press', 'Chest', 'Bench at 30 degrees, lower to chest level, press up and slightly together.'],
-    ['Push-up', 'Chest', 'Hands under shoulders, body in a straight line, chest to the floor, push back up.'],
-    ['Cable fly', 'Chest', 'Slight elbow bend, bring the handles together in a wide arc, stretch slowly on the way back.'],
-    ['Overhead press', 'Shoulders', 'Brace the core, press the bar straight overhead, head through at the top.'],
-    ['Lateral raise', 'Shoulders', 'Lift dumbbells out to the sides to shoulder height, lead with the elbows, lower slowly.'],
-    ['Biceps curl', 'Arms', 'Elbows pinned to the sides, curl up, squeeze, lower for a count of three.'],
-    ['Hammer curl', 'Arms', 'Palms facing in, curl without swinging, keep wrists neutral.'],
-    ['Triceps pushdown', 'Arms', 'Elbows tight to the ribs, push the handle down until the arms are straight.'],
-    ['Overhead triceps extension', 'Arms', 'Hold one dumbbell overhead with both hands, lower behind the head, extend.'],
-    ['Plank', 'Core', 'Forearms down, body in a straight line, squeeze glutes and abs, breathe steadily.'],
-    ['Dead bug', 'Core', 'On your back, lower opposite arm and leg while the lower back stays flat to the floor.'],
-    ['Hanging knee raise', 'Core', 'Hang from a bar, lift the knees to the chest without swinging, lower slowly.'],
-    ['Russian twist', 'Core', 'Lean back slightly, feet raised or down, rotate the weight side to side.'],
-    ['Kettlebell swing', 'Full body', 'Hinge, snap the hips forward and float the bell to chest height, let it fall back between the legs.'],
-    ['Farmer carry', 'Full body', 'Hold heavy weights at your sides, stand tall and walk with short, steady steps.'],
-    ['Rowing machine', 'Cardio', 'Push with the legs first, then lean back and pull; return arms, body, legs.']
-  ].map((x) => ({ name: x[0], group: x[1], how: x[2] }));
-  const EX_GROUPS = ['All'].concat(EXERCISES.map((x) => x.group).filter((g, i, arr) => arr.indexOf(g) === i));
-  let libMode = 'exercises', exGroup = 'All';
+  let libMode = 'exercises', exGroup = 'All', exEquip = 'All', exData = null;
 
   $$('#libSeg button').forEach((b) => b.addEventListener('click', () => {
     libMode = b.dataset.t;
@@ -784,28 +749,43 @@
     if (libMode === 'exercises') renderExercises(); else renderTemplates();
   }
 
-  function renderExercises() {
-    const gbox = $('#exGroups');
-    if (!gbox.children.length) {
-      EX_GROUPS.forEach((g) => {
-        const b = el('button', g === exGroup ? 'sel' : '', g);
-        b.addEventListener('click', () => {
-          exGroup = g;
-          $$('#exGroups button').forEach((x) => x.classList.toggle('sel', x === b));
-          renderExercises();
-        });
-        gbox.appendChild(b);
+  function fillFilters(list) {
+    const uniq = (k) => ['All'].concat(list.map((x) => x[k]).filter((g, i, arr) => g && arr.indexOf(g) === i));
+    const gbox = $('#exGroups'); gbox.textContent = '';
+    uniq('muscle_group').forEach((g) => {
+      const b = el('button', g === exGroup ? 'sel' : '', g);
+      b.addEventListener('click', () => {
+        exGroup = g;
+        $$('#exGroups button').forEach((x) => x.classList.toggle('sel', x === b));
+        renderExercises();
       });
+      gbox.appendChild(b);
+    });
+    const sel = $('#exEquip'); sel.textContent = '';
+    uniq('equipment').forEach((g) => {
+      const o = el('option', '', g === 'All' ? 'All equipment' : g); o.value = g; sel.appendChild(o);
+    });
+    sel.value = exEquip;
+  }
+  $('#exEquip').addEventListener('change', (e) => { exEquip = e.target.value; renderExercises(); });
+
+  async function renderExercises() {
+    if (!exData) {
+      exData = await DB.getExercises().catch(() => []);
+      fillFilters(exData);
     }
     const q = $('#exSearch').value.trim().toLowerCase();
     const box = $('#exLibList'); box.textContent = '';
-    const list = EXERCISES.filter((x) => (exGroup === 'All' || x.group === exGroup) && (!q || x.name.toLowerCase().indexOf(q) !== -1));
+    const list = exData.filter((x) => (exGroup === 'All' || x.muscle_group === exGroup)
+      && (exEquip === 'All' || x.equipment === exEquip)
+      && (!q || x.name.toLowerCase().indexOf(q) !== -1));
     if (!list.length) { box.appendChild(el('p', 'note', 'No exercises match.')); return; }
     list.forEach((x) => {
       const card = el('div', 'card exlib');
-      card.appendChild(el('span', 'chip', x.group));
+      card.appendChild(el('span', 'chip', x.muscle_group));
+      card.appendChild(el('span', 'chip eq', x.equipment));
       card.appendChild(el('b', '', x.name));
-      card.appendChild(el('div', 'how', x.how));
+      card.appendChild(el('div', 'how', x.how_to));
       card.addEventListener('click', () => card.classList.toggle('open'));
       box.appendChild(card);
     });

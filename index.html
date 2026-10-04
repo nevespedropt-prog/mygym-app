@@ -68,6 +68,7 @@ h2[style]{font-size:22px !important}
   border-radius:14px;padding:15px;text-decoration:none;margin:16px 0;border:none;width:100%;cursor:pointer;
 }
 .cta:disabled{opacity:.45;cursor:default}
+.cta.alt{background:#fff;color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc);margin-top:-6px}
 .cta:active,.btn-small:active{transform:scale(.98)}
 .hero{
   background:linear-gradient(160deg,#e03939,#a03535);color:#fff;
@@ -298,12 +299,17 @@ nav.show{display:block}
   <h2>Today at MY GYM</h2>
   <div id="todayList"></div>
   <a class="cta" href="#timetable" data-goto="timetable">See full timetable →</a>
+  <a class="cta alt" id="gymCta" href="#timetable" data-gym="1" style="display:none">Book your gym time →</a>
 </section>
 
 <!-- ============ TIMETABLE (everyone; booking for members) ============ -->
 <section class="view" id="timetable">
   <h2>Timetable</h2>
   <p class="sub" id="ttHeadline">Pick a day and grab your spot.</p>
+  <div class="seg" id="ttSeg" style="display:none">
+    <button data-t="classes" class="sel">Classes</button>
+    <button data-t="gym">Book the gym</button>
+  </div>
   <div class="dates" id="dateStrip"></div>
   <div id="bookSlots"></div>
   <p class="note" id="ttNote"></p>

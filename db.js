@@ -26,6 +26,16 @@
     { id: 8, day_name: 'Friday', start_time: '17:30', name: 'Friday Finisher', coach: '', info: 'team workout, great vibes', capacity: 12 },
     { id: 9, day_name: 'Saturday', start_time: '09:00', name: 'Weekend Warrior', coach: '', info: '60 min mixed class', capacity: 12 }
   ];
+  /* demo open-gym hours: one-hour slots, 6 spaces each (Mon-Fri 7am-9pm, Sat 7am-5pm, Sun 7am-4pm) */
+  (function () {
+    const hours = { Monday: [7, 20], Tuesday: [7, 20], Wednesday: [7, 20], Thursday: [7, 20], Friday: [7, 20], Saturday: [7, 16], Sunday: [7, 15] };
+    let id = 1000;
+    Object.keys(hours).forEach((day) => {
+      for (let h = hours[day][0]; h <= hours[day][1]; h++) {
+        DEMO_CLASSES.push({ id: id++, kind: 'gym', day_name: day, start_time: String(h).padStart(2, '0') + ':00', name: 'Open Gym', coach: '', info: '', capacity: 6 });
+      }
+    });
+  })();
   const DEMO_TEMPLATES = [
     { id: 't1', name: 'Beginner Full-Body', level: 'Beginner', goal: 'General fitness', description: 'Your first month at MY GYM — everything guided.', exercises: [{ name: 'Treadmill warm-up walk', sets: 1, reps: '5 min' }, { name: 'Goblet squat', sets: 3, reps: '10' }, { name: 'Chest press machine', sets: 3, reps: '10' }, { name: 'Seated row', sets: 3, reps: '10' }, { name: 'Plank', sets: 3, reps: '20 sec' }] },
     { id: 't2', name: 'Over 50s Strength & Mobility', level: 'Over 50s', goal: 'Strength + mobility', description: 'Bone strength, balance and mobility — kind to joints.', exercises: [{ name: 'Marching warm-up', sets: 1, reps: '3 min' }, { name: 'Sit-to-stand', sets: 3, reps: '8' }, { name: 'Wall press-up', sets: 3, reps: '10' }, { name: 'Heel raises', sets: 3, reps: '12' }] },

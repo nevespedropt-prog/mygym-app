@@ -169,8 +169,15 @@
 
   /* ---------- TIMETABLE (everyone; booking for members) ---------- */
   let bkCache = null; // { t, data } — reused for 30s when only the day changes
+  let ttMode = 'classes'; // 'classes' | 'gym'
+  const isGym = (c) => c.kind === 'gym';
+  const endTime = (t) => { const p = t.split(':'); return String(((+p[0] + 1) % 24)).padStart(2, '0') + ':' + p[1]; };
   async function renderTimetable(reuse) {
     await ensureClasses();
+    const hasGym = classes.some(isGym);
+    if (!hasGym) ttMode = 'classes';
+    $('#ttSeg').style.display = hasGym ? 'flex' : 'none';
+    $$('#ttSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === ttMode));
     const strip = $('#dateStrip');
     strip.textContent = '';
     for (let i = 0; i < 14; i++) {
@@ -183,9 +190,9 @@
       b.addEventListener('click', () => { selDate = iso; renderTimetable(true); });
       strip.appendChild(b);
     }
-    $('#ttHeadline').textContent = authed
-      ? 'Pick a day and grab your spot. Cancel any time.'
-      : 'Our weekly classes. Join free to book your spot.';
+    $('#ttHeadline').textContent = ttMode === 'gym'
+      ? (authed ? 'Pick a day and an hour for the gym floor. Cancel any time.' : 'Book a one-hour slot on the gym floor. Join free to book.')
+      : (authed ? 'Pick a day and grab your spot. Cancel any time.' : 'Our weekly classes. Join free to book your spot.');
 
     let allBookings = [];
     if (authed) {
@@ -193,15 +200,21 @@
       else { try { allBookings = await DB.getBookingsForDates(window14()); bkCache = { t: Date.now(), data: allBookings }; } catch (e) {} }
     }
 
-    const dayClasses = classes.filter((c) => c.day_name === dowOf(selDate));
+    const dayClasses = classes.filter((c) => c.day_name === dowOf(selDate) && isGym(c) === (ttMode === 'gym'));
     const box = $('#bookSlots');
     box.textContent = '';
     if (!dayClasses.length) {
-      box.appendChild(el('div', 'card note', 'No classes on ' + dowOf(selDate) + ' — rest days build muscle too 🛋️'));
+      box.appendChild(el('div', 'card note', ttMode === 'gym'
+        ? 'The gym is closed on ' + dowOf(selDate) + '.'
+        : 'No classes on ' + dowOf(selDate) + ' — rest days build muscle too 🛋️'));
     }
     dayClasses.forEach((c) => box.appendChild(slotRow(c, selDate, allBookings)));
-    $('#ttNote').textContent = authed ? '' : 'Tap “Log in” to book — it takes 10 seconds.';
+    $('#ttNote').textContent = !authed ? 'Tap “Log in” to book — it takes 10 seconds.'
+      : (ttMode === 'gym' ? 'One hour at a time · members only · limited spaces so everyone has room to train.' : '');
   }
+
+  $$('#ttSeg button').forEach((b) => b.addEventListener('click', () => { ttMode = b.dataset.t; renderTimetable(true); }));
+  $$('[data-gym]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); ttMode = 'gym'; go('timetable'); }));
 
   function window14() {
     const dates = [];
@@ -210,12 +223,15 @@
   }
 
   function slotRow(c, iso, allBookings) {
+    const gym = isGym(c);
     const row = el('div', 'slot');
     const t = el('span', 'time', c.start_time);
     row.appendChild(t);
     const what = el('span', 'what');
     what.appendChild(el('b', '', c.name));
-    what.appendChild(el('small', '', [c.coach, c.info].filter(Boolean).join(' · ')));
+    what.appendChild(el('small', '', gym ? c.start_time + ' – ' + endTime(c.start_time) + ' · gym floor' : [c.coach, c.info].filter(Boolean).join(' · ')));
+    /* an hour that has already started can't be booked today */
+    const started = gym && iso === fmtISO(new Date()) && c.start_time <= new Date().toTimeString().slice(0, 5);
     if (authed) {
       const cbs = allBookings.filter((b) => b.class_id === c.id && b.date === iso);
       const left = (c.capacity || 8) - cbs.length;
@@ -237,7 +253,7 @@
         b.textContent = 'Cancel'; b.className = 'btn-small ghost';
         b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); renderTimetable(); } catch (e) { b.disabled = false; } });
       } else {
-        b.textContent = 'Book'; b.disabled = left <= 0;
+        b.textContent = started ? 'Started' : 'Book'; b.disabled = left <= 0 || started;
         b.addEventListener('click', async () => { b.disabled = true; try { await DB.book(c.id, iso); renderTimetable(); } catch (e) { b.disabled = false; } });
       }
       act.appendChild(b);
@@ -288,7 +304,8 @@
       // today's classes
       const today = fmtISO(new Date());
       const todayBookings = allBk.filter((b) => b.date === today);
-      const todays = classes.filter((c) => c.day_name === dowOf(today));
+      const todays = classes.filter((c) => c.day_name === dowOf(today) && !isGym(c));
+      $('#gymCta').style.display = classes.some(isGym) ? 'block' : 'none';
       const tl = $('#todayList'); tl.textContent = '';
       if (!todays.length) tl.appendChild(el('div', 'card note', 'No classes today — perfect day to log a workout 💪'));
       todays.forEach((c) => tl.appendChild(slotRow(c, today, todayBookings)));

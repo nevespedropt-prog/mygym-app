@@ -20,10 +20,7 @@ alter table public.classes add column if not exists kind text not null default '
 alter table public.classes drop constraint if exists classes_kind_check;
 alter table public.classes add constraint classes_kind_check check (kind in ('class', 'gym'));
 
--- hourly slots matching the opening hours:
---   Mon-Fri 05:00-00:00 (last slot starts 23:00)
---   Saturday 05:00-00:00 (last slot starts 23:00)
---   Sunday   05:00-00:00 (last slot starts 15:00)
+-- hourly slots, every day of the week, 05:00 to midnight (first slot 05:00, last slot starts 23:00).
 -- capacity 6 per hour (same as the website). Change the 6 below to adjust.
 insert into public.classes (day_name, start_time, name, coach, info, capacity, sort, kind)
 select d.day_name, to_char(make_time(h, 0, 0), 'HH24:MI'), 'Open Gym', '', '', 6, 100 + h, 'gym'

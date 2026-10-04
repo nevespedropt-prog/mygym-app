@@ -33,7 +33,7 @@
   let profile = null;
   let classes = [];
   let selDate = fmtISO(new Date());
-  const MEMBER_VIEWS = ['bookings', 'log', 'progress'];
+  const MEMBER_VIEWS = ['bookings', 'log', 'progress', 'library'];
   const WEEK_GOAL = 3;
 
   /* ---------- navigation ---------- */
@@ -49,7 +49,7 @@
     if (actual === 'log') renderLog();
     if (actual === 'progress') renderProgress();
     if (actual === 'profile') renderProfile();
-    if (actual === 'message' && profile) $('#msgName').value = profile.full_name || '';
+    if (actual === 'library') renderLibrary();
   }
   window.__mygymGo = go;
 
@@ -579,11 +579,11 @@
     if (progMode === 'weight') {
       const pts = ws.filter((w) => w.kg).map((w) => ({ label: fmtShort(w.date), v: Number(w.kg) }));
       lineChart(cv, pts, 'kg');
-      statCards(stats, pts, 'kg');
+      statCards(stats, pts, ' kg');
     } else if (progMode === 'bf') {
       const pts = ws.filter((w) => w.body_fat_pct).map((w) => ({ label: fmtShort(w.date), v: Number(w.body_fat_pct) }));
       lineChart(cv, pts, '%');
-      statCards(stats, pts, '% BF');
+      statCards(stats, pts, '%');
     } else {
       // weekly workout volume (last 8 weeks)
       const weeks = [], labels = [];
@@ -603,7 +603,6 @@
         const d = el('div', 'stat'); d.appendChild(el('b', '', String(s[1]))); d.appendChild(el('small', '', s[0])); stats.appendChild(d);
       });
     }
-    renderTemplates();
   }
 
   function statCards(box, pts, unit) {
@@ -615,7 +614,7 @@
     const diff = (last - first);
     const arrow = diff === 0 ? '→' : (diff < 0 ? '▼' : '▲');
     [['Start', first.toFixed(1)], ['Latest', last.toFixed(1)], ['Change', arrow + ' ' + Math.abs(diff).toFixed(1)]].forEach((s) => {
-      const d = el('div', 'stat'); d.appendChild(el('b', '', s[1] + (s[0] === 'Change' ? '' : unit === '%' ? '%' : ''))); d.appendChild(el('small', '', s[0])); box.appendChild(d);
+      const d = el('div', 'stat'); d.appendChild(el('b', '', s[1] + unit)); d.appendChild(el('small', '', s[0])); box.appendChild(d);
     });
   }
 
@@ -734,21 +733,83 @@
     });
   }
 
-  /* ---------- MESSAGE (mailto) ---------- */
-  $('#msgSend').addEventListener('click', () => {
-    const name = $('#msgName').value.trim();
-    const topic = $('#msgTopic').value;
-    const body = $('#msgBody').value.trim();
-    if (!body) return toast($('#msgErr'), 'Write a message first 🙂', true);
-    const subject = encodeURIComponent('[MY GYM App] ' + topic + (name ? ' — ' + name : ''));
-    const text = encodeURIComponent(body + (name ? '\n\n— ' + name : '') + ((me && me.email) ? '\n(' + me.email + ')' : ''));
-    window.location.href = 'mailto:info@mygymlondon.co.uk?subject=' + subject + '&body=' + text;
-    toast($('#msgErr'), '');
-    $('#msgErr').textContent = '';
-    const okn = $('#msgErr');
-    okn.className = 'ok'; okn.textContent = '✉️ Opening your email app…';
-    setTimeout(() => { okn.textContent = ''; }, 4000);
-  });
+  /* ---------- LIBRARY (exercises + workouts) ---------- */
+  const EXERCISES = [
+    ['Barbell back squat', 'Legs', 'Bar on upper back, brace, sit down between the hips, drive up through mid-foot.'],
+    ['Goblet squat', 'Legs', 'Hold a dumbbell at the chest, elbows inside the knees, squat to depth with an upright torso.'],
+    ['Romanian deadlift', 'Legs', 'Soft knees, push hips back with a flat back until the hamstrings stretch, then stand tall.'],
+    ['Walking lunge', 'Legs', 'Long step, back knee towards the floor, push through the front heel into the next step.'],
+    ['Leg press', 'Legs', 'Feet shoulder width, lower until knees reach about 90 degrees, press without locking out.'],
+    ['Hip thrust', 'Glutes', 'Upper back on a bench, bar over hips, drive hips up and squeeze at the top.'],
+    ['Glute bridge', 'Glutes', 'Lie on your back, feet flat, lift hips until shoulders, hips and knees line up.'],
+    ['Calf raise', 'Legs', 'Rise onto the balls of the feet, pause at the top, lower slowly past flat.'],
+    ['Conventional deadlift', 'Back', 'Bar over mid-foot, flat back, push the floor away and stand up with the bar close to the legs.'],
+    ['Pull-up', 'Back', 'Hang with hands just wider than shoulders, pull the chest to the bar, lower under control.'],
+    ['Lat pulldown', 'Back', 'Pull the bar to the upper chest, elbows down and back, control the way up.'],
+    ['Bent-over row', 'Back', 'Hinge to a flat back, pull the bar to the lower ribs, squeeze the shoulder blades.'],
+    ['Seated cable row', 'Back', 'Sit tall, pull the handle to the stomach, keep shoulders down, pause, then return slowly.'],
+    ['Single-arm dumbbell row', 'Back', 'Hand and knee on a bench, pull the dumbbell to the hip without twisting.'],
+    ['Face pull', 'Shoulders', 'Rope at face height, pull towards the eyes with elbows high and hands apart.'],
+    ['Bench press', 'Chest', 'Shoulder blades tucked, lower the bar to the mid-chest, press up over the shoulders.'],
+    ['Incline dumbbell press', 'Chest', 'Bench at 30 degrees, lower to chest level, press up and slightly together.'],
+    ['Push-up', 'Chest', 'Hands under shoulders, body in a straight line, chest to the floor, push back up.'],
+    ['Cable fly', 'Chest', 'Slight elbow bend, bring the handles together in a wide arc, stretch slowly on the way back.'],
+    ['Overhead press', 'Shoulders', 'Brace the core, press the bar straight overhead, head through at the top.'],
+    ['Lateral raise', 'Shoulders', 'Lift dumbbells out to the sides to shoulder height, lead with the elbows, lower slowly.'],
+    ['Biceps curl', 'Arms', 'Elbows pinned to the sides, curl up, squeeze, lower for a count of three.'],
+    ['Hammer curl', 'Arms', 'Palms facing in, curl without swinging, keep wrists neutral.'],
+    ['Triceps pushdown', 'Arms', 'Elbows tight to the ribs, push the handle down until the arms are straight.'],
+    ['Overhead triceps extension', 'Arms', 'Hold one dumbbell overhead with both hands, lower behind the head, extend.'],
+    ['Plank', 'Core', 'Forearms down, body in a straight line, squeeze glutes and abs, breathe steadily.'],
+    ['Dead bug', 'Core', 'On your back, lower opposite arm and leg while the lower back stays flat to the floor.'],
+    ['Hanging knee raise', 'Core', 'Hang from a bar, lift the knees to the chest without swinging, lower slowly.'],
+    ['Russian twist', 'Core', 'Lean back slightly, feet raised or down, rotate the weight side to side.'],
+    ['Kettlebell swing', 'Full body', 'Hinge, snap the hips forward and float the bell to chest height, let it fall back between the legs.'],
+    ['Farmer carry', 'Full body', 'Hold heavy weights at your sides, stand tall and walk with short, steady steps.'],
+    ['Rowing machine', 'Cardio', 'Push with the legs first, then lean back and pull; return arms, body, legs.']
+  ].map((x) => ({ name: x[0], group: x[1], how: x[2] }));
+  const EX_GROUPS = ['All'].concat(EXERCISES.map((x) => x.group).filter((g, i, arr) => arr.indexOf(g) === i));
+  let libMode = 'exercises', exGroup = 'All';
+
+  $$('#libSeg button').forEach((b) => b.addEventListener('click', () => {
+    libMode = b.dataset.t;
+    $$('#libSeg button').forEach((x) => x.classList.toggle('sel', x === b));
+    renderLibrary();
+  }));
+  $('#exSearch').addEventListener('input', renderExercises);
+
+  function renderLibrary() {
+    $('#libExercises').style.display = libMode === 'exercises' ? '' : 'none';
+    $('#libWorkouts').style.display = libMode === 'workouts' ? '' : 'none';
+    if (libMode === 'exercises') renderExercises(); else renderTemplates();
+  }
+
+  function renderExercises() {
+    const gbox = $('#exGroups');
+    if (!gbox.children.length) {
+      EX_GROUPS.forEach((g) => {
+        const b = el('button', g === exGroup ? 'sel' : '', g);
+        b.addEventListener('click', () => {
+          exGroup = g;
+          $$('#exGroups button').forEach((x) => x.classList.toggle('sel', x === b));
+          renderExercises();
+        });
+        gbox.appendChild(b);
+      });
+    }
+    const q = $('#exSearch').value.trim().toLowerCase();
+    const box = $('#exLibList'); box.textContent = '';
+    const list = EXERCISES.filter((x) => (exGroup === 'All' || x.group === exGroup) && (!q || x.name.toLowerCase().indexOf(q) !== -1));
+    if (!list.length) { box.appendChild(el('p', 'note', 'No exercises match.')); return; }
+    list.forEach((x) => {
+      const card = el('div', 'card exlib');
+      card.appendChild(el('span', 'chip', x.group));
+      card.appendChild(el('b', '', x.name));
+      card.appendChild(el('div', 'how', x.how));
+      card.addEventListener('click', () => card.classList.toggle('open'));
+      box.appendChild(card);
+    });
+  }
 
   /* ---------- PROFILE ---------- */
   async function renderProfile() {
@@ -803,7 +864,7 @@
       }
     } catch (e) {}
     const h = location.hash.slice(1);
-    const map = { book: 'timetable', templates: 'progress', join: 'home', about: 'home', contact: 'message' };
+    const map = { book: 'timetable', join: 'home', about: 'home', contact: 'library', templates: 'library' };
     if (/type=recovery/.test(h)) go('resetpw');
     else if (h && document.getElementById(h)) go(h);
     else if (h && map[h]) go(map[h]);

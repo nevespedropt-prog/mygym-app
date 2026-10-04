@@ -107,3 +107,5 @@ begin
 end $$;
 
 commit;
+
+update public.classes set active = true where kind = 'gym';

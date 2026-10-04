@@ -14,20 +14,22 @@
 -- deploying the app before running this changes nothing for members.
 -- ============================================================
 
+begin;   -- everything below succeeds together or not at all
+
 alter table public.classes add column if not exists kind text not null default 'class';
 alter table public.classes drop constraint if exists classes_kind_check;
 alter table public.classes add constraint classes_kind_check check (kind in ('class', 'gym'));
 
 -- hourly slots matching the opening hours:
---   Mon-Fri 07:00-21:00 (last slot starts 20:00)
---   Saturday 07:00-17:00 (last slot starts 16:00)
---   Sunday   07:00-16:00 (last slot starts 15:00)
+--   Mon-Fri 05:00-00:00 (last slot starts 23:00)
+--   Saturday 05:00-00:00 (last slot starts 23:00)
+--   Sunday   05:00-00:00 (last slot starts 15:00)
 -- capacity 6 per hour (same as the website). Change the 6 below to adjust.
 insert into public.classes (day_name, start_time, name, coach, info, capacity, sort, kind)
 select d.day_name, to_char(make_time(h, 0, 0), 'HH24:MI'), 'Open Gym', '', '', 6, 100 + h, 'gym'
 from (values
-  ('Monday', 7, 20), ('Tuesday', 7, 20), ('Wednesday', 7, 20), ('Thursday', 7, 20), ('Friday', 7, 20),
-  ('Saturday', 7, 16), ('Sunday', 7, 15)
+  ('Monday', 5, 23), ('Tuesday', 5, 23), ('Wednesday', 5, 23), ('Thursday', 5, 23), ('Friday', 5, 23),
+  ('Saturday', 5, 23), ('Sunday', 5, 23)
 ) as d(day_name, first_h, last_h)
 cross join lateral generate_series(d.first_h, d.last_h) as h
 where not exists (select 1 from public.classes where kind = 'gym');
@@ -47,7 +49,9 @@ alter table public.gym_access_plans enable row level security;   -- no policies:
 insert into public.gym_access_plans (plan_id, name) values
   ('fc8df227-f234-4b82-a6c2-2e674a369305', 'Gym & Exercise Class Membership (2026)'),
   ('8f33a3ff-f531-4a05-b007-d5a98143003f', 'Gym & Exercise Class Membership (Annual)'),
-  ('e38b0fa1-6129-47ca-9503-64e4901b4e3b', 'Gym & Exercise Class Membership (Black Friday)')
+  ('e38b0fa1-6129-47ca-9503-64e4901b4e3b', 'Gym & Exercise Class Membership (Black Friday)'),
+  ('d16285d3-c426-4920-887e-344d4e04ec5f', 'BHP Staff Gym Membership'),
+  ('f2914d1f-0d3f-4e24-8039-79e49f03631f', 'BHP Staff Gym Membership (Annual)')
 on conflict (plan_id) do nothing;
 
 -- one row per member, written ONLY by the check-gym-access function (service role)
@@ -104,3 +108,5 @@ begin
   if taken >= c.capacity then raise exception 'This class is full' using errcode = 'P0001'; end if;
   return new;
 end $$;
+
+commit;

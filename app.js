@@ -145,7 +145,7 @@
 
   $('#logoutBtn').addEventListener('click', async () => {
     await DB.signOut();
-    authed = false; me = null; profile = null;
+    authed = false; me = null; profile = null; gymState = null;
     setNav();
     go('home');
   });
@@ -156,6 +156,8 @@
     authed = true;
     profile = await DB.getProfile().catch(() => null);
     classes = await DB.getClasses().catch(() => []);
+    gymState = null;
+    if (classes.some(isGym)) checkGym(true);   // warm up in the background so the gym tab opens instantly
     setNav();
     $('#aPass').value = '';
     go('home');
@@ -171,11 +173,39 @@
   let bkCache = null; // { t, data } — reused for 30s when only the day changes
   let ttMode = 'classes'; // 'classes' | 'gym'
   const isGym = (c) => c.kind === 'gym';
+  /* gym hours are for Gym & Exercise Class members. The server decides (and enforces it when booking);
+     the app only asks so it can show the right screen. gymState: null | 'yes' | 'no' | 'error' */
+  let gymState = null, gymCheckedAt = 0;
+  async function checkGym(force) {
+    if (!authed) return;
+    if (!force && gymState && Date.now() - gymCheckedAt < 10 * 60 * 1000) return;
+    try { gymState = (await DB.refreshGymAccess()) ? 'yes' : 'no'; gymCheckedAt = Date.now(); }
+    catch (e) { if (!gymState) gymState = 'error'; }
+  }
+  function gymLockCard() {
+    const card = el('div', 'card gymlock');
+    if (gymState === 'error') {
+      card.appendChild(el('b', '', 'We couldn’t check your membership'));
+      card.appendChild(el('p', 'sub', 'Check your connection and try again in a moment.'));
+      const r = el('button', 'btn-small', 'Try again');
+      r.addEventListener('click', async () => { r.disabled = true; await checkGym(true); renderTimetable(true); });
+      card.appendChild(r);
+    } else {
+      card.appendChild(el('b', '', 'Gym booking is for Gym & Exercise Class members'));
+      card.appendChild(el('p', 'sub', 'Your current plan doesn’t include open-gym access. Upgrade on our website and your hours unlock here.'));
+      const a = el('a', 'btn-small', 'See memberships →');
+      a.href = 'https://www.mygymlondon.co.uk/pricing-plans/memberships'; a.target = '_blank'; a.rel = 'noopener';
+      a.style.display = 'inline-block'; a.style.textDecoration = 'none';
+      card.appendChild(a);
+    }
+    return card;
+  }
   const endTime = (t) => { const p = t.split(':'); return String(((+p[0] + 1) % 24)).padStart(2, '0') + ':' + p[1]; };
   async function renderTimetable(reuse) {
     await ensureClasses();
     const hasGym = classes.some(isGym);
     if (!hasGym) ttMode = 'classes';
+    if (ttMode === 'gym') await checkGym();
     $('#ttSeg').style.display = hasGym ? 'flex' : 'none';
     $$('#ttSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === ttMode));
     const strip = $('#dateStrip');
@@ -203,6 +233,7 @@
     const dayClasses = classes.filter((c) => c.day_name === dowOf(selDate) && isGym(c) === (ttMode === 'gym'));
     const box = $('#bookSlots');
     box.textContent = '';
+    if (ttMode === 'gym' && authed && gymState !== 'yes') box.appendChild(gymLockCard());
     if (!dayClasses.length) {
       box.appendChild(el('div', 'card note', ttMode === 'gym'
         ? 'The gym is closed on ' + dowOf(selDate) + '.'
@@ -253,8 +284,19 @@
         b.textContent = 'Cancel'; b.className = 'btn-small ghost';
         b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); renderTimetable(); } catch (e) { b.disabled = false; } });
       } else {
-        b.textContent = started ? 'Started' : 'Book'; b.disabled = left <= 0 || started;
-        b.addEventListener('click', async () => { b.disabled = true; try { await DB.book(c.id, iso); renderTimetable(); } catch (e) { b.disabled = false; } });
+        const locked = gym && gymState !== 'yes';
+        b.textContent = locked ? (gymState === 'error' ? 'Try again' : 'Members only') : started ? 'Started' : 'Book';
+        b.disabled = locked || left <= 0 || started;
+        b.addEventListener('click', async () => {
+          b.disabled = true;
+          try { await DB.book(c.id, iso); renderTimetable(); }
+          catch (e) {
+            b.disabled = false;
+            const msg = (e && e.message) || '';
+            if (gym && /Gym & Exercise Class members/.test(msg)) { gymState = 'no'; gymCheckedAt = Date.now(); renderTimetable(true); return; }
+            $('#ttNote').textContent = msg || 'Could not book. Please try again.';
+          }
+        });
       }
       act.appendChild(b);
     }

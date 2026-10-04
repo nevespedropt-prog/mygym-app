@@ -166,6 +166,22 @@
       return rows;
     },
 
+    /* does this member have a Gym & Exercise Class plan? (the server decides; this only asks) */
+    async refreshGymAccess() {
+      const u = await DB.getUser(); if (!u) return false;
+      if (!LIVE) return !/classonly/i.test(u.email);   // demo: any email containing "classonly" is a class-only member
+      const { data } = await sb.auth.getSession();
+      const token = data && data.session && data.session.access_token;
+      if (!token) throw new Error('Not signed in');
+      const r = await fetch(CFG.SUPABASE_URL + '/functions/v1/check-gym-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token }
+      });
+      if (!r.ok) throw new Error('check failed');
+      const out = await r.json().catch(() => ({}));
+      return !!out.gym_access;
+    },
+
     async book(classId, date) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
       if (!LIVE) {

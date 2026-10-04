@@ -614,7 +614,7 @@
     const diff = (last - first);
     const arrow = diff === 0 ? '→' : (diff < 0 ? '▼' : '▲');
     [['Start', first.toFixed(1)], ['Latest', last.toFixed(1)], ['Change', arrow + ' ' + Math.abs(diff).toFixed(1)]].forEach((s) => {
-      const d = el('div', 'stat'); d.appendChild(el('b', '', s[1] + unit)); d.appendChild(el('small', '', s[0])); box.appendChild(d);
+      const d = el('div', 'stat'); const b = el('b', '', s[1]); b.appendChild(el('span', 'u', unit)); d.appendChild(b); d.appendChild(el('small', '', s[0])); box.appendChild(d);
     });
   }
 

@@ -746,7 +746,8 @@
   function renderLibrary() {
     $('#libExercises').style.display = libMode === 'exercises' ? '' : 'none';
     $('#libWorkouts').style.display = libMode === 'workouts' ? '' : 'none';
-    if (libMode === 'exercises') renderExercises(); else renderTemplates();
+    $('#libMeals').style.display = libMode === 'meals' ? '' : 'none';
+    if (libMode === 'exercises') renderExercises(); else if (libMode === 'meals') renderMeals(); else renderTemplates();
   }
 
   function fillFilters(list) {
@@ -789,6 +790,131 @@
       card.addEventListener('click', () => card.classList.toggle('open'));
       box.appendChild(card);
     });
+  }
+
+  /* ---------- LIBRARY: meals (recipes, 7-day plans, foods) ---------- */
+  let mealSub = 'recipes', mealType = 'All', mealCache = null;
+  const MEAL_TYPES = ['All', 'breakfast', 'lunch', 'dinner', 'snack'];
+  const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+  const r1 = (n) => Math.round(Number(n) * 10) / 10;
+  const macroLine = (k, p, c, f) => Math.round(k) + ' kcal · P ' + r1(p) + ' g · C ' + r1(c) + ' g · F ' + r1(f) + ' g';
+
+  $$('#mealSeg button').forEach((b) => b.addEventListener('click', () => {
+    mealSub = b.dataset.m;
+    $$('#mealSeg button').forEach((x) => x.classList.toggle('sel', x === b));
+    renderMeals();
+  }));
+  $('#mealSearch').addEventListener('input', renderMeals);
+
+  async function loadMeals() {
+    if (mealCache) return mealCache;
+    const [recipes, foods, mp] = await Promise.all([
+      DB.getRecipes().catch(() => []), DB.getFoods().catch(() => []), DB.getMealPlans().catch(() => ({ plans: [], items: [] }))
+    ]);
+    mealCache = { recipes, foods, plans: mp.plans, items: mp.items };
+    return mealCache;
+  }
+
+  function fillMealTypes() {
+    const box = $('#mealTypes'); box.textContent = '';
+    box.style.display = mealSub === 'recipes' ? '' : 'none';
+    MEAL_TYPES.forEach((t) => {
+      const b = el('button', t === mealType ? 'sel' : '', t === 'All' ? 'All' : cap(t));
+      b.addEventListener('click', () => { mealType = t; renderMeals(); });
+      box.appendChild(b);
+    });
+  }
+
+  function listBlock(title, arr, ordered) {
+    const wrap = el('div');
+    wrap.appendChild(el('h4', '', title));
+    const l = el(ordered ? 'ol' : 'ul');
+    (arr || []).forEach((x) => l.appendChild(el('li', '', x)));
+    wrap.appendChild(l);
+    return wrap;
+  }
+
+  async function renderMeals() {
+    const data = await loadMeals();
+    const box = $('#mealList'); box.textContent = '';
+    $('#mealSearchBox').style.display = mealSub === 'plans' ? 'none' : '';
+    $('#mealSearch').placeholder = mealSub === 'foods' ? 'Search foods' : 'Search recipes';
+    fillMealTypes();
+    const q = $('#mealSearch').value.trim().toLowerCase();
+    const hit = (x) => !q || x.name.toLowerCase().indexOf(q) !== -1;
+
+    if (mealSub === 'recipes') {
+      const list = data.recipes.filter((x) => (mealType === 'All' || x.meal_type === mealType) && hit(x));
+      if (!list.length) { box.appendChild(el('p', 'note', data.recipes.length ? 'No recipes match.' : 'Meals are not available yet.')); return; }
+      list.forEach((x) => {
+        const card = el('div', 'card exlib');
+        card.appendChild(el('span', 'chip', cap(x.meal_type)));
+        if (x.prep_min) card.appendChild(el('span', 'chip eq', x.prep_min + ' min'));
+        card.appendChild(el('b', '', x.name));
+        card.appendChild(el('div', 'mealmacro', macroLine(x.kcal, x.protein, x.carbs, x.fat) + ' per serving'));
+        const how = el('div', 'how');
+        if (x.description) how.appendChild(el('p', '', x.description));
+        how.appendChild(listBlock('Ingredients', x.ingredients, false));
+        how.appendChild(listBlock('Method', x.steps, true));
+        if ((x.tags || []).length) how.appendChild(el('div', 'mealmacro', x.tags.join(' · ')));
+        card.appendChild(how);
+        card.addEventListener('click', () => card.classList.toggle('open'));
+        box.appendChild(card);
+      });
+    } else if (mealSub === 'foods') {
+      const list = data.foods.filter(hit);
+      if (!list.length) { box.appendChild(el('p', 'note', data.foods.length ? 'No foods match.' : 'Meals are not available yet.')); return; }
+      list.forEach((x) => {
+        const f = Number(x.serving_g) / 100;
+        const card = el('div', 'card exlib');
+        card.appendChild(el('span', 'chip eq', x.serving_label));
+        card.appendChild(el('b', '', x.name));
+        card.appendChild(el('div', 'mealmacro', macroLine(x.kcal * f, x.protein * f, x.carbs * f, x.fat * f) + ' per serving'));
+        card.appendChild(el('div', 'how', 'Per 100 g: ' + macroLine(x.kcal, x.protein, x.carbs, x.fat)));
+        card.addEventListener('click', () => card.classList.toggle('open'));
+        box.appendChild(card);
+      });
+    } else {
+      if (!data.plans.length) { box.appendChild(el('p', 'note', 'Meals are not available yet.')); return; }
+      const byId = {}; data.recipes.forEach((r) => { byId[r.id] = r; });
+      data.plans.forEach((p) => {
+        const card = el('div', 'card exlib');
+        card.appendChild(el('span', 'chip', p.goal));
+        card.appendChild(el('span', 'chip eq', p.kcal + ' kcal a day'));
+        card.appendChild(el('b', '', p.name));
+        card.appendChild(el('div', 'mealmacro', p.description));
+        const how = el('div', 'how');
+        const seg = el('div', 'seg');
+        const dayBox = el('div');
+        const items = data.items.filter((i) => i.template_id === p.id);
+        const showDay = (d) => {
+          Array.from(seg.children).forEach((b) => b.classList.toggle('sel', Number(b.dataset.d) === d));
+          dayBox.textContent = '';
+          let tk = 0, tp = 0;
+          items.filter((i) => i.day === d).sort((a, b) => a.sort - b.sort).forEach((i) => {
+            const r = byId[i.recipe_id]; if (!r) return;
+            const sv = Number(i.servings);
+            tk += r.kcal * sv; tp += r.protein * sv;
+            const row = el('div');
+            row.appendChild(el('b', '', cap(i.meal_type) + ': '));
+            row.appendChild(document.createTextNode(r.name + ' (' + r1(sv) + ' serving' + (sv === 1 ? '' : 's') + ', ' + Math.round(r.kcal * sv) + ' kcal)'));
+            dayBox.appendChild(row);
+          });
+          dayBox.appendChild(el('div', 'mealmacro', 'Day total: ' + Math.round(tk) + ' kcal · ' + r1(tp) + ' g protein'));
+        };
+        for (let d = 1; d <= 7; d++) {
+          const b = el('button', '', 'Day ' + d); b.dataset.d = d;
+          b.addEventListener('click', (e) => { e.stopPropagation(); showDay(d); });
+          seg.appendChild(b);
+        }
+        how.appendChild(seg); how.appendChild(dayBox);
+        how.addEventListener('click', (e) => e.stopPropagation());
+        card.appendChild(how);
+        let shown = false;
+        card.addEventListener('click', () => { card.classList.toggle('open'); if (!shown) { shown = true; showDay(1); } });
+        box.appendChild(card);
+      });
+    }
   }
 
   /* ---------- PROFILE ---------- */

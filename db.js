@@ -494,6 +494,26 @@
       return data;
     },
 
+    /* ---- meals (recipes, foods, 7-day plans); read-only, empty if the tables are missing ---- */
+    async getRecipes() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.from('recipes').select('*').order('name');
+      return error || !data ? [] : data;
+    },
+    async getFoods() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.from('foods').select('*').order('name');
+      return error || !data ? [] : data;
+    },
+    async getMealPlans() {
+      if (!LIVE) return { plans: [], items: [] };
+      const [p, i] = await Promise.all([
+        sb.from('meal_plan_templates').select('*').order('plan_no', { ascending: false }),
+        sb.from('meal_plan_template_items').select('*').order('day').order('sort')
+      ]);
+      return { plans: p.error || !p.data ? [] : p.data, items: i.error || !i.data ? [] : i.data };
+    },
+
     /* ---- templates ---- */
     async getTemplates() {
       if (!LIVE) return DEMO_TEMPLATES;

@@ -105,7 +105,8 @@
   });
 
   DB.onRecovery(() => go('resetpw'));
-  $('#rSave').addEventListener('click', async () => {
+  $('#resetForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
     const pw = $('#rPass').value;
     const err = $('#rErr');
     if (pw.length < 8) return toast(err, 'Password must be at least 8 characters.', true);
@@ -119,7 +120,8 @@
     }
   });
 
-  $('#aSubmit').addEventListener('click', async () => {
+  $('#authForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
     const email = $('#aEmail').value.trim();
     const pass = $('#aPass').value;
     const err = $('#aErr');

@@ -435,12 +435,14 @@ nav.show{display:block}
     <button data-t="up">Create account</button>
   </div>
   <div class="card">
-    <div class="field" id="nameField" style="display:none"><label>Your name</label><input id="aName" autocomplete="name" placeholder="e.g. Sam"></div>
-    <div class="field"><label>Email</label><input id="aEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="aPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+   <form id="authForm" novalidate>
+    <div class="field" id="nameField" style="display:none"><label>Your name</label><input id="aName" name="name" autocomplete="name" placeholder="e.g. Sam"></div>
+    <div class="field"><label>Email</label><input id="aEmail" name="username" type="email" inputmode="email" autocomplete="username" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <div class="err" id="aErr"></div>
-    <button class="cta" id="aSubmit" style="margin:4px 0 0">Log in</button>
+    <button class="cta" id="aSubmit" type="submit" style="margin:4px 0 0">Log in</button>
     <p class="note" id="forgotWrap" style="margin:12px 0 0"><a href="#" id="forgotLink" style="color:var(--acc);font-weight:700">Forgot password?</a></p>
+   </form>
   </div>
   <p class="note">Free account · no contract · classes from £6</p>
 </section>
@@ -450,9 +452,11 @@ nav.show{display:block}
   <h2>Set a new password</h2>
   <p class="sub">Choose a new password for your MY GYM account.</p>
   <div class="card">
-    <div class="field"><label>New password</label><input id="rPass" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div>
+   <form id="resetForm" novalidate>
+    <div class="field"><label>New password</label><input id="rPass" name="new-password" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div>
     <div class="err" id="rErr"></div>
-    <button class="cta" id="rSave" style="margin:4px 0 0">Save new password</button>
+    <button class="cta" id="rSave" type="submit" style="margin:4px 0 0">Save new password</button>
+   </form>
   </div>
 </section>
 

@@ -20,9 +20,14 @@ const json = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 Deno.serve(async () => {
-  const priv = Deno.env.get("VAPID_PRIVATE_KEY");
+  // tolerate a pasted "VAPID_PRIVATE_KEY=..." line, quotes, spaces or trailing "="
+  const priv = (Deno.env.get("VAPID_PRIVATE_KEY") ?? "").replace(/^\s*VAPID_PRIVATE_KEY\s*=/, "").replace(/["'\s]/g, "").replace(/=+$/, "");
   if (!priv) return json(500, { ok: false, error: "VAPID_PRIVATE_KEY secret is not set" });
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, priv);
+  try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, priv);
+  } catch (e) {
+    return json(500, { ok: false, error: "VAPID key problem: " + (e as Error).message });
+  }
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { persistSession: false },

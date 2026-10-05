@@ -1,0 +1,5 @@
+# GitHub Pages builds this repo with Jekyll. Keep the database scripts and function source out of the
+# published site (they stay in the repo, but are no longer served at app.mygymlondon.co.uk).
+exclude:
+  - supabase
+  - README.md

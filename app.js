@@ -262,6 +262,14 @@
     return dates;
   }
 
+  /* After a booking or cancellation, refresh the page the member is actually looking at
+     (the slot rows are shown both on Home and on the Timetable). */
+  function refreshAfterBooking() {
+    bkCache = null;
+    const home = document.getElementById('mhome');
+    if (home && home.classList.contains('active')) renderDash(); else renderTimetable();
+  }
+
   function slotRow(c, iso, allBookings) {
     const gym = isGym(c);
     const row = el('div', 'slot');
@@ -291,18 +299,18 @@
       const b = el('button', 'btn-small');
       if (mine) {
         b.textContent = 'Cancel'; b.className = 'btn-small ghost';
-        b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); renderTimetable(); } catch (e) { b.disabled = false; } });
+        b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); refreshAfterBooking(); } catch (e) { b.disabled = false; } });
       } else {
         const locked = gym && gymState !== 'yes';
         b.textContent = locked ? (gymState === 'error' ? 'Try again' : 'Members only') : started ? 'Started' : 'Book';
         b.disabled = locked || left <= 0 || started;
         b.addEventListener('click', async () => {
           b.disabled = true;
-          try { await DB.book(c.id, iso); renderTimetable(); }
+          try { await DB.book(c.id, iso); refreshAfterBooking(); }
           catch (e) {
             b.disabled = false;
             const msg = (e && e.message) || '';
-            if (gym && /Gym & Exercise Class members/.test(msg)) { gymState = 'no'; gymCheckedAt = Date.now(); renderTimetable(true); return; }
+            if (gym && /Gym & Exercise Class members/.test(msg)) { gymState = 'no'; gymCheckedAt = Date.now(); refreshAfterBooking(); return; }
             $('#ttNote').textContent = msg || 'Could not book. Please try again.';
           }
         });

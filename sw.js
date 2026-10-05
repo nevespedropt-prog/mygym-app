@@ -1,5 +1,5 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v19';
+const CACHE = 'mygym-v20';
 const ASSETS = [
   './',
   './index.html',

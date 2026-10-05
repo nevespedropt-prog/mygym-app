@@ -2,6 +2,14 @@
 (function () {
   'use strict';
 
+  /* Clickjacking guard: GitHub Pages cannot send frame-ancestors, so if the app is ever loaded inside
+     another site's frame, hide it and break out. (Remove this if the app is deliberately embedded.) */
+  if (window.top !== window.self) {
+    document.documentElement.style.display = 'none';
+    try { window.top.location = window.location.href; } catch (e) { /* cross-origin frame: stays hidden */ }
+    return;
+  }
+
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
 
@@ -144,6 +152,7 @@
   });
 
   $('#logoutBtn').addEventListener('click', async () => {
+    await turnOffReminders(true);
     await DB.signOut();
     authed = false; me = null; profile = null; gymState = null;
     setNav();
@@ -918,7 +927,66 @@
   }
 
   /* ---------- PROFILE ---------- */
+  /* ---------- class reminders (push, one hour before a booking) ---------- */
+  const VAPID = (window.MYGYM_CONFIG || {}).VAPID_PUBLIC_KEY || '';
+  const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && !!VAPID;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const b64ToBytes = (b64) => {
+    const pad = '='.repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  };
+  async function currentSub() {
+    try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch (e) { return null; }
+  }
+  function paintReminders(on, note, disabled) {
+    const sw = $('#remSwitch');
+    sw.setAttribute('aria-checked', on ? 'true' : 'false');
+    sw.disabled = !!disabled;
+    $('#remNote').textContent = note || '';
+  }
+  async function renderReminders() {
+    if (!DB.isLive() || !pushOk()) { paintReminders(false, DB.isLive() ? 'This phone or browser cannot show reminders.' : 'Reminders work in the live app.', true); return; }
+    if (isIOS && !standalone()) { paintReminders(false, 'On iPhone, add MY GYM to your Home Screen first (Share → Add to Home Screen), then open the app from there to turn reminders on.', true); return; }
+    if (Notification.permission === 'denied') { paintReminders(false, 'Notifications are blocked for this app. Allow them in your phone settings, then come back.', true); return; }
+    const sub = await currentSub();
+    paintReminders(!!sub && Notification.permission === 'granted', sub ? 'On for this phone. You will get a reminder one hour before each booking.' : '');
+  }
+  async function turnOnReminders() {
+    paintReminders(false, 'Asking for permission…', true);
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { await renderReminders(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID) });
+      await DB.savePushSub(sub.toJSON());
+    } catch (e) {
+      paintReminders(false, 'Could not turn reminders on. Please try again.', false);
+      return;
+    }
+    await renderReminders();
+  }
+  async function turnOffReminders(quiet) {
+    try {
+      if (!pushOk()) return;
+      const sub = await currentSub();
+      if (sub) { const ep = sub.endpoint; await DB.deletePushSub(ep).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+    } catch (e) {}
+    if (!quiet) await renderReminders();
+  }
+  $('#remSwitch').addEventListener('click', async () => {
+    if ($('#remSwitch').getAttribute('aria-checked') === 'true') await turnOffReminders(false);
+    else await turnOnReminders();
+  });
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.slice(1);
+    if (authed && h && document.getElementById(h) && document.getElementById(h).classList.contains('view')) go(h);
+  });
+
   async function renderProfile() {
+    renderReminders();
     if (!profile) profile = (await DB.getProfile().catch(() => null)) || {};
     $('#pName').value = profile.full_name || '';
     $('#pPhone').value = profile.phone || '';

@@ -514,6 +514,20 @@
       return { plans: p.error || !p.data ? [] : p.data, items: i.error || !i.data ? [] : i.data };
     },
 
+    /* ---- push reminders (one row per phone) ---- */
+    async savePushSub(sub) {
+      if (!LIVE) return;
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      const k = sub.keys || {};
+      const { error } = await sb.from('push_subscriptions').insert({ user_id: u.id, endpoint: sub.endpoint, p256dh: k.p256dh, auth: k.auth });
+      if (error && error.code !== '23505') throw error;
+    },
+    async deletePushSub(endpoint) {
+      if (!LIVE) return;
+      const u = await DB.getUser(); if (!u) return;
+      await sb.from('push_subscriptions').delete().eq('user_id', u.id).eq('endpoint', endpoint);
+    },
+
     /* ---- templates ---- */
     async getTemplates() {
       if (!LIVE) return DEMO_TEMPLATES;

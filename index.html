@@ -174,6 +174,12 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .tpl{cursor:pointer}
 .exlib .how{margin-top:8px;font-size:13.5px;color:var(--mut);display:none}
 .exlib.open .how{display:block}
+.remrow{display:flex;gap:14px;align-items:center;justify-content:space-between}
+.switch{flex:0 0 auto;width:54px;height:32px;border-radius:16px;border:none;background:#cfcdcd;position:relative;cursor:pointer;transition:background .2s;padding:0}
+.switch span{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--acc)}
+.switch[aria-checked="true"] span{transform:translateX(22px)}
+.switch:disabled{opacity:.5;cursor:default}
 .mealmacro{font-size:13px;color:var(--mut);margin-top:4px}
 .exlib .how h4{margin:10px 0 4px;font-size:13px;color:var(--txt)}
 .exlib .how ul,.exlib .how ol{margin:0 0 4px 18px;padding:0}
@@ -473,6 +479,14 @@ nav.show{display:block}
     </div>
     <div class="ok" id="pMsg"></div>
     <button class="cta" id="pSave" style="margin:4px 0 0">Save profile</button>
+  </div>
+  <div class="card" id="remCard">
+    <div class="remrow">
+      <div><b>Class reminders</b>
+        <p class="sub" style="margin:4px 0 0">A notification one hour before a booked class or gym slot.</p></div>
+      <button id="remSwitch" class="switch" role="switch" aria-checked="false" aria-label="Class reminders on this phone"><span></span></button>
+    </div>
+    <p class="sub" style="margin:10px 0 0" id="remNote"></p>
   </div>
   <div class="card">
     <b>Account</b>

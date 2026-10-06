@@ -300,8 +300,9 @@
 
     async getUser() {
       if (!LIVE) { const s = dGet('session', null); return s ? { email: s.email, id: s.email } : null; }
-      const { data } = await sb.auth.getUser();
-      return data.user ? { email: data.user.email, id: data.user.id } : null;
+      const { data } = await sb.auth.getSession();            // local and instant; refreshes by itself when expired
+      const u = data && data.session && data.session.user;
+      return u ? { email: u.email, id: u.id } : null;
     },
 
     async sendReset(email) {
@@ -534,9 +535,9 @@
       if (a.error) throw a.error;
       await sb.from('profiles').update({ weight_kg: null }).eq('id', u.id);
     },
-    async saveHealth(p) {
+    async saveHealth(p, knownPrev) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
-      const prev = await DB.getHealth().catch(() => null);
+      const prev = knownPrev !== undefined ? knownPrev : await DB.getHealth().catch(() => null);
       const row = Object.assign({}, p, { updated_at: new Date().toISOString() });
       const acts = [prev ? 'updated' : 'given'];
       if (!!(prev && prev.consent_measurements) !== !!p.consent_measurements) acts.push(p.consent_measurements ? 'measurements_on' : 'measurements_off');
@@ -548,8 +549,10 @@
       }
       const { error } = await sb.from('member_health').upsert(Object.assign({ user_id: u.id }, row), { onConflict: 'user_id' });
       if (error) throw error;
-      await sb.from('consent_log').insert(acts.map((a) => ({ user_id: u.id, action: a, version: p.consent_version })));
-      if (!p.consent_measurements) await DB.deleteMeasurements();
+      await Promise.all([
+        sb.from('consent_log').insert(acts.map((a) => ({ user_id: u.id, action: a, version: p.consent_version }))),
+        p.consent_measurements ? null : DB.deleteMeasurements()
+      ]);
       return row;
     },
     /* switch weight and body fat tracking on (the member's separate, optional consent) */

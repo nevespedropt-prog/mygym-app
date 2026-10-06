@@ -305,17 +305,21 @@
       const b = el('button', 'btn-small');
       if (mine) {
         b.textContent = 'Cancel'; b.className = 'btn-small ghost';
-        b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(mine.id); refreshAfterBooking(); } catch (e) { b.disabled = false; } });
+        b.addEventListener('click', async () => {
+          b.disabled = true; b.textContent = 'Book'; b.className = 'btn-small busy';
+          try { await DB.cancel(mine.id); refreshAfterBooking(); }
+          catch (e) { b.disabled = false; b.textContent = 'Cancel'; b.className = 'btn-small ghost'; }
+        });
       } else {
         const locked = gym && gymState !== 'yes';
         b.textContent = locked ? (gymState === 'error' ? 'Try again' : 'Members only') : started ? 'Started' : 'Book';
         b.disabled = locked || left <= 0 || started;
         b.addEventListener('click', async () => {
           if (healthRec !== undefined && !healthOk()) { openHealth(true); return; }
-          b.disabled = true;
+          b.disabled = true; b.textContent = 'Cancel'; b.className = 'btn-small ghost busy';
           try { await DB.book(c.id, iso); refreshAfterBooking(); }
           catch (e) {
-            b.disabled = false;
+            b.disabled = false; b.textContent = 'Book'; b.className = 'btn-small';
             const msg = (e && e.message) || '';
             if (gym && /Gym & Exercise Class members/.test(msg)) { gymState = 'no'; gymCheckedAt = Date.now(); refreshAfterBooking(); return; }
             $('#ttNote').textContent = msg || 'Could not book. Please try again.';
@@ -410,7 +414,11 @@
       row.appendChild(what);
       const act = el('span', 'act');
       const b = el('button', 'btn-small ghost', 'Cancel');
-      b.addEventListener('click', async () => { b.disabled = true; try { await DB.cancel(x.booking.id); renderBookings(); } catch (e) { b.disabled = false; } });
+      b.addEventListener('click', async () => {
+        b.disabled = true; row.style.display = 'none';
+        try { await DB.cancel(x.booking.id); bkCache = null; renderBookings(); }
+        catch (e) { row.style.display = ''; b.disabled = false; }
+      });
       act.appendChild(b);
       row.appendChild(act);
       up.appendChild(row);
@@ -503,13 +511,13 @@
       exercises: exs,
       notes: ''
     };
-    $('#wSave').disabled = true;
+    $('#wSave').disabled = true; $('#wSave').textContent = 'Saving…';
     try {
       await DB.addWorkout(entry);
       $('#wTitle').value = ''; $('#exList').textContent = ''; addExercise();
       renderWorkouts(); renderDash();
     } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); }
-    $('#wSave').disabled = false;
+    $('#wSave').disabled = false; $('#wSave').textContent = 'Save workout';
   });
 
   function exListOf(w) {
@@ -561,13 +569,13 @@
     const bf = parseFloat($('#bfVal').value);
     if ((!kg || kg < 20 || kg > 400) && (!bf || bf < 3 || bf > 70))
       return toast($('#kgErr'), 'Enter a weight (kg) and/or body fat (%).', true);
-    $('#kgSave').disabled = true;
+    $('#kgSave').disabled = true; $('#kgSave').textContent = 'Saving…';
     try {
       await DB.addWeight(date, kg || null, bf || null);
       $('#kgVal').value = ''; $('#bfVal').value = '';
       renderBody(); renderDash();
     } catch (e) { toast($('#kgErr'), (e && e.message) || 'Could not save', true); }
-    $('#kgSave').disabled = false;
+    $('#kgSave').disabled = false; $('#kgSave').textContent = 'Save measurement';
   });
 
   async function renderBody() {
@@ -1015,13 +1023,13 @@
     if (wasOn && !nowOn && !measConfirm) { measConfirm = true; return toast(err, 'Un-ticking the weight and body fat box will delete your saved measurements. Tap Save again to confirm, or tick the box to keep them.', true); }
     const answers = { none: none };
     hKeys().forEach((c) => { answers[c.dataset.k] = c.checked; });
-    $('#hSave').disabled = true;
+    $('#hSave').disabled = true; $('#hSave').textContent = 'Saving…';
     try {
       healthRec = await DB.saveHealth({
         answers, no_allergies: noAllergy, allergies: allergy, other_details: anyTick ? $('#hOther').value.trim() : '',
         consent_health: true, consent_truthful: true, consent_version: HEALTH_VERSION, consented_at: new Date().toISOString(),
         consent_measurements: nowOn, measurements_consented_at: nowOn ? ((healthRec && healthRec.consent_measurements && healthRec.measurements_consented_at) || new Date().toISOString()) : null
-      });
+      }, healthRec);
       measConfirm = false; healthDirty = false; healthOpen = false;
       paintLocks(); renderHealthProfile(); renderProfile(); renderDash();
       toast($('#hMsg'), 'Thank you. Your form is saved. Bookings, Log and Progress are unlocked.');
@@ -1029,7 +1037,7 @@
     } catch (x) {
       toast(err, 'Could not save. Please check your connection and try again.', true);
     }
-    $('#hSave').disabled = false;
+    $('#hSave').disabled = false; $('#hSave').textContent = 'Save and continue';
   });
   function renderHealthProfile() {
     const done = healthOk();
@@ -1068,13 +1076,13 @@
     if (sw.disabled || !healthRec) return;
     const on = sw.getAttribute('aria-checked') === 'true';
     if (!on) {
-      sw.disabled = true;
+      sw.disabled = true; sw.setAttribute('aria-checked', 'true'); $('#mStatus').textContent = 'Saving…';
       try {
         await DB.turnOnMeasurements(HEALTH_VERSION);
         healthRec = Object.assign({}, healthRec, { consent_measurements: true, measurements_consented_at: new Date().toISOString() });
         renderHealthProfile(); renderProfile(); renderDash();
         toast($('#hMsg'), 'Weight and body fat tracking is on. You will find it in the Log tab.');
-      } catch (x) { toast($('#hMsg'), 'Could not switch it on right now. Please try again.', true); sw.disabled = false; }
+      } catch (x) { toast($('#hMsg'), 'Could not switch it on right now. Please try again.', true); sw.setAttribute('aria-checked', 'false'); sw.disabled = false; renderHealthProfile(); }
       return;
     }
     if (sw.dataset.armed !== '1') {
@@ -1083,7 +1091,7 @@
       setTimeout(() => { if (sw.dataset.armed === '1') { sw.dataset.armed = ''; renderHealthProfile(); } }, 6000);
       return;
     }
-    sw.dataset.armed = ''; sw.disabled = true;
+    sw.dataset.armed = ''; sw.disabled = true; sw.setAttribute('aria-checked', 'false'); $('#mStatus').textContent = 'Deleting your measurements…';
     try {
       await DB.turnOffMeasurements(HEALTH_VERSION);
       healthRec = Object.assign({}, healthRec, { consent_measurements: false, measurements_consented_at: null });
@@ -1099,7 +1107,7 @@
       setTimeout(() => { if (b.dataset.armed === '1') { b.dataset.armed = ''; b.textContent = 'Withdraw consent and delete my answers'; } }, 6000);
       return;
     }
-    b.disabled = true;
+    b.disabled = true; b.textContent = 'Deleting…';
     try {
       await DB.withdrawHealth(HEALTH_VERSION);
       healthRec = null; healthOpen = false; healthDirty = false; profile = Object.assign(profile || {}, { weight_kg: null }); paintLocks(); renderHealthProfile(); renderProfile(); renderDash();
@@ -1158,7 +1166,7 @@
     if (!quiet) await renderReminders();
   }
   $('#remSwitch').addEventListener('click', async () => {
-    if ($('#remSwitch').getAttribute('aria-checked') === 'true') await turnOffReminders(false);
+    if ($('#remSwitch').getAttribute('aria-checked') === 'true') { paintReminders(false, 'Turning off…', true); await turnOffReminders(false); }
     else await turnOnReminders();
   });
   window.addEventListener('hashchange', () => {
@@ -1185,13 +1193,13 @@
       goal: $('#pGoal').value
     };
     if (!measBlocked()) patch.weight_kg = parseFloat($('#pWeight').value) || null;
-    $('#pSave').disabled = true;
+    $('#pSave').disabled = true; $('#pSave').textContent = 'Saving…';
     try {
       await DB.saveProfile(patch);
       profile = Object.assign(profile || {}, patch);
       toast($('#pMsg'), '✅ Saved!'); renderDash();
     } catch (e) { toast($('#pMsg'), (e && e.message) || 'Could not save', true); }
-    $('#pSave').disabled = false;
+    $('#pSave').disabled = false; $('#pSave').textContent = 'Save profile';
   });
 
   /* ---------- install prompt ---------- */

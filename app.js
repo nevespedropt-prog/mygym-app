@@ -42,11 +42,13 @@
   let classes = [];
   let selDate = fmtISO(new Date());
   const MEMBER_VIEWS = ['bookings', 'log', 'progress', 'library'];
+  const LOCKED_UNTIL_FORM = ['bookings', 'log', 'progress'];   // unlock when the health form is complete
   const WEEK_GOAL = 3;
 
   /* ---------- navigation ---------- */
   function go(v) {
     if (MEMBER_VIEWS.indexOf(v) !== -1 && !authed) v = 'login';
+    if (authed && LOCKED_UNTIL_FORM.indexOf(v) !== -1 && healthRec !== undefined && !healthOk()) { openHealth(true); return; }
     const actual = (v === 'home') ? (authed ? 'mhome' : 'home') : v;
     $$('.view').forEach((s) => s.classList.toggle('active', s.id === actual));
     $$('.nwrap button').forEach((b) => b.classList.toggle('sel', b.dataset.v === v));
@@ -156,7 +158,7 @@
   $('#logoutBtn').addEventListener('click', async () => {
     await turnOffReminders(true);
     await DB.signOut();
-    authed = false; me = null; profile = null; gymState = null;
+    authed = false; me = null; profile = null; gymState = null; healthRec = undefined; paintLocks();
     setNav();
     go('home');
   });
@@ -168,10 +170,12 @@
     profile = await DB.getProfile().catch(() => null);
     classes = await DB.getClasses().catch(() => []);
     gymState = null;
+    healthRec = await DB.getHealth().catch(() => undefined);
     if (classes.some(isGym)) checkGym(true);   // warm up in the background so the gym tab opens instantly
     setNav();
     $('#aPass').value = '';
-    go('home');
+    paintLocks();
+    if (healthRec !== undefined && !healthOk()) openHealth(false); else go('home');
   }
 
   /* ---------- shared: fetch classes ---------- */
@@ -307,6 +311,7 @@
         b.textContent = locked ? (gymState === 'error' ? 'Try again' : 'Members only') : started ? 'Started' : 'Book';
         b.disabled = locked || left <= 0 || started;
         b.addEventListener('click', async () => {
+          if (healthRec !== undefined && !healthOk()) { openHealth(true); return; }
           b.disabled = true;
           try { await DB.book(c.id, iso); refreshAfterBooking(); }
           catch (e) {
@@ -326,6 +331,7 @@
   /* ---------- DASHBOARD (member home) ---------- */
   async function renderDash() {
     const first = (profile && profile.full_name) ? profile.full_name.split(' ')[0] : '';
+    $('#healthBanner').style.display = (authed && healthRec !== undefined && !healthOk()) ? 'block' : 'none';
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
     try {
       await ensureClasses();
@@ -359,7 +365,7 @@
         $('#nextWrap').style.display = 'none';
       }
 
-      const lastW = wts.filter((w) => w.kg).slice(-1)[0];
+      const lastW = measBlocked() ? null : wts.filter((w) => w.kg).slice(-1)[0];
       $('#statWeight').textContent = lastW ? lastW.kg + 'kg' : '–';
 
       // today's classes
@@ -547,7 +553,9 @@
     });
   }
 
+  $('#measOn').addEventListener('click', () => { go('profile'); setTimeout(() => { const r = $('#measRow'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); });
   $('#kgSave').addEventListener('click', async () => {
+    if (measBlocked()) return go('profile');
     const date = $('#kgDate').value || fmtISO(new Date());
     const kg = parseFloat($('#kgVal').value);
     const bf = parseFloat($('#bfVal').value);
@@ -563,6 +571,10 @@
   });
 
   async function renderBody() {
+    const blocked = measBlocked();
+    $('#measCard').style.display = blocked ? 'block' : 'none';
+    $('#measForm').style.display = blocked ? 'none' : 'block';
+    if (blocked) return;
     const box = $('#kgHistory'); box.textContent = '';
     let ws = []; try { ws = await DB.getWeights(); } catch (e) {}
     if (!ws.length) { box.appendChild(el('p', 'note', 'No measurements yet. Track weekly — trends beat single numbers.')); return; }
@@ -590,10 +602,12 @@
   async function renderProgress() {
     const cv = $('#progChart');
     const stats = $('#progStats'); stats.textContent = '';
-    const [ws, wos] = await Promise.all([
+    const [ws0, wos] = await Promise.all([
       DB.getWeights().catch(() => []),
       DB.getWorkouts(500).catch(() => [])
     ]);
+    const ws = measBlocked() ? [] : ws0;
+    if (measBlocked() && progMode !== 'vol') stats.appendChild(el('p', 'note', 'Weight and body fat tracking is off. You can turn it on in the Health & safety form (Profile → Health & consent) if you want to track it.'));
 
     if (progMode === 'weight') {
       const pts = ws.filter((w) => w.kg).map((w) => ({ label: fmtShort(w.date), v: Number(w.kg) }));
@@ -937,6 +951,163 @@
   }
 
   /* ---------- PROFILE ---------- */
+  /* ---------- health and allergy form + consent ---------- */
+  const HEALTH_VERSION = '2026-10-v1';      // change this when the wording changes, so everyone is asked again
+  const HEALTH_MAX_DAYS = 365;              // asked again once a year
+  let healthRec;                            // undefined = unknown (offline), null = none yet, object = saved form
+  const healthOk = () => !!(healthRec && healthRec.consent_version === HEALTH_VERSION &&
+    (Date.now() - new Date(healthRec.consented_at).getTime()) < HEALTH_MAX_DAYS * 86400000);
+  const measBlocked = () => authed && healthRec !== undefined && !(healthRec && healthRec.consent_measurements);   // weight/body fat tracking is off
+  let measConfirm = false;                  // second tap needed when un-ticking the weight and body fat box
+  function pushHealthOnce() {   // push the form once per browser session when the app is reopened
+    try { if (sessionStorage.getItem('mygym_health_pushed')) return false; sessionStorage.setItem('mygym_health_pushed', '1'); } catch (e) {}
+    return true;
+  }
+  let healthOpen = false, healthDirty = false;
+  function paintLocks() { document.body.classList.toggle('hlock', !!(authed && healthRec !== undefined && !healthOk())); }
+  function openHealth(locked) {              // send the member to the Health & safety card on their Profile page
+    healthOpen = true; healthDirty = false;
+    go('profile');
+    setTimeout(() => {
+      const c = $('#healthCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (locked) toast($('#hMsg'), 'Complete this form to unlock Bookings, Log and Progress.', true);
+    }, 80);
+  }
+  const hKeys = () => $$('#healthForm [data-k]');
+  function paintHealthLogic() {
+    const any = hKeys().some((c) => c.checked);
+    $('#hAdvice').style.display = any ? 'block' : 'none';
+    $('#hOtherWrap').style.display = any ? 'block' : 'none';
+  }
+  function renderHealth() {
+    const rec = healthRec || null;
+    const a = (rec && rec.answers) || {};
+    hKeys().forEach((c) => { c.checked = !!a[c.dataset.k]; });
+    $('#hNone').checked = !!a.none;
+    $('#hNoAllergy').checked = !!(rec && rec.no_allergies);
+    $('#hAllergy').value = (rec && rec.allergies) || '';
+    $('#hAllergy').disabled = $('#hNoAllergy').checked;
+    $('#hOther').value = (rec && rec.other_details) || '';
+    $('#hConsent').checked = false; $('#hTrue').checked = false;   // consent is always a fresh tick
+    $('#hMeas').checked = !!(rec && rec.consent_measurements);       // shows the current setting of the optional box
+    measConfirm = false;
+    $('#hErr').textContent = '';
+    paintHealthLogic();
+  }
+  hKeys().forEach((c) => c.addEventListener('change', () => { if (c.checked) $('#hNone').checked = false; paintHealthLogic(); }));
+  $('#hNone').addEventListener('change', () => { if ($('#hNone').checked) { hKeys().forEach((c) => { c.checked = false; }); paintHealthLogic(); } });
+  $('#hNoAllergy').addEventListener('change', () => { if ($('#hNoAllergy').checked) $('#hAllergy').value = ''; $('#hAllergy').disabled = $('#hNoAllergy').checked; });
+  $('#hAllergy').addEventListener('input', () => { if ($('#hAllergy').value.trim()) $('#hNoAllergy').checked = false; });
+  $('#hMeas').addEventListener('change', () => { measConfirm = false; });
+  $('#healthForm').addEventListener('input', () => { healthDirty = true; });
+  $('#healthForm').addEventListener('change', () => { healthDirty = true; });
+  $('#hLater').addEventListener('click', () => { healthOpen = false; healthDirty = false; go('home'); });
+  $('#healthBannerBtn').addEventListener('click', () => openHealth(false));
+  $('#healthForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('#hErr');
+    const anyTick = hKeys().some((c) => c.checked), none = $('#hNone').checked;
+    const allergy = $('#hAllergy').value.trim(), noAllergy = $('#hNoAllergy').checked;
+    if (!anyTick && !none) return toast(err, 'Please tick what applies to you, or tick "None of these apply to me".', true);
+    if (!allergy && !noAllergy) return toast(err, 'Please tick "I have no allergies", or write what you are allergic to.', true);
+    if (!$('#hConsent').checked || !$('#hTrue').checked) return toast(err, 'Please tick both boxes in the consent section to continue.', true);
+    const wasOn = !!(healthRec && healthRec.consent_measurements), nowOn = $('#hMeas').checked;
+    if (wasOn && !nowOn && !measConfirm) { measConfirm = true; return toast(err, 'Un-ticking the weight and body fat box will delete your saved measurements. Tap Save again to confirm, or tick the box to keep them.', true); }
+    const answers = { none: none };
+    hKeys().forEach((c) => { answers[c.dataset.k] = c.checked; });
+    $('#hSave').disabled = true;
+    try {
+      healthRec = await DB.saveHealth({
+        answers, no_allergies: noAllergy, allergies: allergy, other_details: anyTick ? $('#hOther').value.trim() : '',
+        consent_health: true, consent_truthful: true, consent_version: HEALTH_VERSION, consented_at: new Date().toISOString(),
+        consent_measurements: nowOn, measurements_consented_at: nowOn ? ((healthRec && healthRec.consent_measurements && healthRec.measurements_consented_at) || new Date().toISOString()) : null
+      });
+      measConfirm = false; healthDirty = false; healthOpen = false;
+      paintLocks(); renderHealthProfile(); renderProfile(); renderDash();
+      toast($('#hMsg'), 'Thank you. Your form is saved. Bookings, Log and Progress are unlocked.');
+      const c0 = $('#healthCard'); if (c0) c0.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (x) {
+      toast(err, 'Could not save. Please check your connection and try again.', true);
+    }
+    $('#hSave').disabled = false;
+  });
+  function renderHealthProfile() {
+    const done = healthOk();
+    const unknown = healthRec === undefined;
+    paintLocks();
+    const showForm = !unknown && (!done || healthOpen);
+    $('#hBody').style.display = showForm ? 'block' : 'none';
+    $('#hLockNote').style.display = (!unknown && !done) ? 'block' : 'none';
+    if (showForm && !healthDirty) renderHealth();
+    if (unknown) { $('#hStatus').textContent = 'Could not check right now. Please try again later.'; $('#hEdit').style.display = 'none'; $('#hWithdraw').style.display = 'none'; }
+    else {
+      $('#hStatus').textContent = done
+        ? 'Completed on ' + new Date(healthRec.consented_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + '. We ask again once a year.'
+        : (healthRec ? 'Please update and re-confirm your form.' : 'Not done yet. It takes about 2 minutes.');
+      $('#hEdit').style.display = done ? '' : 'none';
+      $('#hEdit').textContent = showForm ? 'Close the form' : 'View or update my answers';
+      $('#hWithdraw').style.display = healthRec ? '' : 'none';
+      $('#hWithdraw').textContent = 'Withdraw consent and delete my answers'; $('#hWithdraw').dataset.armed = '';
+    }
+    // weight and body fat switch (separate consent)
+    const mOn = !!(healthRec && healthRec.consent_measurements);
+    const sw = $('#mSwitch');
+    sw.setAttribute('aria-checked', mOn ? 'true' : 'false');
+    sw.disabled = unknown || !healthRec;
+    $('#mStatus').textContent = unknown ? ''
+      : !healthRec ? 'Locked until the form above is complete.'
+      : mOn ? 'On. You consented to MY GYM London keeping the weight and body fat you log. Switch off to delete them.'
+      : 'Off. Switch on to consent to MY GYM London keeping the weight and body fat you log, so you can track your progress.';
+  }
+  $('#hEdit').addEventListener('click', () => {
+    if ($('#hBody').style.display === 'block' && healthOk()) { healthOpen = false; healthDirty = false; renderHealthProfile(); return; }
+    healthOpen = true; healthDirty = false; renderHealthProfile();
+  });
+  $('#mSwitch').addEventListener('click', async () => {
+    const sw = $('#mSwitch');
+    if (sw.disabled || !healthRec) return;
+    const on = sw.getAttribute('aria-checked') === 'true';
+    if (!on) {
+      sw.disabled = true;
+      try {
+        await DB.turnOnMeasurements(HEALTH_VERSION);
+        healthRec = Object.assign({}, healthRec, { consent_measurements: true, measurements_consented_at: new Date().toISOString() });
+        renderHealthProfile(); renderProfile(); renderDash();
+        toast($('#hMsg'), 'Weight and body fat tracking is on. You will find it in the Log tab.');
+      } catch (x) { toast($('#hMsg'), 'Could not switch it on right now. Please try again.', true); sw.disabled = false; }
+      return;
+    }
+    if (sw.dataset.armed !== '1') {
+      sw.dataset.armed = '1';
+      $('#mStatus').textContent = 'Tap the switch again to turn it off and DELETE your saved weight and body fat.';
+      setTimeout(() => { if (sw.dataset.armed === '1') { sw.dataset.armed = ''; renderHealthProfile(); } }, 6000);
+      return;
+    }
+    sw.dataset.armed = ''; sw.disabled = true;
+    try {
+      await DB.turnOffMeasurements(HEALTH_VERSION);
+      healthRec = Object.assign({}, healthRec, { consent_measurements: false, measurements_consented_at: null });
+      profile = Object.assign(profile || {}, { weight_kg: null });
+      renderHealthProfile(); renderProfile(); renderDash();
+      toast($('#hMsg'), 'Tracking is off and your saved weight and body fat records have been deleted.');
+    } catch (x) { toast($('#hMsg'), 'Could not do that right now. Please try again or email us.', true); renderHealthProfile(); }
+  });
+  $('#hWithdraw').addEventListener('click', async () => {
+    const b = $('#hWithdraw');
+    if (b.dataset.armed !== '1') {
+      b.dataset.armed = '1'; b.textContent = 'Tap again to confirm: delete my answers';
+      setTimeout(() => { if (b.dataset.armed === '1') { b.dataset.armed = ''; b.textContent = 'Withdraw consent and delete my answers'; } }, 6000);
+      return;
+    }
+    b.disabled = true;
+    try {
+      await DB.withdrawHealth(HEALTH_VERSION);
+      healthRec = null; healthOpen = false; healthDirty = false; profile = Object.assign(profile || {}, { weight_kg: null }); paintLocks(); renderHealthProfile(); renderProfile(); renderDash();
+      toast($('#hMsg'), 'Done. Your health answers have been deleted. You will need to fill the form again before booking.');
+    } catch (x) { toast($('#hMsg'), 'Could not delete right now. Please try again or email us.', true); }
+    b.disabled = false;
+  });
+
   /* ---------- class reminders (push, one hour before a booking) ---------- */
   const VAPID = (window.MYGYM_CONFIG || {}).VAPID_PUBLIC_KEY || '';
   const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && !!VAPID;
@@ -997,10 +1168,13 @@
 
   async function renderProfile() {
     renderReminders();
+    renderHealthProfile();
     if (!profile) profile = (await DB.getProfile().catch(() => null)) || {};
     $('#pName').value = profile.full_name || '';
     $('#pPhone').value = profile.phone || '';
-    $('#pWeight').value = profile.weight_kg || '';
+    $('#pWeight').value = measBlocked() ? '' : (profile.weight_kg || '');
+    $('#pWeight').disabled = measBlocked();
+    $('#pWeight').placeholder = measBlocked() ? 'Tracking is off' : '72.5';
     $('#pGoal').value = profile.goal || '';
     $('#pEmail').textContent = (me && me.email) || '';
   }
@@ -1008,9 +1182,9 @@
     const patch = {
       full_name: $('#pName').value.trim(),
       phone: $('#pPhone').value.trim(),
-      weight_kg: parseFloat($('#pWeight').value) || null,
       goal: $('#pGoal').value
     };
+    if (!measBlocked()) patch.weight_kg = parseFloat($('#pWeight').value) || null;
     $('#pSave').disabled = true;
     try {
       await DB.saveProfile(patch);
@@ -1044,6 +1218,8 @@
         authed = true;
         profile = await DB.getProfile().catch(() => null);
         classes = await DB.getClasses().catch(() => []);
+        healthRec = await DB.getHealth().catch(() => undefined);
+        paintLocks();
         setNav();
       }
     } catch (e) {}
@@ -1052,6 +1228,7 @@
     if (/type=recovery/.test(h)) go('resetpw');
     else if (h && document.getElementById(h)) go(h);
     else if (h && map[h]) go(map[h]);
+    else if (authed && healthRec !== undefined && !healthOk() && pushHealthOnce()) openHealth(false);
     else go('home');
   })();
 

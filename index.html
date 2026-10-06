@@ -174,6 +174,17 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .tpl{cursor:pointer}
 .exlib .how{margin-top:8px;font-size:13.5px;color:var(--mut);display:none}
 .exlib.open .how{display:block}
+.hsec{padding:14px 0;border-top:1px solid var(--line)}
+.lockline{background:var(--accs);color:var(--acc);padding:10px 12px;border-radius:10px;font-weight:700;font-size:14px;margin:6px 0 10px}
+body.hlock .nwrap button[data-v=bookings],body.hlock .nwrap button[data-v=log],body.hlock .nwrap button[data-v=progress]{opacity:.45}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.35;cursor:pointer}
+.chk:last-of-type{border-bottom:none}
+.chk input[type=checkbox]{width:26px;height:26px;min-width:26px;padding:0;margin:0;accent-color:var(--acc);flex:0 0 auto}
+.chk.none{background:var(--accs);border-radius:10px;padding:12px;margin-top:8px;border-bottom:none}
+details.priv{margin:10px 0 6px;font-size:13.5px;color:var(--mut)}
+details.priv summary{cursor:pointer;font-weight:700;color:var(--txt);font-size:14px}
+details.priv p{margin:8px 0 0;line-height:1.45}
+#healthForm textarea{width:100%}
 .remrow{display:flex;gap:14px;align-items:center;justify-content:space-between}
 .switch{flex:0 0 auto;width:54px;height:32px;border-radius:16px;border:none;background:#cfcdcd;position:relative;cursor:pointer;transition:background .2s;padding:0}
 .switch span{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
@@ -305,6 +316,11 @@ nav.show{display:block}
     <h1 id="helloName">Hi! Let's check your activity 👋</h1>
     <p id="helloSub">Your day at MY GYM at a glance.</p>
   </div>
+  <div class="card" id="healthBanner" style="display:none;border-color:var(--acc)">
+    <b>Health &amp; safety form</b>
+    <p class="sub" style="margin:6px 0 10px">Please fill this in before you book. It takes about 2 minutes and keeps you safe in classes and the gym.</p>
+    <button class="btn-small" id="healthBannerBtn" type="button">Fill it in</button>
+  </div>
   <div class="stats">
     <div class="stat"><b id="statWeek">0</b><small>workouts this week</small></div>
     <div class="stat"><b id="statBooked">0</b><small>classes booked</small></div>
@@ -367,6 +383,12 @@ nav.show{display:block}
     <div class="card" id="wHistory"></div>
   </div>
   <div id="paneBody" style="display:none">
+    <div class="card" id="measCard" style="display:none">
+      <b>Weight &amp; body fat tracking is off</b>
+      <p class="sub" style="margin:6px 0 12px">To save your weight and body fat we need your consent, because it is personal health information. You can switch it on, and off again, any time in Profile → Health &amp; safety.</p>
+      <button class="btn-small" id="measOn" type="button">Go to Profile</button>
+    </div>
+    <div id="measForm">
     <div class="card">
       <div class="field"><label>Date</label><input id="kgDate" type="date"></div>
       <div class="row2">
@@ -377,6 +399,7 @@ nav.show{display:block}
       <button class="cta" id="kgSave" style="margin:4px 0 0">Save measurement</button>
     </div>
     <div class="card" id="kgHistory"></div>
+    </div>
   </div>
 </section>
 
@@ -483,6 +506,62 @@ nav.show{display:block}
     </div>
     <div class="ok" id="pMsg"></div>
     <button class="cta" id="pSave" style="margin:4px 0 0">Save profile</button>
+  </div>
+  <div class="card" id="healthCard">
+    <b>Health &amp; safety</b>
+    <p class="sub" style="margin:6px 0 10px" id="hStatus"></p>
+    <div class="lockline" id="hLockNote" style="display:none">🔒 Complete the form below to unlock Bookings, Log and Progress.</div>
+    <div id="hBody" style="display:none">
+      <form id="healthForm" novalidate>
+          <div class="hsec">
+            <b>1. Tick anything that applies to you</b>
+            <label class="chk"><input type="checkbox" data-k="heart"><span>A doctor has told me I have a heart condition</span></label>
+            <label class="chk"><input type="checkbox" data-k="chest"><span>I get chest pain when I exercise or at rest</span></label>
+            <label class="chk"><input type="checkbox" data-k="dizzy"><span>I feel dizzy, or have fainted or lost consciousness</span></label>
+            <label class="chk"><input type="checkbox" data-k="joint"><span>I have a bone, joint or back problem that exercise could make worse</span></label>
+            <label class="chk"><input type="checkbox" data-k="meds"><span>I take medication for blood pressure or a heart condition</span></label>
+            <label class="chk"><input type="checkbox" data-k="pregnant"><span>I am pregnant, or gave birth in the last 6 months</span></label>
+            <label class="chk"><input type="checkbox" data-k="other"><span>I have another health condition or injury that could affect exercise</span></label>
+            <label class="chk none"><input type="checkbox" id="hNone"><span><b>None of these apply to me</b></span></label>
+            <div class="field" id="hOtherWrap" style="display:none;margin-top:10px"><label>A few details (optional)</label><textarea id="hOther" rows="3" maxlength="1000" placeholder="e.g. bad left knee, recent back surgery"></textarea></div>
+            <p class="sub" id="hAdvice" style="display:none;margin:10px 0 0">If you ticked anything, please check with your doctor before you start and tell your coach. We may have a quick chat with you before your first session.</p>
+          </div>
+          <div class="hsec">
+            <b>2. Allergies</b>
+            <label class="chk"><input type="checkbox" id="hNoAllergy"><span>I have no allergies</span></label>
+            <div class="field" id="hAllergyWrap" style="margin-top:10px"><label>Or tell us what you are allergic to (food, latex, medication, anything else)</label><input id="hAllergy" maxlength="500" placeholder="e.g. peanuts, penicillin"></div>
+          </div>
+          <div class="hsec">
+            <b>3. Your consent</b>
+            <details class="priv">
+              <summary>How MY GYM London uses your information (tap to read)</summary>
+              <p><b>Who we are:</b> MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS. Contact: info@mygymlondon.co.uk.</p>
+              <p><b>What we keep:</b> the health and allergy answers you give on this form. If you tick the optional box, also the weight and body fat measurements you log in the app.</p>
+              <p><b>Why:</b> to keep you safe in classes and the gym and to plan your training. We do not use it for marketing and we never sell it.</p>
+              <p><b>Why we may do this:</b> you give us your explicit consent. You can say no, and you can withdraw your consent at any time.</p>
+              <p><b>Who sees it:</b> only MY GYM London coaches and management who need it. It is stored securely with our database provider.</p>
+              <p><b>How long:</b> while you are a member. We delete it if you withdraw consent, if you delete your account, or if you have not used the app for 12 months.</p>
+              <p><b>Your rights:</b> you can see, correct or delete your answers, turn weight and body fat tracking off (which deletes your measurements), or withdraw your consent, in Profile → Health &amp; consent or by emailing us. You can also complain to the Information Commissioner's Office (ico.org.uk).</p>
+            </details>
+            <label class="chk"><input type="checkbox" id="hConsent"><span>I give my <b>explicit consent</b> to MY GYM London keeping the health and allergy information I have entered above, to keep me safe and to plan my training.</span></label>
+            <label class="chk"><input type="checkbox" id="hTrue"><span>I confirm my answers are true, and I will tell MY GYM London if they change.</span></label>
+            <label class="chk"><input type="checkbox" id="hMeas"><span><b>Optional:</b> I consent to MY GYM London keeping my <b>weight and body fat</b> measurements that I log in the app, so I can track my progress. <small style="display:block;color:var(--mut);margin-top:4px">If you don't tick this, weight and body fat tracking stays off and any measurements you already saved will be deleted.</small></span></label>
+            <div class="err" id="hErr"></div>
+            <button class="cta" id="hSave" type="submit" style="margin:10px 0 0">Save and continue</button>
+            <button class="btn-small ghost" id="hLater" type="button" style="margin-top:10px;width:100%">Do it later (you can't book until it's done)</button>
+          </div>
+        </form>
+    </div>
+    <div style="margin-top:6px">
+      <button class="btn-small" id="hEdit" type="button">Fill it in</button>
+      <button class="btn-small ghost" id="hWithdraw" type="button" style="display:none;margin-left:6px">Withdraw consent and delete my answers</button>
+    </div>
+    <div class="ok" id="hMsg"></div>
+    <div class="remrow" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)" id="measRow">
+      <div><b>Weight &amp; body fat tracking</b>
+        <p class="sub" style="margin:4px 0 0" id="mStatus"></p></div>
+      <button id="mSwitch" class="switch" role="switch" aria-checked="false" aria-label="Weight and body fat tracking" disabled><span></span></button>
+    </div>
   </div>
   <div class="card" id="remCard">
     <div class="remrow">

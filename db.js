@@ -514,6 +514,85 @@
       return { plans: p.error || !p.data ? [] : p.data, items: i.error || !i.data ? [] : i.data };
     },
 
+    /* ---- health and allergy form + consent (UK GDPR special category data) ---- */
+    async getHealth() {
+      const u = await DB.getUser(); if (!u) return null;
+      if (!LIVE) return dGet('health_' + u.email, null);
+      const { data, error } = await sb.from('member_health').select('*').eq('user_id', u.id).maybeSingle();
+      if (error) throw error;
+      return data || null;
+    },
+    /* deletes the member's saved weight and body fat records (used when they decline or withdraw that consent) */
+    async deleteMeasurements() {
+      const u = await DB.getUser(); if (!u) return;
+      if (!LIVE) {
+        localStorage.removeItem(DK + 'weights_' + u.email);
+        const pr = dGet('profile_' + u.email, null); if (pr) { pr.weight_kg = null; dSet('profile_' + u.email, pr); }
+        return;
+      }
+      const a = await sb.from('weight_logs').delete().eq('user_id', u.id);
+      if (a.error) throw a.error;
+      await sb.from('profiles').update({ weight_kg: null }).eq('id', u.id);
+    },
+    async saveHealth(p) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      const prev = await DB.getHealth().catch(() => null);
+      const row = Object.assign({}, p, { updated_at: new Date().toISOString() });
+      const acts = [prev ? 'updated' : 'given'];
+      if (!!(prev && prev.consent_measurements) !== !!p.consent_measurements) acts.push(p.consent_measurements ? 'measurements_on' : 'measurements_off');
+      if (!LIVE) {
+        dSet('health_' + u.email, row);
+        dSet('consent_' + u.email, dGet('consent_' + u.email, []).concat(acts.map((a) => ({ action: a, version: p.consent_version, at: row.updated_at }))));
+        if (!p.consent_measurements) await DB.deleteMeasurements();
+        return row;
+      }
+      const { error } = await sb.from('member_health').upsert(Object.assign({ user_id: u.id }, row), { onConflict: 'user_id' });
+      if (error) throw error;
+      await sb.from('consent_log').insert(acts.map((a) => ({ user_id: u.id, action: a, version: p.consent_version })));
+      if (!p.consent_measurements) await DB.deleteMeasurements();
+      return row;
+    },
+    /* switch weight and body fat tracking on (the member's separate, optional consent) */
+    async turnOnMeasurements(version) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      const at = new Date().toISOString();
+      if (!LIVE) {
+        const h = dGet('health_' + u.email, null); if (!h) throw new Error('Complete the health form first');
+        h.consent_measurements = true; h.measurements_consented_at = at; dSet('health_' + u.email, h);
+        dSet('consent_' + u.email, dGet('consent_' + u.email, []).concat({ action: 'measurements_on', version, at }));
+        return;
+      }
+      const { error } = await sb.from('member_health').update({ consent_measurements: true, measurements_consented_at: at, updated_at: at }).eq('user_id', u.id);
+      if (error) throw error;
+      await sb.from('consent_log').insert({ user_id: u.id, action: 'measurements_on', version });
+    },
+    /* switch weight and body fat tracking off: consent removed and the measurements deleted */
+    async turnOffMeasurements(version) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      if (!LIVE) {
+        const h = dGet('health_' + u.email, null);
+        if (h) { h.consent_measurements = false; h.measurements_consented_at = null; dSet('health_' + u.email, h); }
+        dSet('consent_' + u.email, dGet('consent_' + u.email, []).concat({ action: 'measurements_off', version, at: new Date().toISOString() }));
+        await DB.deleteMeasurements(); return;
+      }
+      const { error } = await sb.from('member_health').update({ consent_measurements: false, measurements_consented_at: null, updated_at: new Date().toISOString() }).eq('user_id', u.id);
+      if (error) throw error;
+      await DB.deleteMeasurements();
+      await sb.from('consent_log').insert({ user_id: u.id, action: 'measurements_off', version });
+    },
+    async withdrawHealth(version) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      if (!LIVE) {
+        localStorage.removeItem(DK + 'health_' + u.email);
+        dSet('consent_' + u.email, dGet('consent_' + u.email, []).concat({ action: 'withdrawn', version, at: new Date().toISOString() }));
+        await DB.deleteMeasurements(); return;
+      }
+      const { error } = await sb.from('member_health').delete().eq('user_id', u.id);
+      if (error) throw error;
+      await DB.deleteMeasurements();
+      await sb.from('consent_log').insert({ user_id: u.id, action: 'withdrawn', version });
+    },
+
     /* ---- push reminders (one row per phone) ---- */
     async savePushSub(sub) {
       if (!LIVE) return;

@@ -84,11 +84,12 @@
     $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x === b));
     $('#nameField').style.display = authMode === 'up' ? 'block' : 'none';
     $('#aPass').autocomplete = authMode === 'up' ? 'new-password' : 'current-password';
-    $('#aSubmit').textContent = authMode === 'up' ? 'Create free account' : 'Log in';
+    $('#aSubmit').textContent = authMode === 'up' ? 'Create account' : 'Log in';
     $('#authTitle').textContent = authMode === 'up' ? 'Join MY GYM' : 'Member login';
     $('#authSub').textContent = authMode === 'up'
-      ? 'Free account — book classes, log workouts, track progress. No contract.'
+      ? 'Book classes, log workouts and track your progress.'
       : 'Log in to book classes and track progress.';
+    $('#agreeField').style.display = authMode === 'up' ? 'flex' : 'none';
     $('#aErr').textContent = '';
     $('#forgotWrap').style.display = authMode === 'in' ? 'block' : 'none';
   }));
@@ -129,6 +130,7 @@
     const err = $('#aErr');
     if (!email || !pass) return toast(err, 'Enter your email and password.', true);
     if (authMode === 'up' && pass.length < 8) return toast(err, 'Password must be at least 8 characters.', true);
+    if (authMode === 'up' && !$('#aAgree').checked) return toast(err, 'Please tick the box to agree to the Terms and Privacy Policy.', true);
     $('#aSubmit').disabled = true;
     try {
       if (authMode === 'up') {
@@ -138,6 +140,7 @@
           authMode = 'in';
           $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === 'in'));
           $('#nameField').style.display = 'none';
+          $('#agreeField').style.display = 'none';
           $('#aSubmit').textContent = 'Log in';
         } else {
           await afterAuth();

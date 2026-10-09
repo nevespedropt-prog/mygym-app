@@ -21,6 +21,12 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const GYM = /gym access|open gym/i;   // the open-gym service; everything else is a class
 
+// Owner's blocks (2026-10-09): things that must never appear in the app even if the website still lists them.
+//   * Kids Gym is children only, so no adult gym slot at that hour (weekday|time)
+//   * HIIT Glow is a removed class
+const BLOCKED_GYM = new Set(["Tuesday|16:00", "Thursday|16:00"]);
+const BLOCKED_CLASS = /hiit glow/i;
+
 const json = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
@@ -75,8 +81,10 @@ async function websitePattern(): Promise<{ classes: Map<string, Row>; gym: Map<s
       const cap = Math.max(1, Number(slot.totalCapacity) || 1);
       if (GYM.test(name)) {
         const key = day + "|" + time;
+        if (BLOCKED_GYM.has(key)) continue;
         gym.set(key, { day_name: day, start_time: time, name: "Open Gym", info: "", capacity: Math.max(cap, gym.get(key)?.capacity ?? 0) });
       } else {
+        if (BLOCKED_CLASS.test(name)) continue;
         const key = day + "|" + time + "|" + name;
         classes.set(key, { day_name: day, start_time: time, name, info: lengthText(mins), capacity: Math.max(cap, classes.get(key)?.capacity ?? 0) });
       }

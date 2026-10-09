@@ -151,6 +151,9 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--acc);border-color:transparent;background:#fff}
 .row2{display:flex;gap:10px}
 .row2 .field{flex:1}
+.agree{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.45;color:var(--mut);margin:6px 0 8px;cursor:pointer}
+.agree input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--acc)}
+.agree a{color:var(--acc);font-weight:700;text-decoration:underline}
 .err{color:var(--acc);font-size:13px;min-height:18px;margin:4px 0 8px}
 .ok{color:var(--ok);font-size:13px;min-height:18px;margin:4px 0 8px}
 .btn-small{background:var(--acc);color:#fff;border:none;border-radius:999px;font:700 15px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase;padding:10px 17px;cursor:pointer}
@@ -463,12 +466,12 @@ nav.show{display:block}
     <div class="field" id="nameField" style="display:none"><label>Your name</label><input id="aName" name="name" autocomplete="name" placeholder="e.g. Sam"></div>
     <div class="field"><label>Email</label><input id="aEmail" name="username" type="email" inputmode="email" autocomplete="username" placeholder="you@example.com"></div>
     <div class="field"><label>Password</label><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <label class="agree" id="agreeField" style="display:none"><input type="checkbox" id="aAgree"><span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
     <div class="err" id="aErr"></div>
     <button class="cta" id="aSubmit" type="submit" style="margin:4px 0 0">Log in</button>
     <p class="note" id="forgotWrap" style="margin:12px 0 0"><a href="#" id="forgotLink" style="color:var(--acc);font-weight:700">Forgot password?</a></p>
    </form>
   </div>
-  <p class="note">Free account · no contract · classes from £6</p>
 </section>
 
 <!-- ============ RESET PASSWORD (from emailed link) ============ -->
@@ -543,6 +546,7 @@ nav.show{display:block}
               <p><b>Who sees it:</b> only MY GYM London coaches and management who need it. It is stored securely with our database provider.</p>
               <p><b>How long:</b> while you are a member. We delete it if you withdraw consent, if you delete your account, or if you have not used the app for 12 months.</p>
               <p><b>Your rights:</b> you can see, correct or delete your answers, turn weight and body fat tracking off (which deletes your measurements), or withdraw your consent, in Profile → Health &amp; consent or by emailing us. You can also complain to the Information Commissioner's Office (ico.org.uk).</p>
+              <p><a href="privacy.html" target="_blank" rel="noopener">Read our full privacy policy</a></p>
             </details>
             <label class="chk"><input type="checkbox" id="hConsent"><span>I give my <b>explicit consent</b> to MY GYM London keeping the health and allergy information I have entered above, to keep me safe and to plan my training.</span></label>
             <label class="chk"><input type="checkbox" id="hTrue"><span>I confirm my answers are true, and I will tell MY GYM London if they change.</span></label>

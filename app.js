@@ -230,6 +230,20 @@
     return card;
   }
   const endTime = (t) => { const p = t.split(':'); return String(((+p[0] + 1) % 24)).padStart(2, '0') + ':' + p[1]; };
+
+  /* Cancel rule: a booking can be cancelled up to 10 minutes before the session starts.
+     Class times are London time. The same rule is set in Wix (Default booking policy). */
+  const CANCEL_LIMIT_MIN = 10;
+  const CANCEL_LATE_MSG = 'Too late to cancel: you can cancel up to ' + CANCEL_LIMIT_MIN + ' minutes before the session starts.';
+  function londonStartMs(date, hm) {
+    const guess = Date.parse(date + 'T' + hm + ':00Z');
+    const p = {};
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+      .formatToParts(new Date(guess)).forEach((x) => { p[x.type] = x.value; });
+    const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute);
+    return guess - (asUtc - guess);
+  }
+  const canCancel = (date, hm) => Date.now() < londonStartMs(date, hm) - CANCEL_LIMIT_MIN * 60000;
   async function renderTimetable(reuse) {
     await ensureClasses();
     const hasGym = classes.some(isGym);
@@ -250,8 +264,8 @@
       strip.appendChild(b);
     }
     $('#ttHeadline').textContent = ttMode === 'gym'
-      ? (authed ? 'Pick a day and an hour for the gym floor. Cancel any time.' : 'Book a one-hour slot on the gym floor. Join free to book.')
-      : (authed ? 'Pick a day and grab your spot. Cancel any time.' : 'Our weekly classes. Join free to book your spot.');
+      ? (authed ? 'Pick a day and an hour for the gym floor. Cancel up to 10 minutes before.' : 'Book a one-hour slot on the gym floor. Join free to book.')
+      : (authed ? 'Pick a day and grab your spot. Cancel up to 10 minutes before.' : 'Our weekly classes. Join free to book your spot.');
 
     let allBookings = [];
     if (authed) {
@@ -318,11 +332,16 @@
       const left = (c.capacity || 8) - cbs.length;
       const b = el('button', 'btn-small');
       if (mine) {
-        b.textContent = 'Cancel'; b.className = 'btn-small ghost';
+        const lateNow = !canCancel(iso, c.start_time);
+        b.textContent = lateNow ? 'Booked' : 'Cancel'; b.className = 'btn-small ghost'; b.disabled = lateNow;
         b.addEventListener('click', async () => {
+          if (!canCancel(iso, c.start_time)) { $('#ttNote').textContent = CANCEL_LATE_MSG; refreshAfterBooking(); return; }
           b.disabled = true; b.textContent = 'Book'; b.className = 'btn-small busy';
           try { await DB.cancel(mine.id); refreshAfterBooking(); }
-          catch (e) { b.disabled = false; b.textContent = 'Cancel'; b.className = 'btn-small ghost'; }
+          catch (e) {
+            b.disabled = false; b.textContent = 'Cancel'; b.className = 'btn-small ghost';
+            $('#ttNote').textContent = (e && /too late/i.test(e.message || '')) ? CANCEL_LATE_MSG : 'Could not cancel. Please try again.';
+          }
         });
       } else {
         const locked = gym && gymState !== 'yes';
@@ -427,8 +446,12 @@
       what.appendChild(el('small', '', fmtShort(x.date)));
       row.appendChild(what);
       const act = el('span', 'act');
-      const b = el('button', 'btn-small ghost', 'Cancel');
+      const lateNow = !canCancel(x.date, x.class.start_time);
+      const b = el('button', 'btn-small ghost', lateNow ? 'Locked in' : 'Cancel');
+      b.disabled = lateNow;
+      if (lateNow) b.title = CANCEL_LATE_MSG;
       b.addEventListener('click', async () => {
+        if (!canCancel(x.date, x.class.start_time)) { bkCache = null; renderBookings(); return; }
         b.disabled = true; row.style.display = 'none';
         try { await DB.cancel(x.booking.id); bkCache = null; renderBookings(); }
         catch (e) { row.style.display = ''; b.disabled = false; }

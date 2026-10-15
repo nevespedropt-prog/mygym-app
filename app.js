@@ -90,8 +90,19 @@
       ? 'Book classes, log workouts and track your progress.'
       : 'Log in to book classes and track progress.';
     $('#agreeField').style.display = authMode === 'up' ? 'flex' : 'none';
+    $('#emailHint').style.display = authMode === 'up' ? 'block' : 'none';
     $('#aErr').textContent = '';
     $('#forgotWrap').style.display = authMode === 'in' ? 'block' : 'none';
+  }));
+
+  /* show / hide password (eye button) */
+  $$('.pw .eye').forEach((btn) => btn.addEventListener('click', () => {
+    const inp = btn.parentElement.querySelector('input');
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.classList.toggle('on', show);
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
   }));
 
   $('#forgotLink').addEventListener('click', async (e) => {

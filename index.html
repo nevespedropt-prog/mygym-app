@@ -151,6 +151,15 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--acc);border-color:transparent;background:#fff}
 .row2{display:flex;gap:10px}
 .row2 .field{flex:1}
+.pw{position:relative}
+.pw input{padding-right:48px}
+.pw .eye{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;padding:0;color:var(--mut);cursor:pointer;border-radius:12px}
+.pw .eye:focus-visible{outline:2px solid var(--acc)}
+.pw .eye svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw .eye .off{display:none}
+.pw .eye.on .on{display:none}
+.pw .eye.on .off{display:block}
+.hint{font-size:12.5px;line-height:1.45;color:var(--mut);margin:-6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.45;color:var(--mut);margin:6px 0 8px;cursor:pointer}
 .agree input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--acc)}
 .agree a{color:var(--acc);font-weight:700;text-decoration:underline}
@@ -465,7 +474,8 @@ nav.show{display:block}
    <form id="authForm" novalidate>
     <div class="field" id="nameField" style="display:none"><label>Your name</label><input id="aName" name="name" autocomplete="name" placeholder="e.g. Sam"></div>
     <div class="field"><label>Email</label><input id="aEmail" name="username" type="email" inputmode="email" autocomplete="username" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <p class="hint" id="emailHint" style="display:none">Please use the same email as your MY GYM website account, so your plan and bookings match.</p>
+    <div class="field"><label>Password</label><div class="pw"><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="eye" aria-label="Show password" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19.8 19.8 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a19.9 19.9 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg></button></div></div>
     <label class="agree" id="agreeField" style="display:none"><input type="checkbox" id="aAgree"><span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
     <div class="err" id="aErr"></div>
     <button class="cta" id="aSubmit" type="submit" style="margin:4px 0 0">Log in</button>
@@ -480,7 +490,7 @@ nav.show{display:block}
   <p class="sub">Choose a new password for your MY GYM account.</p>
   <div class="card">
    <form id="resetForm" novalidate>
-    <div class="field"><label>New password</label><input id="rPass" name="new-password" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div>
+    <div class="field"><label>New password</label><div class="pw"><input id="rPass" name="new-password" type="password" autocomplete="new-password" placeholder="At least 8 characters"><button type="button" class="eye" aria-label="Show password" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19.8 19.8 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a19.9 19.9 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg></button></div></div>
     <div class="err" id="rErr"></div>
     <button class="cta" id="rSave" type="submit" style="margin:4px 0 0">Save new password</button>
    </form>

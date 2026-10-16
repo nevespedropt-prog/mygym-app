@@ -1,6 +1,6 @@
 -- ============================================================
 -- MY GYM London: count EVERY booking in the app, including website bookings by people with no app account
--- NOT RUN YET. Run in the Supabase SQL editor BEFORE updating the sync-wix-bookings function.
+-- APPLIED 2026-10-16 in the Supabase SQL editor (Success. No rows returned).
 -- Safe to run more than once. It adds one table and replaces two functions. It deletes nothing.
 --
 -- 1. public.wix_other_bookings: anonymous rows for confirmed Wix bookings whose booker is not an app member

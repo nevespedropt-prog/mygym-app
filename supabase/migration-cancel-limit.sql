@@ -1,6 +1,6 @@
 -- Cancel limit: a member can cancel a booking up to 10 minutes before the session starts.
 -- Class times are London time (same rule as the push reminders). Same rule is set in Wix (Default booking policy).
--- NOT APPLIED YET. Run in the Supabase SQL editor after the owner approves.
+-- APPLIED 2026-10-16 in the Supabase SQL editor (Success. No rows returned).
 -- Only deletes made by the signed-in member are limited. Server, staff and account-deletion cascades are not.
 
 create or replace function public.enforce_cancel_limit() returns trigger

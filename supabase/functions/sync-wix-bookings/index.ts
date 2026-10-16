@@ -6,7 +6,9 @@
 //   2. Matches each to a member by email and to a timetable row by service, weekday and start time (London time).
 //   3. Adds the booking to public.class_bookings with source = 'wix' (so no app email is sent: Wix sends its own),
 //      and removes app rows that came from Wix and are no longer confirmed there (cancelled in Wix).
-//   Bookings made in the app (source = 'app') are never changed or removed. Unmatched bookings are only counted.
+//   Bookings made in the app (source = 'app') are never changed or removed.
+//   4. Bookings by people with no app account (or another email) are kept in public.wix_other_bookings as anonymous rows
+//      (class, date and Wix booking id only: no name, no email) so the spaces left in the app count everyone.
 //
 // Safety: DRY RUN BY DEFAULT. Nothing is written unless the body is {"apply": true}. The reply is counts only: no names,
 // no emails. If Wix returns an error, nothing changes. If more than half of the Wix rows (min 5) would be removed
@@ -15,7 +17,7 @@
 // Secrets: WIX_API_KEY, WIX_SITE_ID (already set). The key needs to read bookings.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { planSync, type ClassRow, type ExistingRow, type WixBooking } from "./logic.ts";
+import { planSync, type ClassRow, type ExistingOther, type ExistingRow, type WixBooking } from "./logic.ts";
 
 const WINDOW_DAYS = 22;
 
@@ -92,6 +94,8 @@ Deno.serve(async (req) => {
     if (e1) throw e1;
     const { data: ex, error: e2 } = await db.from("class_bookings").select("id, class_id, user_id, date, source, wix_booking_id").gte("date", today);
     if (e2) throw e2;
+    const { data: exOther, error: e2b } = await db.from("wix_other_bookings").select("wix_booking_id, date").gte("date", today);
+    if (e2b) throw e2b;
     const userByEmail = new Map<string, string>();
     for (let page = 1; page <= 20; page++) {
       const { data: u, error: e3 } = await db.auth.admin.listUsers({ page, perPage: 1000 });
@@ -101,12 +105,18 @@ Deno.serve(async (req) => {
     }
 
     const plan = planSync({
-      bookings, serviceNames, classes: (cls ?? []) as ClassRow[], userByEmail, existing: (ex ?? []) as ExistingRow[], windowFromDate: today,
+      bookings, serviceNames, classes: (cls ?? []) as ClassRow[], userByEmail, existing: (ex ?? []) as ExistingRow[],
+      existingOther: (exOther ?? []) as ExistingOther[], windowFromDate: today,
     });
 
     if (!apply) return await finish({ ok: true, counts: plan.counts });
 
-    let added = 0, removed = 0;
+    let added = 0, removed = 0, otherAdded = 0, otherRemoved = 0;
+    if (plan.otherAdd.length) {
+      const { error } = await db.from("wix_other_bookings").upsert(plan.otherAdd, { onConflict: "wix_booking_id", ignoreDuplicates: true });
+      if (error) throw error;
+      otherAdded = plan.otherAdd.length;
+    }
     if (plan.add.length) {
       const { error } = await db.from("class_bookings").upsert(plan.add.map((r) => ({ ...r, source: "wix" })), { onConflict: "class_id,user_id,date", ignoreDuplicates: true });
       if (error) throw error;
@@ -117,7 +127,12 @@ Deno.serve(async (req) => {
       if (error) throw error;
       removed = plan.remove.length;
     }
-    return await finish({ ok: true, counts: plan.counts, added, removed });
+    if (plan.otherRemove.length) {
+      const { error } = await db.from("wix_other_bookings").delete().in("wix_booking_id", plan.otherRemove);
+      if (error) throw error;
+      otherRemoved = plan.otherRemove.length;
+    }
+    return await finish({ ok: true, counts: plan.counts, added, removed, otherAdded, otherRemoved });
   } catch (e) {
     return await finish({ ok: false, error: String((e as Error)?.message ?? e), note: "nothing was changed" }, 502);
   }

@@ -1,7 +1,6 @@
 -- ============================================================
 -- MY GYM London: automatic Wix booking sync (step 2 of 2: the 5-minute schedule)
--- NOT RUN YET. Run only AFTER migration-wix-bookings-sync.sql, after the sync-wix-bookings function is deployed
--- (Verify JWT OFF), and after a DRY RUN (empty body) shows sensible counts, and an APPLY run by hand looks right.
+-- SCHEDULED 2026-10-16 by the owner in the Supabase SQL editor (cron job id 4). The end-to-end test with the owner's own account passed first.
 --
 -- Every 5 minutes the database asks the function to mirror confirmed Wix bookings into the app.
 -- To stop it:  select cron.unschedule('sync-wix-bookings');

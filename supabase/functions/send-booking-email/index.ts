@@ -1,6 +1,5 @@
 // MY GYM London: send the booking confirmation email for a booking made in the app.
-// NOT DEPLOYED YET. Deploy with "Verify JWT" OFF (like sync-timetable), after supabase/migration-booking-emails.sql
-// and after the RESEND_API_KEY secret is set. See supabase/RESEND-SETUP.md.
+// Deployed with "Verify JWT" OFF (like sync-timetable). Source of truth: supabase/functions/send-booking-email in the app repo.
 //
 // How it is called: a database trigger (migration-booking-emails.sql) posts { booking_id } here when a booking row is added.
 // It can also be called with an empty body to catch up on bookings from the last 30 minutes that have no email yet.

@@ -1,5 +1,5 @@
 // MY GYM London: show bookings made on the website (Wix) in the app. One way: Wix to app.
-// NOT DEPLOYED YET. Deploy with "Verify JWT" OFF (like sync-timetable) after supabase/migration-wix-bookings-sync.sql.
+// Deployed with "Verify JWT" OFF (like sync-timetable), after supabase/migration-wix-bookings-sync.sql.
 //
 // What it does:
 //   1. Reads CONFIRMED Wix class and gym bookings for the next 22 days (Wix only returns what the booking window allows).
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     const bookings: WixBooking[] = [];
     let body: Record<string, unknown> = {
       query: {
-        filter: { status: { $in: ["CONFIRMED"] }, startDate: { $gte: fromUtc, $lt: toUtc } },
+        filter: { $and: [{ status: { $in: ["CONFIRMED"] } }, { startDate: { $gte: fromUtc } }, { startDate: { $lt: toUtc } }] },
         sort: [{ fieldName: "startDate", order: "ASC" }],
         cursorPaging: { limit: 100 },
       },

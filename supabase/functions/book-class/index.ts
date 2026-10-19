@@ -42,10 +42,12 @@ async function wix(method: string, path: string, body?: unknown) {
 /** Cancel a Wix booking (no Wix email; our 10-minute rule has already been checked). Tries twice. */
 async function wixCancel(bookingId: string): Promise<boolean> {
   for (let i = 0; i < 2; i++) {
-    const g = await wix("GET", `/bookings/v2/bookings/${encodeURIComponent(bookingId)}`);
-    if (g.status === 404) return true;                              // already gone
-    if (g.ok && g.data?.booking?.status === "CANCELED") return true;
-    const revision = g.data?.booking?.revision;
+    // look the booking up by id (a plain GET of one booking returns 404 here, so use the same query the sync uses)
+    const g = await wix("POST", "/_api/bookings-reader/v2/extended-bookings/query", { query: { filter: { id: { $eq: bookingId } }, cursorPaging: { limit: 1 } } });
+    if (g.ok && (g.data?.extendedBookings ?? []).length === 0) return true;   // Wix has no such booking: nothing to cancel
+    const b = g.data?.extendedBookings?.[0]?.booking;
+    if (g.ok && b?.status === "CANCELED") return true;
+    const revision = b?.revision;
     if (g.ok && revision !== undefined) {
       const c = await wix("POST", `/bookings/v2/bookings/${encodeURIComponent(bookingId)}/cancel`, {
         revision, participantNotification: { notifyParticipants: false }, flowControlSettings: { ignoreCancellationPolicy: true },

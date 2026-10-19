@@ -14,6 +14,24 @@
   const dGet = (k, d) => { try { return JSON.parse(localStorage.getItem(DK + k)) ?? d; } catch (e) { return d; } };
   const dSet = (k, v) => localStorage.setItem(DK + k, JSON.stringify(v));
   const uid = () => 'demo-' + Math.random().toString(36).slice(2, 10);
+  /* ask the book-class function to book or cancel. Returns its reply ({ok} or {error, code}),
+     or null ONLY when the function is not deployed (404) so the old direct way still works. A network failure throws. */
+  async function callBookClass(payload) {
+    const { data } = await sb.auth.getSession();
+    const token = data && data.session && data.session.access_token;
+    if (!token) throw new Error('Not signed in');
+    let r;
+    try {
+      r = await fetch(CFG.SUPABASE_URL + '/functions/v1/book-class', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) { throw new Error('No connection. Check your internet and try again.'); }
+    if (r.status === 404) return null;
+    const out = await r.json().catch(() => null);
+    return out || { error: 'Booking didn\'t go through. Please try again.' };
+  }
 
   const DEMO_CLASSES = [
     { id: 1, day_name: 'Monday', start_time: '07:00', name: 'Cardio n Abs', coach: '', info: '30 min', capacity: 10 },
@@ -403,6 +421,12 @@
         all.push({ id: uid(), class_id: classId, date, user_id: u.id });
         dSet(key, all); return;
       }
+      /* the server books (and, when switched on, books in Wix too); if the function is not there yet, book directly as before */
+      const out = await callBookClass({ action: 'book', class_id: classId, date });
+      if (out) {
+        if (out.ok) return;
+        throw out.code === '23505' ? new Error('Already booked') : new Error(out.error || 'Booking didn\'t go through');
+      }
       const { error } = await sb.from('class_bookings').insert({ class_id: classId, date, user_id: u.id });
       if (error) throw error.code === '23505' ? new Error('Already booked') : error;
     },
@@ -412,6 +436,11 @@
       if (!LIVE) {
         const key = 'bookings_' + u.email;
         dSet(key, dGet(key, []).filter(b => b.id !== bookingId)); return;
+      }
+      const out = await callBookClass({ action: 'cancel', booking_id: bookingId });
+      if (out) {
+        if (out.ok) return;
+        throw new Error(out.error || 'Couldn\'t cancel');
       }
       const { error } = await sb.from('class_bookings').delete().eq('id', bookingId).eq('user_id', u.id);
       if (error) throw error;

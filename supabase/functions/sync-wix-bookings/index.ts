@@ -38,7 +38,20 @@ async function wixPost(url: string, body: unknown) {
 
 const londonToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date());
 
+// Only the schedules and the database trigger may call this function: they send the shared secret in the x-cron-secret header.
+// Enforced only when the CRON_SECRET secret exists (so nothing breaks before it is set). Compared in constant time.
+const cronOk = (req: Request): boolean => {
+  const want = Deno.env.get("CRON_SECRET") ?? "";
+  if (!want) return true;
+  const got = req.headers.get("x-cron-secret") ?? "";
+  if (got.length !== want.length) return false;
+  let diff = 0;
+  for (let i = 0; i < want.length; i++) diff |= want.charCodeAt(i) ^ got.charCodeAt(i);
+  return diff === 0;
+};
+
 Deno.serve(async (req) => {
+  if (!cronOk(req)) return json(401, { error: "Not allowed" });
   if (req.method !== "POST" && req.method !== "GET") return json(405, { error: "Method not allowed" });
   let apply = false;
   if (req.method === "POST") { try { const b = await req.json(); apply = b?.apply === true; } catch (_e) { /* empty body = dry run */ } }

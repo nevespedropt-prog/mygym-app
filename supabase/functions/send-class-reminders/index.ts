@@ -19,7 +19,20 @@ const VAPID_SUBJECT = "mailto:info@mygymlondon.co.uk";
 const json = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-Deno.serve(async () => {
+// Only the schedules and the database trigger may call this function: they send the shared secret in the x-cron-secret header.
+// Enforced only when the CRON_SECRET secret exists (so nothing breaks before it is set). Compared in constant time.
+const cronOk = (req: Request): boolean => {
+  const want = Deno.env.get("CRON_SECRET") ?? "";
+  if (!want) return true;
+  const got = req.headers.get("x-cron-secret") ?? "";
+  if (got.length !== want.length) return false;
+  let diff = 0;
+  for (let i = 0; i < want.length; i++) diff |= want.charCodeAt(i) ^ got.charCodeAt(i);
+  return diff === 0;
+};
+
+Deno.serve(async (req) => {
+  if (!cronOk(req)) return json(401, { error: "Not allowed" });
   // tolerate a pasted "VAPID_PRIVATE_KEY=..." line, quotes, spaces or trailing "="
   const priv = (Deno.env.get("VAPID_PRIVATE_KEY") ?? "").replace(/^\s*VAPID_PRIVATE_KEY\s*=/, "").replace(/["'\s]/g, "").replace(/=+$/, "");
   if (!priv) return json(500, { ok: false, error: "VAPID_PRIVATE_KEY secret is not set" });

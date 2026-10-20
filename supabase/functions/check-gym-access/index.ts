@@ -74,6 +74,10 @@ Deno.serve(async (req) => {
   if (uerr || !user?.email) return json(req, 401, { error: "Not signed in" });
   const email = user.email.toLowerCase();
 
+  // gym staff (profiles.is_admin) always have gym access; nothing is stored, so removing the flag takes effect at once
+  const { data: prof } = await admin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+  if (prof?.is_admin === true) return json(req, 200, { gym_access: true, admin: true });
+
   // protect the Wix API: reuse the stored answer if it is under a minute old
   const { data: prev } = await admin.from("member_access").select("gym_access, checked_at").eq("user_id", user.id).maybeSingle();
   if (prev && Date.now() - new Date(prev.checked_at).getTime() < 60_000) {

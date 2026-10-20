@@ -5,6 +5,7 @@
 -- public.app_flags: server-only switches. Row 'wix_booking' has a mode:
 --   'off'   = the app books exactly as today (default)
 --   'owner' = only the emails in test_emails book through Wix, everyone else as today
+--             (add one with: update public.app_flags set test_emails = array['name@example.com'] where key = 'wix_booking';)
 --   'on'    = everyone books through Wix
 -- Switch with (owner runs in the SQL editor):
 --   update public.app_flags set mode = 'owner' where key = 'wix_booking';
@@ -21,5 +22,5 @@ alter table public.app_flags enable row level security;   -- no policies: only t
 revoke all on public.app_flags from anon, authenticated;
 
 insert into public.app_flags (key, mode, test_emails)
-values ('wix_booking', 'off', array['nevespedro.pt@gmail.com'])
+values ('wix_booking', 'off', '{}')   -- test emails are added by hand in the SQL editor, never committed here
 on conflict (key) do nothing;

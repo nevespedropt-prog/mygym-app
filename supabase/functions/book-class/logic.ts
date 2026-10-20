@@ -48,12 +48,24 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 export function weekdayName(date: string): string { return DAY_NAMES[new Date(date + "T12:00:00Z").getUTCDay()]; }
 
 /** The same date and weekday rules the database enforces, checked BEFORE Wix is touched. Returns an error text or null. */
-export function checkBookingDate(date: string, dayName: string, today: string): string | null {
+export function checkBookingDate(date: string, dayName: string, today: string, startTime?: string, nowHM?: string, kind?: string): string | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date + "T12:00:00Z")) || addDays(date, 0) !== date) return "Invalid date";
   if (date < today) return "You can't book a past class";
   if (date > addDays(today, 60)) return "You can only book up to 60 days ahead";
   if (weekdayName(date) !== dayName) return "That class doesn't run on this date";
+  // a class or gym hour that has already started (London time) can't be booked
+  if (date === today && startTime && nowHM && startTime.slice(0, 5) <= nowHM) {
+    return kind === "gym" ? "That hour has already started" : "That class has already started";
+  }
   return null;
+}
+
+/** The London clock time (HH:MM, 24 hour) for an instant. */
+export function londonHM(d: Date): string {
+  const p: Record<string, string> = {};
+  new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour12: false, hour: "2-digit", minute: "2-digit" })
+    .formatToParts(d).forEach((x) => { p[x.type] = x.value; });
+  return String((+p.hour) % 24).padStart(2, "0") + ":" + p.minute;
 }
 
 /** Database rule messages (error code P0001) are written for members and are safe to show; anything else is not. */

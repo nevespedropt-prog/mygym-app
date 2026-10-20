@@ -20,7 +20,7 @@
 // Guards: the same date, weekday and gym rules as the database run BEFORE Wix is touched; one attempt per member every
 // few seconds; at most 30 upcoming bookings per member; names sent to Wix are cleaned and shortened.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { checkBookingDate, contactName, findSlot, londonDate, matchService, memberSafeError, MAX_UPCOMING, MIN_SECONDS_BETWEEN, useWix } from "./logic.ts";
+import { checkBookingDate, contactName, findSlot, londonDate, londonHM, matchService, memberSafeError, MAX_UPCOMING, MIN_SECONDS_BETWEEN, useWix } from "./logic.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -121,7 +121,7 @@ async function handle(req: Request): Promise<Response> {
   const { data: dup } = await db.from("class_bookings").select("id").eq("class_id", classId).eq("date", date).eq("user_id", user.id).maybeSingle();
   if (dup) return json(400, { error: "Already booked", code: "23505" });
   // the same rules the database applies, checked BEFORE Wix is touched (so a refused booking never flickers in Wix)
-  const dateErr = checkBookingDate(date, cls.day_name, today);
+  const dateErr = checkBookingDate(date, cls.day_name, today, String(cls.start_time), londonHM(new Date()), cls.kind);
   if (dateErr) return json(400, { error: dateErr, code: "P0001" });
   if (cls.kind === "gym") {
     const { data: pf } = await db.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();

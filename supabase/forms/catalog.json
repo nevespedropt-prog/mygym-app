@@ -1,0 +1,489 @@
+[
+  {
+    "id": "contact",
+    "title": "Get in touch",
+    "where": "www: Contact page and footer",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": false
+      },
+      {
+        "id": "topic",
+        "type": "select",
+        "required": true
+      },
+      {
+        "id": "message",
+        "type": "textarea",
+        "required": true
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "enquiry-autoreply",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "pt-enquiry",
+    "title": "Personal training enquiry",
+    "where": "www: Personal Training page",
+    "requiresLogin": false,
+    "sensitive": true,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": true
+      },
+      {
+        "id": "goal",
+        "type": "select",
+        "required": true
+      },
+      {
+        "id": "experience",
+        "type": "radio",
+        "required": true
+      },
+      {
+        "id": "times",
+        "type": "checkbox-group",
+        "required": false
+      },
+      {
+        "id": "health_note",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "pt-enquiry-autoreply",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "trial-class",
+    "title": "Book a free trial class",
+    "where": "www: Join page, Instagram link, landing pages",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": true
+      },
+      {
+        "id": "class",
+        "type": "select",
+        "required": true
+      },
+      {
+        "id": "date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "id": "experience",
+        "type": "radio",
+        "required": false
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      },
+      {
+        "id": "health_ready",
+        "required": true
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "enquiry-autoreply",
+    "sendsTo": null,
+    "afterConfirm": "trial-confirmation",
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "landing-offer",
+    "title": "Claim this offer",
+    "where": "www: landing pages such as /january (one form, the offer name is a hidden field)",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": true
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "offer-autoreply",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "corporate-enquiry",
+    "title": "Group sessions for your team",
+    "where": "www: Corporate wellness page",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "company",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": false
+      },
+      {
+        "id": "team_size",
+        "type": "select",
+        "required": true
+      },
+      {
+        "id": "days",
+        "type": "checkbox-group",
+        "required": false
+      },
+      {
+        "id": "message",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "corporate-autoreply",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "kids-registration",
+    "title": "Kids Gym registration",
+    "where": "www: Kids Gym page; app: before a first Kids Gym booking",
+    "requiresLogin": false,
+    "sensitive": true,
+    "fields": [
+      {
+        "id": "parent_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "type": "tel",
+        "required": true
+      },
+      {
+        "id": "child_first_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "child_last_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "child_dob",
+        "type": "date",
+        "required": true
+      },
+      {
+        "id": "emergency_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "emergency_phone",
+        "type": "tel",
+        "required": true
+      },
+      {
+        "id": "medical",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "consents": [
+      {
+        "id": "parental_responsibility",
+        "required": true
+      },
+      {
+        "id": "medical_use",
+        "required": false
+      },
+      {
+        "id": "photos",
+        "required": false
+      },
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "kids-registration-received",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 365,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "pause-cancel-request",
+    "title": "Pause or cancel my membership",
+    "where": "app: Profile, Membership",
+    "requiresLogin": true,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "request_type",
+        "type": "radio",
+        "required": true
+      },
+      {
+        "id": "from_date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "id": "reason",
+        "type": "select",
+        "required": false
+      },
+      {
+        "id": "message",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "consents": [],
+    "notify": "admin-change-request",
+    "autoreply": null,
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 1095,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "feedback",
+    "title": "How was your class?",
+    "where": "app: after a class; link in the review-request email",
+    "requiresLogin": true,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "rating",
+        "type": "rating",
+        "required": true
+      },
+      {
+        "id": "class",
+        "type": "select",
+        "required": false
+      },
+      {
+        "id": "message",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "id": "follow_up",
+        "type": "checkbox-group",
+        "required": false
+      }
+    ],
+    "consents": [],
+    "notify": "admin-new-review",
+    "autoreply": null,
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "refer-a-friend",
+    "title": "Bring a friend",
+    "where": "app: Profile, Refer a friend",
+    "requiresLogin": true,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "friend_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "friend_email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "message",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "consents": [
+      {
+        "id": "friend_ok",
+        "required": true
+      }
+    ],
+    "notify": null,
+    "autoreply": null,
+    "sendsTo": "referral-invite",
+    "afterConfirm": null,
+    "retentionDays": 365,
+    "rateLimit": {
+      "perIpPerHour": 5,
+      "perUserPerDay": 5
+    }
+  },
+  {
+    "id": "newsletter-signup",
+    "title": "Get news and offers",
+    "where": "www: footer on every page",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "first_name",
+        "type": "text",
+        "required": false
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": true
+      }
+    ],
+    "notify": null,
+    "autoreply": null,
+    "sendsTo": "newsletter-welcome",
+    "afterConfirm": null,
+    "retentionDays": 1095,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  }
+]

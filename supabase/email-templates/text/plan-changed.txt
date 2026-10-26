@@ -1,0 +1,14 @@
+YOUR PLAN HAS BEEN UPDATED
+
+Hi {{first_name}},
+
+New plan: {{plan_name}}
+Price: {{amount}} {{billing_period}}
+Starts: {{start_date}}
+Next payment: {{next_payment_date}}
+
+View my membership: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

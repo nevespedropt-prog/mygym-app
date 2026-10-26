@@ -1,0 +1,15 @@
+NEW {{FORM_NAME}}
+
+From: {{person_name}}
+Email: {{person_email}}
+
+MESSAGE
+{{message}}
+
+Reply to this email to answer them directly.
+
+Open in the back end: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

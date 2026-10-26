@@ -1,0 +1,13 @@
+A QUICK HEALTH FORM BEFORE YOU TRAIN
+
+Hi {{first_name}},
+
+We need an up-to-date health form on file before you can book. It takes about two minutes and helps our coaches keep you safe.
+
+Your answers are kept private and only used by the MY GYM London team.
+
+Complete the form: https://app.mygymlondon.co.uk/#health
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

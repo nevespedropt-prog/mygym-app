@@ -1,0 +1,14 @@
+YOUR MEMBERSHIP IS PAUSED
+
+Hi {{first_name}},
+
+Your {{plan_name}} membership is paused. You will not be charged while it is paused, and you will not be able to book.
+
+Paused from: {{pause_date}}
+Restarts: {{resume_date}}
+
+Restart early: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

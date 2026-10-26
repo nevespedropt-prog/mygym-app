@@ -1,0 +1,11 @@
+YOUR MEMBERSHIP IS ACTIVE AGAIN
+
+Hi {{first_name}},
+
+Great to have you back. Your {{plan_name}} membership is active again. Your next payment is on {{next_payment_date}}.
+
+Book a class: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

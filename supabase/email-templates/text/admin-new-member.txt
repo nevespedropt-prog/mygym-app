@@ -1,0 +1,10 @@
+A NEW MEMBER HAS JOINED
+
+Name: {{person_name}}
+Plan: {{plan_name}}
+
+Open member: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

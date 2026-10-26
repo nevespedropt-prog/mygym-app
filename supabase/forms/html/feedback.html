@@ -1,0 +1,13 @@
+<form class="mgl-form" data-form="feedback" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>How was your class?</h2>
+  <p class="intro">Two quick questions. It really helps us improve.</p>
+  <fieldset class="field group rating"><legend>Overall, how was it? <span class="req" aria-hidden="true">*</span></legend><div class="stars"><input type="radio" name="rating" id="feedback-rating-5" value="5" required><label for="feedback-rating-5" title="5 out of 5"><span class="sr">5 out of 5</span>★</label><input type="radio" name="rating" id="feedback-rating-4" value="4"><label for="feedback-rating-4" title="4 out of 5"><span class="sr">4 out of 5</span>★</label><input type="radio" name="rating" id="feedback-rating-3" value="3"><label for="feedback-rating-3" title="3 out of 5"><span class="sr">3 out of 5</span>★</label><input type="radio" name="rating" id="feedback-rating-2" value="2"><label for="feedback-rating-2" title="2 out of 5"><span class="sr">2 out of 5</span>★</label><input type="radio" name="rating" id="feedback-rating-1" value="1"><label for="feedback-rating-1" title="1 out of 5"><span class="sr">1 out of 5</span>★</label></div></fieldset>
+  <div class="field"><label for="feedback-class">Which class?</label><select name="class" id="feedback-class" data-options-from="recent-classes"><option value="">Choose…</option></select></div>
+  <div class="field"><label for="feedback-message">Anything we could do better? (optional)</label><textarea name="message" id="feedback-message" rows="4" maxlength="800"></textarea></div>
+  <fieldset class="field group"><label class="opt"><input type="checkbox" name="follow_up" value="You can contact me about this"> <span>You can contact me about this</span></label></fieldset>
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  
+  <p class="privacy">We use feedback to improve our classes. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send feedback</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thank you for the feedback." data-success-high="Thank you! If you have a minute, a Google review helps a small gym a lot."></p>
+</form>

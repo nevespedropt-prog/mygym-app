@@ -1,0 +1,13 @@
+<form class="mgl-form" data-form="pause-cancel-request" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Pause or cancel my membership</h2>
+  <p class="intro">Tell us what you need and we will sort it. We will confirm by email.</p>
+  <fieldset class="field group"><legend>What would you like to do? <span class="req" aria-hidden="true">*</span></legend><label class="opt"><input type="radio" name="request_type" value="Pause my membership" required> <span>Pause my membership</span></label><label class="opt"><input type="radio" name="request_type" value="Cancel my membership"> <span>Cancel my membership</span></label><label class="opt"><input type="radio" name="request_type" value="Change my plan"> <span>Change my plan</span></label></fieldset>
+  <div class="field"><label for="pause-cancel-request-from_date">From which date? <span class="req" aria-hidden="true">*</span></label><input type="date" name="from_date" id="pause-cancel-request-from_date" data-min-days="0" data-max-days="90" required aria-required="true"></div>
+  <div class="field"><label for="pause-cancel-request-reason">Mind telling us why? (optional)</label><select name="reason" id="pause-cancel-request-reason"><option value="">Choose…</option><option>Moving away</option><option>Cost</option><option>Injury or health</option><option>Not enough time</option><option>Not what I expected</option><option>Other</option></select></div>
+  <div class="field"><label for="pause-cancel-request-message">Anything else?</label><textarea name="message" id="pause-cancel-request-message" rows="3" maxlength="600"></textarea></div>
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  
+  <p class="privacy">We use this to manage your membership. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks, we have your request and will confirm by email within two working days."></p>
+</form>

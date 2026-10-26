@@ -1,0 +1,11 @@
+YOUR REFUND IS ON ITS WAY
+
+Hi {{first_name}},
+
+We have refunded {{amount}} to your original payment method. Refunds usually reach your account within 5 to 10 working days.
+
+Date: {{payment_date}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

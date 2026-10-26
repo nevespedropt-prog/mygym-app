@@ -1,0 +1,11 @@
+CONFIRM YOUR EMAIL
+
+Hi {{first_name}},
+
+Please confirm you would like news and offers from MY GYM London. If this was not you, just ignore this email and nothing will happen.
+
+Yes, sign me up: {{confirm_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

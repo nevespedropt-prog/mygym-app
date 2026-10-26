@@ -1,0 +1,19 @@
+YOUR FREE TRIAL IS BOOKED
+
+Hi {{first_name}},
+
+Class: {{class_name}}
+When: {{when}} (UK time)
+Where: MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+
+- Arrive about 10 minutes early so we can say hello.
+- Wear comfortable clothes and trainers.
+- Bring a water bottle.
+
+Cannot make it? Reply to this email and we will move you.
+
+Get directions: https://maps.app.goo.gl/
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

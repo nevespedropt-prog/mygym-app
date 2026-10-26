@@ -1,0 +1,13 @@
+SIGN IN TO MY GYM LONDON
+
+Hi,
+
+Tap the button to sign in. The link works once and expires soon.
+
+Did not ask for this? Ignore this email.
+
+Sign in: {{ .ConfirmationURL }}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,0 +1,14 @@
+A PAYMENT FAILED
+
+Member: {{person_name}}
+Plan: {{plan_name}}
+Amount: {{amount}}
+Next retry: {{retry_date}}
+
+The member has already been emailed. Nothing to do unless you want to follow up personally.
+
+Open payments: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

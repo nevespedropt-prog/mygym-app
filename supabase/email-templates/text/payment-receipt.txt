@@ -1,0 +1,19 @@
+PAYMENT RECEIVED
+
+Hi {{first_name}},
+
+Thank you, we have received your payment.
+
+Receipt number: {{receipt_number}}
+Date: {{payment_date}}
+Description: {{plan_name}}, {{billing_period}}
+Amount: {{amount}}
+Paid with: {{payment_method}}
+
+MY GYM London. 
+
+View my membership: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

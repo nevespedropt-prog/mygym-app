@@ -1,0 +1,13 @@
+YOUR MEMBERSHIP RENEWS SOON
+
+Hi {{first_name}},
+
+Your {{plan_name}} membership renews on {{renewal_date}} for {{amount}}. You do not need to do anything.
+
+Want to change plan or cancel before then? You can do it from the app, under Profile.
+
+Manage my membership: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

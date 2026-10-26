@@ -1,0 +1,13 @@
+CONFIRM YOUR NEW EMAIL
+
+Hi,
+
+Please confirm this is your new email address for your MY GYM London account.
+
+Did not ask for this? Ignore this email and nothing will change.
+
+Confirm email: {{ .ConfirmationURL }}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

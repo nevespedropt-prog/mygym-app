@@ -21,3 +21,15 @@
   for = "/sw.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+# fonts and the logo are also used by our emails (loaded from another address), so they must be readable from anywhere
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

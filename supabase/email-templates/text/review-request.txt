@@ -1,0 +1,13 @@
+HOW ARE WE DOING?
+
+Hi {{first_name}},
+
+You have been training with us for a little while now. If you are enjoying it, a short Google review would mean a lot. It helps other people in Enfield find us.
+
+Not happy about something? Reply to this email instead and we will put it right.
+
+Leave a Google review: {{review_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

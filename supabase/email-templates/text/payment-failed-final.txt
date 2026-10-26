@@ -1,0 +1,13 @@
+FINAL NOTICE BEFORE WE PAUSE YOUR MEMBERSHIP
+
+Hi {{first_name}},
+
+We have not been able to take {{amount}} for your {{plan_name}} membership. If it is not resolved by {{final_date}}, your membership will be paused and you will not be able to book.
+
+Once your payment is updated, your membership starts again straight away.
+
+Update my card now: {{update_payment_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

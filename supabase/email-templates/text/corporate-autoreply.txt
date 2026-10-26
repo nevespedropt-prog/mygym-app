@@ -1,0 +1,9 @@
+WE HAVE GOT YOUR ENQUIRY
+
+Hi {{first_name}},
+
+Thanks for asking about group sessions for {{company}}. We will come back to you within two working days with options and a quote.
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

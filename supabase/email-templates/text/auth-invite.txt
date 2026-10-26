@@ -1,0 +1,11 @@
+YOU ARE INVITED
+
+Hi,
+
+You have been invited to the MY GYM London back office. Tap the button to set your password and sign in.
+
+Accept the invitation: {{ .ConfirmationURL }}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,0 +1,13 @@
+YOUR FREE TRIAL ENDS SOON
+
+Hi {{first_name}},
+
+Your free trial of {{plan_name}} ends on {{end_date}}. To carry on training, choose a plan and your first payment of {{amount}} will be taken on {{next_payment_date}}.
+
+Not for you? No action needed. Your trial simply ends and you will not be charged.
+
+Keep my membership: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

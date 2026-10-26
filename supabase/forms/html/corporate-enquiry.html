@@ -1,0 +1,20 @@
+<form class="mgl-form" data-form="corporate-enquiry" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Group sessions for your team</h2>
+  <p class="intro">Tell us about your team and we will come back with options and a quote.</p>
+  <div class="field"><label for="corporate-enquiry-full_name">Your name <span class="req" aria-hidden="true">*</span></label><input type="text" name="full_name" id="corporate-enquiry-full_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="corporate-enquiry-company">Company <span class="req" aria-hidden="true">*</span></label><input type="text" name="company" id="corporate-enquiry-company" maxlength="100" required aria-required="true"></div>
+  <div class="field"><label for="corporate-enquiry-email">Work email <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="corporate-enquiry-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="corporate-enquiry-phone">Phone number (optional)</label><input type="tel" name="phone" id="corporate-enquiry-phone" maxlength="25" autocomplete="tel" inputmode="tel"></div>
+  <div class="field"><label for="corporate-enquiry-team_size">Roughly how many people? <span class="req" aria-hidden="true">*</span></label><select name="team_size" id="corporate-enquiry-team_size" required aria-required="true"><option value="">Choose…</option><option>Under 10</option><option>10 to 20</option><option>20 to 50</option><option>More than 50</option></select></div>
+  <fieldset class="field group"><legend>Preferred days</legend><label class="opt"><input type="checkbox" name="days" value="Monday"> <span>Monday</span></label><label class="opt"><input type="checkbox" name="days" value="Tuesday"> <span>Tuesday</span></label><label class="opt"><input type="checkbox" name="days" value="Wednesday"> <span>Wednesday</span></label><label class="opt"><input type="checkbox" name="days" value="Thursday"> <span>Thursday</span></label><label class="opt"><input type="checkbox" name="days" value="Friday"> <span>Friday</span></label><label class="opt"><input type="checkbox" name="days" value="Saturday"> <span>Saturday</span></label></fieldset>
+  <div class="field"><label for="corporate-enquiry-message">Anything else we should know?</label><textarea name="message" id="corporate-enquiry-message" rows="5" maxlength="1500"></textarea></div>
+  <input type="hidden" name="utm_source" id="corporate-enquiry-utm_source">
+  <input type="hidden" name="utm_medium" id="corporate-enquiry-utm_medium">
+  <input type="hidden" name="utm_campaign" id="corporate-enquiry-utm_campaign">
+  <input type="hidden" name="page_url" id="corporate-enquiry-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents"><label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label></div>
+  <p class="privacy">We use your details only to reply to you. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks! We will come back to you within two working days."></p>
+</form>

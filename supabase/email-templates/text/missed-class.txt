@@ -1,0 +1,13 @@
+WE MISSED YOU
+
+Hi {{first_name}},
+
+You were booked into {{class_name}} on {{when}}, but we did not see you. No problem at all, life happens.
+
+If you cannot make a class, cancelling up to 10 minutes before helps others get a space.
+
+Rebook a class: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

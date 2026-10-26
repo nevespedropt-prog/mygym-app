@@ -1,0 +1,11 @@
+KIDS GYM REGISTRATION RECEIVED
+
+Hi {{first_name}},
+
+Thanks for registering {{child_first_name}} for Kids Gym. We will check the details and confirm {{child_first_name}}'s place within two working days.
+
+Kids can only train with a parent or guardian's consent on file. We keep the details you gave us private and only use them for {{child_first_name}}'s sessions.
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

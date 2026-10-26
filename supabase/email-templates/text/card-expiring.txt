@@ -1,0 +1,11 @@
+YOUR CARD EXPIRES SOON
+
+Hi {{first_name}},
+
+The card we use for your membership ({{card_brand}} ending {{card_last4}}) expires on {{card_expiry}}. Please add a new card so your next payment goes through without a hitch.
+
+Update my card: {{update_payment_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

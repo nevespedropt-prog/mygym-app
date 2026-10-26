@@ -1,0 +1,15 @@
+YOUR PAYMENT DID NOT GO THROUGH
+
+Hi {{first_name}},
+
+We tried to take {{amount}} for your {{plan_name}} membership, but the payment was declined.
+
+No action is needed if you have already sorted it. Otherwise, please update your card. We will try again on {{retry_date}}.
+
+Common reasons: an expired card, not enough funds, or your bank asking for extra confirmation.
+
+Update my card: {{update_payment_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

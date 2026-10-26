@@ -1,0 +1,16 @@
+YOUR BOOKING IS CANCELLED
+
+Hi {{first_name}},
+
+We have cancelled your booking and released your space for someone else.
+
+Class: {{class_name}}
+Was on: {{when}}
+
+Changed your mind? You can book again any time while spaces are left.
+
+Book another class: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,0 +1,15 @@
+YOUR BOOKING HAS MOVED
+
+Hi {{first_name}},
+
+Class: {{class_name}}
+New time: {{when}} (UK time)
+Where: MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+
+You can still cancel up to 10 minutes before it starts.
+
+View my bookings: https://app.mygymlondon.co.uk/#bookings
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

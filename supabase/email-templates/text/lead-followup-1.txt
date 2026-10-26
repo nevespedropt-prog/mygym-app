@@ -1,0 +1,11 @@
+READY WHEN YOU ARE
+
+Hi {{first_name}},
+
+You got in touch with us recently. If you would still like to try MY GYM London, your first class is free. Pick a time that suits you and we will do the rest.
+
+Book a free trial: https://www.mygymlondon.co.uk/trial
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

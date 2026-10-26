@@ -1,0 +1,13 @@
+A MEMBERSHIP WAS CANCELLED
+
+Member: {{person_name}}
+Plan: {{plan_name}}
+Last day: {{end_date}}
+
+A personal message in the next few days often wins people back.
+
+Open member: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

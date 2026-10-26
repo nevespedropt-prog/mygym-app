@@ -1,0 +1,18 @@
+WE HAVE HAD TO CANCEL YOUR CLASS
+
+Hi {{first_name}},
+
+We are sorry, but we have had to cancel this class:
+
+Class: {{class_name}}
+When: {{when}}
+
+Your booking has been removed and nothing is owed on your side. You can pick another class in the app.
+
+Sorry again for the change. If you have questions, just reply to this email.
+
+See other classes: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

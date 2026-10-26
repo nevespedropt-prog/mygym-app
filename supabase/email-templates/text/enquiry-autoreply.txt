@@ -1,0 +1,12 @@
+WE HAVE GOT YOUR MESSAGE
+
+Hi {{first_name}},
+
+Thanks for contacting MY GYM London. We have your message and will reply within one working day.
+
+
+See the timetable: https://www.mygymlondon.co.uk/timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

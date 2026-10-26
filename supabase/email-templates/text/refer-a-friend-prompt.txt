@@ -1,0 +1,11 @@
+BRING A FRIEND, YOU BOTH WIN
+
+Hi {{first_name}},
+
+Training is easier with someone alongside you. Invite a friend and you both get {{reward}} when they join.
+
+Invite a friend: https://app.mygymlondon.co.uk/#refer
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

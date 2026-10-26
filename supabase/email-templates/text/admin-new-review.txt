@@ -1,0 +1,13 @@
+FEEDBACK WORTH A LOOK
+
+Member: {{person_name}}
+Rating: {{rating}} out of 5
+
+THEY WROTE
+{{message}}
+
+Open feedback: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

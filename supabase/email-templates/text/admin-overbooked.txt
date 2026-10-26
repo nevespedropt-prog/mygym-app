@@ -1,0 +1,14 @@
+A SESSION IS OVERBOOKED
+
+Class: {{class_name}}
+When: {{when}}
+Booked: {{booked}}
+Spaces: {{capacity}}
+
+Move or cancel one booking, or add spaces. The people affected have not been told yet.
+
+Fix it now: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,0 +1,15 @@
+YOUR MEMBERSHIP IS CANCELLED
+
+Hi {{first_name}},
+
+We are sorry to see you go. Your {{plan_name}} membership has been cancelled.
+
+Last day of access: {{end_date}}
+
+Anything we could have done better? Reply to this email, we read every message. You are always welcome back.
+
+Rejoin any time: https://www.mygymlondon.co.uk/memberships
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

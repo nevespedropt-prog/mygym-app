@@ -1,0 +1,18 @@
+YOUR MEMBERSHIP HAS STARTED
+
+Hi {{first_name}},
+
+Welcome aboard. Your membership is active.
+
+Plan: {{plan_name}}
+Price: {{amount}} {{billing_period}}
+Started: {{start_date}}
+Next payment: {{next_payment_date}}
+
+You can pause or cancel any time from the app, under Profile. 
+
+Book your first class: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

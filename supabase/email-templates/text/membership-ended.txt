@@ -1,0 +1,13 @@
+YOUR PLAN HAS ENDED
+
+Hi {{first_name}},
+
+Your {{plan_name}} ended on {{end_date}}. You can no longer book classes until you start a new plan.
+
+It takes two minutes to restart, and your account and history are exactly as you left them.
+
+See memberships: https://www.mygymlondon.co.uk/memberships
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

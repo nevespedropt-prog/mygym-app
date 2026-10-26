@@ -1,0 +1,19 @@
+<form class="mgl-form" data-form="trial-class" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Book a free trial class</h2>
+  <p class="intro">Your first class is on us. Pick a class and we will confirm your place by email.</p>
+  <div class="field"><label for="trial-class-full_name">Your name <span class="req" aria-hidden="true">*</span></label><input type="text" name="full_name" id="trial-class-full_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="trial-class-email">Email address <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="trial-class-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="trial-class-phone">Phone number <span class="req" aria-hidden="true">*</span></label><input type="tel" name="phone" id="trial-class-phone" maxlength="25" autocomplete="tel" inputmode="tel" required aria-required="true"></div>
+  <div class="field"><label for="trial-class-class">Which class? <span class="req" aria-hidden="true">*</span></label><select name="class" id="trial-class-class" data-options-from="timetable" required aria-required="true" aria-describedby="trial-class-class-help"><option value="">Choose…</option></select><p class="help" id="trial-class-class-help">The list comes from the live timetable.</p></div>
+  <div class="field"><label for="trial-class-date">Which day? <span class="req" aria-hidden="true">*</span></label><input type="date" name="date" id="trial-class-date" data-min-days="1" data-max-days="30" required aria-required="true"></div>
+  <fieldset class="field group"><legend>Have you trained before?</legend><label class="opt"><input type="radio" name="experience" value="Yes, regularly"> <span>Yes, regularly</span></label><label class="opt"><input type="radio" name="experience" value="A bit"> <span>A bit</span></label><label class="opt"><input type="radio" name="experience" value="Not for a while"> <span>Not for a while</span></label><label class="opt"><input type="radio" name="experience" value="Never"> <span>Never</span></label></fieldset>
+  <input type="hidden" name="utm_source" id="trial-class-utm_source">
+  <input type="hidden" name="utm_medium" id="trial-class-utm_medium">
+  <input type="hidden" name="utm_campaign" id="trial-class-utm_campaign">
+  <input type="hidden" name="page_url" id="trial-class-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents"><label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label><label class="opt consent"><input type="checkbox" name="consent_health_ready" value="1" required aria-required="true"> <span>I am fit to exercise, or I will tell the coach before the class about anything that might affect me. <span class="req" aria-hidden="true">*</span></span></label></div>
+  <p class="privacy">We use your details only to reply to you. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks! We will confirm your free trial by email shortly."></p>
+</form>

@@ -1,0 +1,13 @@
+YOU ARE ON THE WAITLIST
+
+Hi {{first_name}},
+
+{{class_name}} on {{when}} is full right now. You are number {{position}} in line.
+
+If someone cancels, we book you in automatically and email you straight away. You do not need to do anything.
+
+View my waitlist: https://app.mygymlondon.co.uk/#bookings
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,0 +1,15 @@
+YOUR CLASS IS COMING UP
+
+Hi {{first_name}},
+
+Class: {{class_name}}
+Starts: {{when}}
+Where: MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+
+Cannot make it? Please cancel up to 10 minutes before, so someone else can take your space.
+
+View my bookings: https://app.mygymlondon.co.uk/#bookings
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

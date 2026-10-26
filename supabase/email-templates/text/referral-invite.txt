@@ -1,0 +1,13 @@
+{{REFERRER_NAME}} THINKS YOU WOULD LOVE IT HERE
+
+Hi {{friend_name}},
+
+{{referrer_name}} is a member at MY GYM London and thought of you. Join with their invite and you both get {{reward}}.
+
+{{referrer_name}} entered your email only to send this invite. We will not email you again unless you join or ask us to.
+
+Claim my free week: {{referral_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

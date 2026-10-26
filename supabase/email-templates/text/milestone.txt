@@ -1,0 +1,11 @@
+{{COUNT}} CLASSES AND COUNTING
+
+Hi {{first_name}},
+
+You have just done your {{count}}th session at MY GYM London. Brilliant consistency. The whole team is proud of you.
+
+Book your next one: https://app.mygymlondon.co.uk/#timetable
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

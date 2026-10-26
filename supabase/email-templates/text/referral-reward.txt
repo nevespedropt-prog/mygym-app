@@ -1,0 +1,11 @@
+THANK YOU FOR THE REFERRAL
+
+Hi {{first_name}},
+
+{{friend_name}} has joined MY GYM London with your invite. As promised, you both get {{reward}}.
+
+View my reward: https://app.mygymlondon.co.uk/#profile
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

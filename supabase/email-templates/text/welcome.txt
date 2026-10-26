@@ -1,0 +1,17 @@
+WELCOME TO MY GYM LONDON
+
+Hi {{first_name}},
+
+Your account is ready. Here is how to get started:
+
+- Open the app and tap Timetable to see this week's classes.
+- Pick a class or gym hour and tap Book. You get a confirmation straight away.
+- Complete your short health form once, so you are ready for your first session.
+
+Add the app to your phone's home screen for one-tap access: open it in your browser and choose Add to Home Screen.
+
+Open the app: https://app.mygymlondon.co.uk/
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

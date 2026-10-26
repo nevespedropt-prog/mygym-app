@@ -1,0 +1,17 @@
+GOOD NEWS, YOU ARE IN
+
+Hi {{first_name}},
+
+Someone cancelled, so we have booked you in:
+
+Class: {{class_name}}
+When: {{when}} (UK time)
+Where: MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+
+Cannot make it any more? Cancel up to 10 minutes before, so the next person can have the space.
+
+View my bookings: https://app.mygymlondon.co.uk/#bookings
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

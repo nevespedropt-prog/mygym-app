@@ -1,0 +1,12 @@
+NEW BOOKING
+
+Member: {{person_name}}
+Class: {{class_name}}
+When: {{when}}
+Spaces left: {{spaces_left}}
+
+Open bookings: {{admin_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

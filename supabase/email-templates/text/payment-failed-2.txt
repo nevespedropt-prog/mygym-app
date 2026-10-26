@@ -1,0 +1,15 @@
+YOUR PAYMENT IS STILL OUTSTANDING
+
+Hi {{first_name}},
+
+We still have not been able to take {{amount}} for your {{plan_name}} membership.
+
+Please update your card by {{final_date}} to keep your membership active.
+
+Having a difficult month? Reply to this email and we will help.
+
+Update my card: {{update_payment_url}}
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

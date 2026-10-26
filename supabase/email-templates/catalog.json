@@ -1,0 +1,761 @@
+[
+  {
+    "id": "welcome",
+    "group": "Account",
+    "to": "member",
+    "marketing": false,
+    "when": "Right after a member creates their account",
+    "subject": "Welcome to MY GYM London, {{first_name}}",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "health-form-due",
+    "group": "Account",
+    "to": "member",
+    "marketing": false,
+    "when": "When a member has not completed or renewed their health form",
+    "subject": "Please complete your health form",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "booking-confirmation",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "Right after a booking is made",
+    "subject": "You're booked: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "coach",
+      "first_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "booking-cancelled",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "When a member cancels their own booking",
+    "subject": "Booking cancelled: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "class-cancelled-by-gym",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "When the gym cancels a class that members have booked",
+    "subject": "Class cancelled: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "reason",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "class-reminder",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "{{reminder_hours}} hours before a booked class",
+    "subject": "Reminder: {{class_name}} at {{time}} today",
+    "needs": [
+      "class_name",
+      "coach",
+      "first_name",
+      "time",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "waitlist-joined",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "When a member joins the waitlist for a full class",
+    "subject": "You're on the waitlist: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "position",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "waitlist-booked",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "When a waitlisted member is booked in because a space opened",
+    "subject": "A space opened: you're booked into {{class_name}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "missed-class",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "The morning after a member booked but did not attend (optional, can be switched off)",
+    "subject": "We missed you at {{class_name}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "subscription-started",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a new membership starts",
+    "subject": "Your {{plan_name}} membership has started",
+    "needs": [
+      "amount",
+      "billing_period",
+      "first_name",
+      "next_payment_date",
+      "plan_includes",
+      "plan_name",
+      "start_date"
+    ],
+    "auth": false
+  },
+  {
+    "id": "payment-receipt",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "After every successful payment",
+    "subject": "Your receipt from MY GYM London, {{amount}}",
+    "needs": [
+      "amount",
+      "billing_period",
+      "first_name",
+      "next_payment_date",
+      "payment_date",
+      "payment_method",
+      "plan_name",
+      "receipt_number"
+    ],
+    "auth": false
+  },
+  {
+    "id": "payment-failed-1",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "The day a payment fails (first notice)",
+    "subject": "We could not take your payment",
+    "needs": [
+      "amount",
+      "first_name",
+      "plan_name",
+      "retry_date",
+      "update_payment_url"
+    ],
+    "auth": false
+  },
+  {
+    "id": "payment-failed-2",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "A few days after the first failed payment (second reminder)",
+    "subject": "Reminder: your payment is still outstanding",
+    "needs": [
+      "amount",
+      "final_date",
+      "first_name",
+      "plan_name",
+      "update_payment_url"
+    ],
+    "auth": false
+  },
+  {
+    "id": "payment-failed-final",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "Last notice before a membership is paused for non-payment",
+    "subject": "Final notice: your membership will be paused on {{final_date}}",
+    "needs": [
+      "amount",
+      "final_date",
+      "first_name",
+      "plan_name",
+      "update_payment_url"
+    ],
+    "auth": false
+  },
+  {
+    "id": "card-expiring",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "About 3 weeks before a saved card expires",
+    "subject": "Your card is about to expire",
+    "needs": [
+      "card_brand",
+      "card_expiry",
+      "card_last4",
+      "first_name",
+      "update_payment_url"
+    ],
+    "auth": false
+  },
+  {
+    "id": "plan-changed",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a member changes plan",
+    "subject": "Your membership has changed to {{plan_name}}",
+    "needs": [
+      "amount",
+      "billing_period",
+      "first_name",
+      "next_payment_date",
+      "plan_name",
+      "start_date"
+    ],
+    "auth": false
+  },
+  {
+    "id": "membership-paused",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a membership is paused",
+    "subject": "Your membership is paused",
+    "needs": [
+      "first_name",
+      "pause_date",
+      "plan_name",
+      "resume_date"
+    ],
+    "auth": false
+  },
+  {
+    "id": "membership-resumed",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a paused membership restarts",
+    "subject": "Welcome back, {{first_name}}",
+    "needs": [
+      "first_name",
+      "next_payment_date",
+      "plan_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "membership-cancelled",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a membership is cancelled",
+    "subject": "Your membership has been cancelled",
+    "needs": [
+      "end_date",
+      "final_payment",
+      "first_name",
+      "plan_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "refund-issued",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a refund is issued",
+    "subject": "Your refund of {{amount}}",
+    "needs": [
+      "amount",
+      "first_name",
+      "payment_date",
+      "refund_reason"
+    ],
+    "auth": false
+  },
+  {
+    "id": "renewal-reminder",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "7 days before an annual membership renews",
+    "subject": "Your annual membership renews on {{renewal_date}}",
+    "needs": [
+      "amount",
+      "first_name",
+      "plan_name",
+      "renewal_date"
+    ],
+    "auth": false
+  },
+  {
+    "id": "we-miss-you",
+    "group": "Keep members engaged",
+    "to": "member",
+    "marketing": true,
+    "when": "30 days after a member's last visit",
+    "subject": "We miss you, {{first_name}}",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "review-request",
+    "group": "Keep members engaged",
+    "to": "member",
+    "marketing": true,
+    "when": "After a member's 5th class (once)",
+    "subject": "Would you rate us, {{first_name}}?",
+    "needs": [
+      "first_name",
+      "review_url"
+    ],
+    "auth": false
+  },
+  {
+    "id": "referral-invite",
+    "group": "Keep members engaged",
+    "to": "lead",
+    "marketing": false,
+    "when": "When a member sends a bring-a-friend invite",
+    "subject": "{{referrer_name}} invited you to MY GYM London",
+    "needs": [
+      "friend_name",
+      "referral_url",
+      "referrer_name",
+      "reward"
+    ],
+    "auth": false
+  },
+  {
+    "id": "referral-reward",
+    "group": "Keep members engaged",
+    "to": "member",
+    "marketing": false,
+    "when": "When a referred friend joins",
+    "subject": "Your reward is ready: {{friend_name}} joined",
+    "needs": [
+      "first_name",
+      "friend_name",
+      "reward"
+    ],
+    "auth": false
+  },
+  {
+    "id": "milestone",
+    "group": "Keep members engaged",
+    "to": "member",
+    "marketing": true,
+    "when": "On a member's 10th, 50th and 100th class",
+    "subject": "{{count}} classes, {{first_name}}!",
+    "needs": [
+      "count",
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "newsletter",
+    "group": "Campaigns",
+    "to": "member",
+    "marketing": true,
+    "when": "Base layout for news and offers you send from the Marketing page",
+    "subject": "{{campaign_subject}}",
+    "needs": [
+      "campaign_body",
+      "campaign_button",
+      "campaign_preheader",
+      "campaign_subject",
+      "campaign_title",
+      "campaign_url",
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "enquiry-autoreply",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "Right after the contact form is sent",
+    "subject": "Thanks for getting in touch",
+    "needs": [
+      "first_name",
+      "message_preview"
+    ],
+    "auth": false
+  },
+  {
+    "id": "pt-enquiry-autoreply",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "Right after the personal training form is sent",
+    "subject": "Thanks for your personal training enquiry",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "trial-confirmation",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "When someone books a free trial class",
+    "subject": "Your free trial: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "offer-autoreply",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "Right after a landing-page offer form is sent",
+    "subject": "Your {{offer_name}} offer is on its way",
+    "needs": [
+      "first_name",
+      "offer_name",
+      "offer_terms"
+    ],
+    "auth": false
+  },
+  {
+    "id": "corporate-autoreply",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "Right after the corporate wellness form is sent",
+    "subject": "Thanks for your enquiry about group sessions",
+    "needs": [
+      "company",
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "kids-registration-received",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "When a parent submits the Kids Gym registration",
+    "subject": "We have got {{child_first_name}}'s registration",
+    "needs": [
+      "child_first_name",
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "lead-followup-1",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": true,
+    "when": "2 days after an enquiry, if they have not booked yet (stops when they join)",
+    "subject": "Ready to try a class, {{first_name}}?",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "lead-followup-2",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": true,
+    "when": "7 days after an enquiry, if still no booking (last one)",
+    "subject": "Last note from us, {{first_name}}",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "newsletter-welcome",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": true,
+    "when": "When someone joins the email list from the website footer (double opt-in)",
+    "subject": "Please confirm your email",
+    "needs": [
+      "confirm_url",
+      "first_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-new-enquiry",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "Every time a website form is sent",
+    "subject": "New {{form_name}}: {{person_name}}",
+    "needs": [
+      "admin_url",
+      "form_name",
+      "message",
+      "person_email",
+      "person_name",
+      "person_phone",
+      "source_page"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-new-member",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "When a new member joins",
+    "subject": "New member: {{person_name}}",
+    "needs": [
+      "admin_url",
+      "person_name",
+      "plan_name",
+      "source_page"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-payment-failed",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "When a member's payment fails",
+    "subject": "Payment failed: {{person_name}}, {{amount}}",
+    "needs": [
+      "admin_url",
+      "amount",
+      "person_name",
+      "plan_name",
+      "retry_date"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-change-request",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "When a member asks to pause or cancel through the form",
+    "subject": "{{request_type}} request: {{person_name}}",
+    "needs": [
+      "admin_url",
+      "from_date",
+      "person_name",
+      "reason",
+      "request_type",
+      "sla"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-new-review",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "When a member leaves a rating below 4 stars in the feedback form",
+    "subject": "Low rating from {{person_name}}: {{rating}} stars",
+    "needs": [
+      "admin_url",
+      "class_name",
+      "message",
+      "person_name",
+      "rating"
+    ],
+    "auth": false
+  },
+  {
+    "id": "auth-reset-password",
+    "group": "Sign-in (Supabase Auth)",
+    "to": "auth",
+    "marketing": false,
+    "when": "When a member asks to reset their password",
+    "subject": "Reset your MY GYM London password",
+    "needs": [],
+    "auth": true
+  },
+  {
+    "id": "auth-confirm-email-change",
+    "group": "Sign-in (Supabase Auth)",
+    "to": "auth",
+    "marketing": false,
+    "when": "When a member changes their email address",
+    "subject": "Confirm your new email address",
+    "needs": [],
+    "auth": true
+  },
+  {
+    "id": "auth-invite",
+    "group": "Sign-in (Supabase Auth)",
+    "to": "auth",
+    "marketing": false,
+    "when": "When you invite a member of staff to the back end",
+    "subject": "You have been invited to MY GYM London",
+    "needs": [],
+    "auth": true
+  },
+  {
+    "id": "auth-magic-link",
+    "group": "Sign-in (Supabase Auth)",
+    "to": "auth",
+    "marketing": false,
+    "when": "If you switch on sign-in by email link",
+    "subject": "Your MY GYM London sign-in link",
+    "needs": [],
+    "auth": true
+  },
+  {
+    "id": "booking-rescheduled",
+    "group": "Bookings",
+    "to": "member",
+    "marketing": false,
+    "when": "When a member moves a booking to another session",
+    "subject": "Booking moved: {{class_name}}, {{when}}",
+    "needs": [
+      "class_name",
+      "first_name",
+      "old_when",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "trial-ending",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "3 days before a free trial membership ends",
+    "subject": "Your free trial ends on {{end_date}}",
+    "needs": [
+      "amount",
+      "end_date",
+      "first_name",
+      "next_payment_date",
+      "plan_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "membership-ended",
+    "group": "Membership & payments",
+    "to": "member",
+    "marketing": false,
+    "when": "When a fixed-length plan or pass runs out",
+    "subject": "Your {{plan_name}} has ended",
+    "needs": [
+      "end_date",
+      "first_name",
+      "plan_name"
+    ],
+    "auth": false
+  },
+  {
+    "id": "refer-a-friend-prompt",
+    "group": "Keep members engaged",
+    "to": "member",
+    "marketing": true,
+    "when": "A few days after a member joins (once)",
+    "subject": "Train with a friend, {{first_name}}?",
+    "needs": [
+      "first_name",
+      "reward"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-new-booking",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "Each time a booking is made (can be switched to a daily summary)",
+    "subject": "New booking: {{person_name}}, {{class_name}} {{when}}",
+    "needs": [
+      "admin_url",
+      "class_name",
+      "person_name",
+      "source_page",
+      "spaces_left",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-overbooked",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "If a session ever ends up with more people than spaces (for example from a sync clash)",
+    "subject": "Overbooked: {{class_name}}, {{when}}",
+    "needs": [
+      "admin_url",
+      "booked",
+      "capacity",
+      "class_name",
+      "when"
+    ],
+    "auth": false
+  },
+  {
+    "id": "admin-membership-cancelled",
+    "group": "To the gym",
+    "to": "admin",
+    "marketing": false,
+    "when": "When a member cancels their membership",
+    "subject": "Membership cancelled: {{person_name}}",
+    "needs": [
+      "admin_url",
+      "end_date",
+      "person_name",
+      "plan_name",
+      "reason"
+    ],
+    "auth": false
+  },
+  {
+    "id": "auth-password-changed",
+    "group": "Sign-in (Supabase Auth)",
+    "to": "auth",
+    "marketing": false,
+    "when": "After a member changes their password (security notice)",
+    "subject": "Your MY GYM London password was changed",
+    "needs": [],
+    "auth": true
+  }
+]

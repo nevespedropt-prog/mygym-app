@@ -1,0 +1,15 @@
+YOUR BOOKING IS CONFIRMED
+
+Hi {{first_name}},
+
+Class: {{class_name}}
+When: {{when}} (UK time)
+Where: MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+
+Need to cancel? You can cancel up to 10 minutes before it starts. Open the app, go to Bookings and tap Cancel.
+
+View my bookings: https://app.mygymlondon.co.uk/#bookings
+
+MY GYM London
+MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
+info@mygymlondon.co.uk

@@ -1,38 +1,17 @@
-# Netlify headers for the MY GYM London app. Every page gets the rules under /*; app pages may never be framed; only /f/* (the website forms) may be framed by our own website.
+# Netlify headers for the MY GYM London app. Where a more specific rule sets the same header it REPLACES the /* value, so every Content-Security-Policy below repeats the full policy.
+# App pages may never be framed; only /f/* (the website forms) may be framed by our own website.
 /*
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests
-
-/
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests; frame-ancestors 'none'
   X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-
-/index.html
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-
-/cookies.html
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-
-/privacy.html
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-
-/terms.html
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-
-/email.html
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
 
 /f/*
-  Content-Security-Policy: frame-ancestors https://www.mygymlondon.co.uk https://mygymlondon.co.uk https://*.wixsite.com https://*.wix.com https://*.editorx.io
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests; frame-ancestors https://www.mygymlondon.co.uk https://mygymlondon.co.uk https://*.wixsite.com https://*.wix.com https://*.editorx.io
+  ! X-Frame-Options
 
 /sw.js
   Cache-Control: no-cache
@@ -43,6 +22,3 @@
 
 /icons/*
   Cache-Control: public, max-age=86400
-
-/f/*
-  X-Probe: from-headers-file

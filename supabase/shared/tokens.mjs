@@ -1,0 +1,33 @@
+// MY GYM London: signed links for "confirm my email" and "unsubscribe". Stateless: nothing is stored, so a link in an old email keeps working.
+// token = base64url(email) + "." + first 32 hex of HMAC-SHA256(secret, purpose + ":" + email). Purposes: "confirm" and "unsubscribe" (a confirm link cannot unsubscribe, and vice versa).
+// Uses only Web Crypto, which both Deno (Edge Functions) and Node have.
+
+const enc = new TextEncoder();
+const b64u = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const fromB64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+const hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+
+async function mac(secret, purpose, email) {
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return hex(await crypto.subtle.sign("HMAC", key, enc.encode(purpose + ":" + email))).slice(0, 32);
+}
+
+export async function makeToken(secret, purpose, email) {
+  if (!secret || secret.length < 16) throw new Error("token secret missing or too short");
+  const e = String(email).trim().toLowerCase();
+  return b64u(enc.encode(e)) + "." + (await mac(secret, purpose, e));
+}
+
+/** Returns the email if the token is genuine for this purpose, otherwise null. */
+export async function checkToken(secret, purpose, token) {
+  try {
+    if (!secret || secret.length < 16) return null;
+    const [p1, sig] = String(token ?? "").split(".");
+    if (!p1 || !sig || sig.length !== 32) return null;
+    const email = new TextDecoder().decode(fromB64u(p1));
+    const want = await mac(secret, purpose, email);
+    let diff = 0;
+    for (let i = 0; i < 32; i++) diff |= want.charCodeAt(i) ^ sig.charCodeAt(i);
+    return diff === 0 && /^[^\s@]+@[^\s@]+$/.test(email) ? email : null;
+  } catch { return null; }
+}

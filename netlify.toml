@@ -2,7 +2,7 @@
 # and adds the security headers that GitHub Pages cannot send. GitHub Pages ignores this file (see _config.yml).
 
 [build]
-  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html dist/ && cp -r fonts icons vendor dist/ && cp _headers dist/"
+  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html email.html dist/ && cp -r fonts icons vendor dist/ && cp _headers dist/"
   publish = "dist"
 
 [[headers]]

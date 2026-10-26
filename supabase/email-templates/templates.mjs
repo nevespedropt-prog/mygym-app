@@ -104,13 +104,13 @@ t("review-request", { group: "Keep members engaged", marketing: true, when: "Aft
   title: "How are we doing?", cta: { label: "Leave a Google review", url: "{{review_url}}" },
   body: [{ p: "Hi {{first_name}}," }, { p: "You have been training with us for a little while now. If you are enjoying it, a short Google review would mean a lot. It helps other people in Enfield find us." }, { muted: "Not happy about something? Reply to this email instead and we will put it right." }] });
 
-t("referral-invite", { group: "Keep members engaged", to: "lead", when: "When a member sends a bring-a-friend invite", subject: "{{referrer_name}} invited you to MY GYM London", pre: "Claim your free week.",
-  title: "{{referrer_name}} thinks you would love it here", cta: { label: "Claim my free week", url: "{{referral_url}}" },
-  body: [{ p: "Hi {{friend_name}}," }, { p: "{{referrer_name}} is a member at MY GYM London and thought of you. Join with their invite and you both get {{reward}}." }, { muted: "{{referrer_name}} entered your email only to send this invite. We will not email you again unless you join or ask us to." }] });
+t("referral-invite", { group: "Keep members engaged", to: "lead", when: "When a member sends a bring-a-friend invite", subject: "{{referrer_name}} invited you to MY GYM London", pre: "Come and see what we do.",
+  title: "{{referrer_name}} thinks you would love it here", cta: { label: "See MY GYM London", url: "{{referral_url}}" },
+  body: [{ p: "Hi {{friend_name}}," }, { p: "{{referrer_name}} is a member at MY GYM London and thought of you. Come and see what we do, and try a class with them." }, { muted: "{{referrer_name}} entered your email only to send this invite. We will not email you again unless you join or ask us to." }] });
 
-t("referral-reward", { group: "Keep members engaged", when: "When a referred friend joins", subject: "Your reward is ready: {{friend_name}} joined", pre: "Thank you for spreading the word.",
-  title: "Thank you for the referral", cta: { label: "View my reward", url: "{{app_url}}#profile" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "{{friend_name}} has joined MY GYM London with your invite. As promised, you both get {{reward}}." }] });
+t("referral-reward", { group: "Keep members engaged", when: "When a referred friend joins", subject: "Thank you: {{friend_name}} joined MY GYM London", pre: "Thank you for spreading the word.",
+  title: "Thank you for the referral", cta: { label: "Open the app", url: "{{app_url}}" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "{{friend_name}} has joined MY GYM London with your invite. Thank you for spreading the word." }] });
 
 t("milestone", { group: "Keep members engaged", marketing: true, when: "On a member's 10th, 50th and 100th class", subject: "{{count}} classes, {{first_name}}!", pre: "That is worth celebrating.",
   title: "{{count}} classes and counting", cta: { label: "Book your next one", url: "{{app_url}}#timetable" },
@@ -204,9 +204,9 @@ t("membership-ended", { group: "Membership & payments", when: "When a fixed-leng
   title: "Your plan has ended", cta: { label: "See memberships", url: "{{site_url}}memberships" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Your {{plan_name}} ended on {{end_date}}. You can no longer book classes until you start a new plan." }, { muted: "It takes two minutes to restart, and your account and history are exactly as you left them." }] });
 
-t("refer-a-friend-prompt", { group: "Keep members engaged", marketing: true, when: "A few days after a member joins (once)", subject: "Train with a friend, {{first_name}}?", pre: "You both get {{reward}}.",
+t("refer-a-friend-prompt", { group: "Keep members engaged", marketing: true, when: "A few days after a member joins (once)", subject: "Train with a friend, {{first_name}}?", pre: "Bring someone along.",
   title: "Bring a friend, you both win", cta: { label: "Invite a friend", url: "{{app_url}}#refer" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "Training is easier with someone alongside you. Invite a friend and you both get {{reward}} when they join." }] });
+  body: [{ p: "Hi {{first_name}}," }, { p: "Training is easier with someone alongside you. Invite a friend and come along together." }] });
 
 t("admin-new-booking", { group: "To the gym", to: "admin", when: "Each time a booking is made (can be switched to a daily summary)", subject: "New booking: {{person_name}}, {{class_name}} {{when}}", pre: "{{spaces_left}} spaces left.",
   title: "New booking", cta: { label: "Open bookings", url: "{{admin_url}}" },

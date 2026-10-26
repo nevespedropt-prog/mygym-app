@@ -2,7 +2,7 @@ BRING A FRIEND, YOU BOTH WIN
 
 Hi {{first_name}},
 
-Training is easier with someone alongside you. Invite a friend and you both get {{reward}} when they join.
+Training is easier with someone alongside you. Invite a friend and come along together.
 
 Invite a friend: https://app.mygymlondon.co.uk/#refer
 

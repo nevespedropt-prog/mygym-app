@@ -4,8 +4,6 @@ Hi {{first_name}},
 
 Thanks for your interest in {{offer_name}}. A member of the team will contact you within one working day to get you started.
 
-{{offer_terms}}
-
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS
 info@mygymlondon.co.uk

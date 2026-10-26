@@ -114,7 +114,7 @@ export async function processSubmission(input: Input, ctx: Ctx, d: Deps): Promis
 
   if (form.sendsTo === "referral-invite" && ctx.user && data.friend_email && data.friend_email !== ctx.user.email.toLowerCase()) {
     const refName = firstWord(await d.profileName(ctx.user.id));
-    safe(d.send({ template: "referral-invite", to: data.friend_email, vars: { friend_name: firstWord(data.friend_name), referrer_name: refName, referral_url: GLOBALS.app_url, reward: "a free week" }, replyTo: ctx.user.email }));
+    safe(d.send({ template: "referral-invite", to: data.friend_email, vars: { friend_name: firstWord(data.friend_name), referrer_name: refName, referral_url: GLOBALS.app_url }, replyTo: ctx.user.email }));
   }
 
   await Promise.all(tasks);

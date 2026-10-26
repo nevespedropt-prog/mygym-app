@@ -403,8 +403,7 @@
     "needs": [
       "friend_name",
       "referral_url",
-      "referrer_name",
-      "reward"
+      "referrer_name"
     ],
     "auth": false,
     "onAtLaunch": true,
@@ -416,11 +415,10 @@
     "to": "member",
     "marketing": false,
     "when": "When a referred friend joins",
-    "subject": "Your reward is ready: {{friend_name}} joined",
+    "subject": "Thank you: {{friend_name}} joined MY GYM London",
     "needs": [
       "first_name",
-      "friend_name",
-      "reward"
+      "friend_name"
     ],
     "auth": false,
     "onAtLaunch": true,
@@ -804,8 +802,7 @@
     "when": "A few days after a member joins (once)",
     "subject": "Train with a friend, {{first_name}}?",
     "needs": [
-      "first_name",
-      "reward"
+      "first_name"
     ],
     "auth": false,
     "onAtLaunch": true,

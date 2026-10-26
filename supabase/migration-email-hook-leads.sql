@@ -32,7 +32,7 @@ begin
     where u.created_at <= p_now - interval '3 days' and u.created_at > p_now - interval '5 days'
   loop
     if not exists (select 1 from public.email_events where dedupe_key = 'referprompt:' || r.id::text) then
-      perform public.queue_email('refer-a-friend-prompt', r.id, null, jsonb_build_object('first_name', r.first_name, 'reward', 'a free week'), 'referprompt:' || r.id::text); n := n + 1;
+      perform public.queue_email('refer-a-friend-prompt', r.id, null, jsonb_build_object('first_name', r.first_name), 'referprompt:' || r.id::text); n := n + 1;
     end if;
   end loop;
   return n;

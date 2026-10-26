@@ -66,7 +66,7 @@ f("feedback", { title: "How was your class?", intro: "Two quick questions. It re
   consents: [], success: "Thank you for the feedback.", successHigh: "Thank you! If you have a minute, a Google review helps a small gym a lot.", notify: "admin-new-review", notifyWhen: "rating <= 3", autoreply: null, source: "feedback", retentionDays: 730,
   privacy: `We use feedback to improve our classes. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
 
-f("refer-a-friend", { title: "Bring a friend", intro: "Invite a friend and you both get a free week when they join.", where: "app: Profile, Refer a friend", requiresLogin: true, prefill: ["full_name", "email"], rateLimit: { perIpPerHour: 5, perUserPerDay: 5 },
+f("refer-a-friend", { title: "Bring a friend", intro: "Invite a friend to come and see MY GYM London.", where: "app: Profile, Refer a friend", requiresLogin: true, prefill: ["full_name", "email"], rateLimit: { perIpPerHour: 5, perUserPerDay: 5 },
   fields: [{ id: "friend_name", type: "text", label: "Your friend's first name", required: true, max: 40 }, { id: "friend_email", type: "email", label: "Your friend's email", required: true, max: 120 }, { id: "message", type: "textarea", label: "Add a personal note (optional)", required: false, max: 300, rows: 3 }],
   consents: [{ id: "friend_ok", required: true, text: "My friend knows I am sending this invite. They will get one email from MY GYM London and no more unless they join." }], success: "Invite sent! We will let you know when your friend joins.", notify: null, autoreply: null, sendsTo: "referral-invite", source: "referral", retentionDays: 365,
   privacy: `We use your friend's email only to send this one invite. See our <a href="${PRIVACY}">Privacy Notice</a>.` });

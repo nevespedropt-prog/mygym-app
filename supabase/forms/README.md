@@ -50,7 +50,7 @@ Netlify still blocks framing, so use plain buttons that open the form page (same
 
 | Wix page | Button text | Opens |
 |---|---|---|
-| contact-8 (Contact) | Send us a message | https://app.mygymlondon.co.uk/f/contact.html |
+| a Contact page (the Wix page contact-8 is actually the Yoga and Pilates sign-up, so it is NOT the contact page) | Send us a message | https://app.mygymlondon.co.uk/f/contact.html |
 | our-personal-training-offer | Ask about personal training | https://app.mygymlondon.co.uk/f/pt-enquiry.html |
 | book-a-free-class | Book a free trial | https://app.mygymlondon.co.uk/f/trial-class.html |
 | Kids pages / services | Register your child | https://app.mygymlondon.co.uk/f/kids-registration.html |
@@ -58,4 +58,4 @@ Netlify still blocks framing, so use plain buttons that open the form page (same
 | Corporate page (if any) | Get a team quote | https://app.mygymlondon.co.uk/f/corporate-enquiry.html |
 
 Before replacing an existing Wix form or booking button, check what Wix does with it today (automations, member records). Wix's own free-class booking can stay until you decide.
-To allow embedding later: Netlify, Deploys, Trigger deploy, Clear cache and deploy site, then check `curl -I https://app.mygymlondon.co.uk/f/contact.html` shows `frame-ancestors https://www.mygymlondon.co.uk`. Remove the `X-Probe` lines from `_headers` once that works.
+Embedding works (checked 2026-10-26: the contact form showed inside a frame on www.mygymlondon.co.uk). It needed Netlify's Clear cache and deploy site, because Netlify had kept old header rules. In Wix use Add, Embed Code, Embed a Site and paste the form address.

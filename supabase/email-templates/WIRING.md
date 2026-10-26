@@ -24,7 +24,7 @@
 | Buys or changes a plan, payment taken or failed, pause, cancel, refund | `subscription-started`, `payment-receipt`, `payment-failed-*`, `plan-changed`, `membership-*`, `refund-issued`, `renewal-reminder`, `card-expiring`, `trial-ending` | Not built. Payments stay on Wix until later, so these need Wix webhooks or the later payment move |
 | Quiet for 30 days, 5th class, 10 / 50 / 100 classes | `we-miss-you`, `review-request`, `milestone` | Not built (daily schedule; sends to nobody until marketing consent exists) |
 | Leaves an enquiry unanswered 2 and 7 days | `lead-followup-1`, `lead-followup-2` | Not built (daily schedule) |
-| Gym sends a campaign | `newsletter` | `send-email` enforces consent and adds the unsubscribe link. The back end screen to send it: not built |
+| Gym sends a campaign | `newsletter` | Function `admin-campaign` + page `admin-campaign.html` built and tested (needs deploy + push). Test-to-yourself first; only confirmed subscribers; batches; no double sends |
 | Resets password, changes email, invited, magic link, password changed | `auth-*` | Owner pastes the HTML into Supabase, Authentication, Emails |
 
 ## To make the built parts live (owner steps, in order)

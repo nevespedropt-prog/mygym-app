@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Send a campaign | MY GYM admin</title>
+<style>
+  @font-face { font-family: "Barlow Condensed"; font-weight: 800; src: url("fonts/barlow-condensed-800.woff2") format("woff2"); font-display: swap; }
+  :root { --red: #e03939; --deep: #a03535; --ink: #17171a; --mut: #62616a; --line: #e6e4e4; --bg: #f6f5f4; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink); font: 16px/1.55 Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  main { max-width: 560px; margin: 24px auto; background: #fff; border-top: 6px solid var(--red); padding: 28px 24px; }
+  h1 { margin: 0 0 8px; font: 800 36px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; text-transform: uppercase; }
+  p { margin: 0 0 14px; color: var(--mut); }
+  label { display: block; font-weight: 600; font-size: 14.5px; margin: 14px 0 6px; }
+  select, input { width: 100%; font: inherit; padding: 12px 14px; min-height: 48px; border: 1.5px solid #cfcdd1; background: #fff; border-radius: 0; }
+  select:focus, input:focus, button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  button { font: inherit; font-weight: 700; border: 0; padding: 12px 22px; margin: 18px 10px 0 0; cursor: pointer; background: var(--ink); color: #fff; }
+  button.go { background: var(--red); }
+  button[disabled] { opacity: .5; cursor: not-allowed; }
+  .box { margin-top: 18px; padding: 14px 16px; background: var(--bg); border-left: 4px solid var(--red); color: var(--ink); }
+  .box.err { background: #fdecec; border-color: var(--deep); }
+  .box.ok { background: #e6f5ec; border-color: #238a52; }
+  textarea { width: 100%; font: inherit; padding: 12px 14px; border: 1.5px solid #cfcdd1; border-radius: 0; resize: vertical; }
+  textarea:focus { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .small { font-size: 13px; margin-top: 12px; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Send a campaign</h1>
+  <p>Writes one email to everyone who confirmed they want news and offers. People who unsubscribed are never emailed. The email carries an unsubscribe link automatically.</p>
+  <div id="gate" class="box hide"></div>
+  <div id="form" class="hide">
+    <div id="aud" class="box">Counting subscribers...</div>
+    <label for="subject">Subject line (up to 78 characters)</label>
+    <input id="subject" type="text" maxlength="78">
+    <label for="preheader">Preview text (shown after the subject in the inbox, optional)</label>
+    <input id="preheader" type="text" maxlength="120">
+    <label for="title">Heading inside the email (up to 60 characters)</label>
+    <input id="title" type="text" maxlength="60">
+    <label for="body">Message</label>
+    <textarea id="body" rows="7" maxlength="4000"></textarea>
+    <label for="button">Button text</label>
+    <input id="button" type="text" maxlength="60" value="See details">
+    <label for="url">Button link (must start with https://)</label>
+    <input id="url" type="text" maxlength="500" value="https://app.mygymlondon.co.uk/#timetable">
+    <button id="test" type="button">Send me a test</button>
+    <button id="send" type="button" class="go" disabled>Send to everyone</button>
+    <p class="small">Send is switched on after you have sent yourself a test of exactly this wording. Changing anything switches it off again.</p>
+    <div id="out" class="box hide" role="status" aria-live="polite"></div>
+  </div>
+</main>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="admin-campaign.js"></script>
+</body>
+</html>

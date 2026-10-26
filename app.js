@@ -90,6 +90,7 @@
       ? 'Book classes, log workouts and track your progress.'
       : 'Log in to book classes and track progress.';
     $('#agreeField').style.display = authMode === 'up' ? 'flex' : 'none';
+    $('#newsField').style.display = authMode === 'up' ? 'flex' : 'none';
     $('#emailHint').style.display = authMode === 'up' ? 'block' : 'none';
     $('#aErr').textContent = '';
     $('#forgotWrap').style.display = authMode === 'in' ? 'block' : 'none';
@@ -145,6 +146,7 @@
     $('#aSubmit').disabled = true;
     try {
       if (authMode === 'up') {
+        const wantsNews = $('#aNews').checked;
         const res = await DB.signUp(email, pass, $('#aName').value.trim());
         if (DB.isLive() && !(res && res.session)) {
           $('#authSub').textContent = '✅ Account created — check your email to confirm, then log in.';
@@ -152,8 +154,10 @@
           $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === 'in'));
           $('#nameField').style.display = 'none';
           $('#agreeField').style.display = 'none';
+          $('#newsField').style.display = 'none';
           $('#aSubmit').textContent = 'Log in';
         } else {
+          if (wantsNews) { try { await DB.setMarketing(true, 'app-signup'); } catch (_e) { /* they can switch it on in Profile */ } }
           await afterAuth();
         }
       } else {
@@ -1241,7 +1245,14 @@
     $('#pWeight').placeholder = measBlocked() ? 'Tracking is off' : '72.5';
     $('#pGoal').value = profile.goal || '';
     $('#pEmail').textContent = (me && me.email) || '';
+    $('#pNews').checked = await DB.getMarketing().catch(() => false);
   }
+  $('#pNews').addEventListener('change', async () => {
+    const box = $('#pNews'), want = box.checked; box.disabled = true;
+    try { const now = await DB.setMarketing(want, 'app-profile'); box.checked = now; toast($('#pNewsMsg'), now ? '✅ You will get news and offers.' : '✅ Switched off. You will still get booking emails.'); }
+    catch (e) { box.checked = !want; toast($('#pNewsMsg'), (e && e.message) || 'Could not save', true); }
+    box.disabled = false;
+  });
   $('#pSave').addEventListener('click', async () => {
     const patch = {
       full_name: $('#pName').value.trim(),

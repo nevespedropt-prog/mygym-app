@@ -354,6 +354,21 @@
       return data ? Object.assign({ email: u.email }, data) : { id: u.id, email: u.email };
     },
 
+    /* ---- marketing emails (optional): news and offers ---- */
+    async getMarketing() {
+      const u = await DB.getUser(); if (!u) return false;
+      if (!LIVE) return !!dGet('news_' + u.email, false);
+      const { data, error } = await sb.rpc('my_marketing_consent');
+      return !error && data === true;
+    },
+    async setMarketing(on, source) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      if (!LIVE) { dSet('news_' + u.email, !!on); return !!on; }
+      const { data, error } = await sb.rpc('set_my_marketing_consent', { p_on: !!on, p_source: source || 'app-profile' });
+      if (error) throw new Error('Could not save. Try again.');
+      return data === true;
+    },
+
     async saveProfile(patch) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
       if (!LIVE) {

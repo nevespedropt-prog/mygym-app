@@ -6,7 +6,7 @@ You have been training with us for a little while now. If you are enjoying it, a
 
 Not happy about something? Reply to this email instead and we will put it right.
 
-Leave a Google review: {{review_url}}
+Leave a Google review: https://search.google.com/local/writereview?placeid=ChIJJQwaPxwfdkgRGf9RbcUzAnA
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

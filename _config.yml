@@ -4,3 +4,4 @@ exclude:
   - supabase
   - README.md
   - netlify.toml
+  - _headers

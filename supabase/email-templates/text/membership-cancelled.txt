@@ -6,6 +6,8 @@ We are sorry to see you go. Your {{plan_name}} membership has been cancelled.
 
 Last day of access: {{end_date}}
 
+You can ask for a refund within 1 month of paying. After that, any refund is worked out by taking off the months you have already used.
+
 Anything we could have done better? Reply to this email, we read every message. You are always welcome back.
 
 Rejoin any time: https://www.mygymlondon.co.uk/memberships

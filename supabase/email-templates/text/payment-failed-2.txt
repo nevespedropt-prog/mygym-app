@@ -2,7 +2,7 @@ YOUR PAYMENT IS STILL OUTSTANDING
 
 Hi {{first_name}},
 
-We still have not been able to take {{amount}} for your {{plan_name}} membership.
+We tried again, but we still have not been able to take {{amount}} for your {{plan_name}} membership.
 
 Please update your card by {{final_date}} to keep your membership active.
 

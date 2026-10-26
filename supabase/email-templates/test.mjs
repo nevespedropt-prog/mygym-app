@@ -1,6 +1,7 @@
 // Focused checks for the email library. Run: node supabase/email-templates/test.mjs
 import { render, templates, requiredVars, GLOBALS } from "./render.mjs";
 import { SAMPLE } from "./sample.mjs";
+import { SETTINGS } from "./settings.mjs";
 
 let ok = 0, bad = 0;
 const t = (name, cond, extra = "") => { if (cond) ok++; else { bad++; console.log("FAIL", name, extra); } };
@@ -29,5 +30,10 @@ for (const d of templates) {
 const h = render("booking-confirmation", { ...SAMPLE, coach: "" });
 t("optional row hides when empty", !h.html.includes(">Coach</td>") && render("booking-confirmation", SAMPLE).html.includes(">Coach</td>"));
 t("global defaults exist", GLOBALS.gym_address.includes("EN1 1DS") && GLOBALS.cancel_minutes === "10");
+const known = new Set(templates.map((d) => d.id));
+for (const s of SETTINGS.failedPayment.steps) t("failed-payment step uses a real email: " + s.email, known.has(s.email));
+t("failed-payment days are in order and pause comes last", SETTINGS.failedPayment.steps.every((s, i, a) => !i || s.day > a[i - 1].day) && SETTINGS.failedPayment.pauseOnDay > SETTINGS.failedPayment.steps.at(-1).day);
+for (const k of [...Object.keys(SETTINGS.optional), ...Object.keys(SETTINGS.triggers)]) t("settings name a real email: " + k, known.has(k));
+t("class reminder is email plus phone alert, 2 hours before", SETTINGS.classReminder.email && SETTINGS.classReminder.push && SETTINGS.classReminder.hoursBefore === 2);
 console.log(`${templates.length} emails checked: ${ok} checks passed, ${bad} failed`);
 process.exit(bad ? 1 : 0);

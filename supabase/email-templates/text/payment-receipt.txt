@@ -10,7 +10,7 @@ Description: {{plan_name}}, {{billing_period}}
 Amount: {{amount}}
 Paid with: {{payment_method}}
 
-MY GYM London. 
+MyGym London. 
 
 View my membership: https://app.mygymlondon.co.uk/#profile
 

@@ -3,6 +3,7 @@
 // Look: the website's style. Barlow Condensed ExtraBold capitals for headings, red band with a slanted edge, red-accent panels,
 // dark footer. Table based with inline styles so it renders in Gmail, Apple Mail and Outlook. Headings fall back to Arial Narrow where a client blocks web fonts.
 import T from "./templates.mjs";
+import { SETTINGS } from "./settings.mjs";
 
 export const GLOBALS = {
   gym_name: "MY GYM London",
@@ -11,15 +12,17 @@ export const GLOBALS = {
   app_url: "https://app.mygymlondon.co.uk/",
   site_url: "https://www.mygymlondon.co.uk/",
   assets_url: "https://app.mygymlondon.co.uk/",
-  instagram_url: "https://www.instagram.com/mygymlondon/",
-  directions_url: "https://maps.app.goo.gl/",
+  instagram_url: "https://www.instagram.com/mygym_london",
+  review_url: "https://search.google.com/local/writereview?placeid=ChIJJQwaPxwfdkgRGf9RbcUzAnA",
+  directions_url: "https://maps.app.goo.gl/EhoXHJ5Em9nMYn8U6",
   cancel_minutes: "10",
   reminder_hours: "2",
-  // To confirm with the owner and accountant before launch (see README): used in receipts and policy lines.
-  business_legal_name: "MY GYM London",
+  // Cancellation and refund wording below is copied from the live Terms (terms.html). Items still to confirm are listed in README.
+  business_legal_name: "MyGym London",
   vat_line: "",
   refund_timing: "Refunds usually reach your account within 5 to 10 working days.",
-  cancellation_terms: "",
+  cancellation_terms: "To cancel, give us at least 1 week's notice before your next billing date.",
+  refund_policy: "You can ask for a refund within 1 month of paying. After that, any refund is worked out by taking off the months you have already used.",
 };
 
 const C = { red: "#e03939", deep: "#a03535", pink: "#fdecec", ink: "#17171a", mut: "#62616a", line: "#e6e4e4", alt: "#f6f5f4", white: "#ffffff" };
@@ -166,5 +169,5 @@ function toText(def, vars) {
   return L.join("\n");
 }
 
-export const catalog = () => T.map((d) => ({ id: d.id, group: d.group, to: d.to, marketing: d.marketing, when: d.when, subject: d.subject, needs: requiredVars(d), auth: !!d.auth }));
+export const catalog = () => T.map((d) => ({ id: d.id, group: d.group, to: d.to, marketing: d.marketing, when: d.when, subject: d.subject, needs: requiredVars(d), auth: !!d.auth, onAtLaunch: SETTINGS.optional[d.id] !== false, trigger: SETTINGS.triggers[d.id] || null }));
 export const templates = T;

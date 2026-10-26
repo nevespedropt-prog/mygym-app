@@ -6,7 +6,7 @@ export const SAMPLE = {
   receipt_number: "MGL-004217", payment_date: "Monday 3 November", payment_method: "Visa ending 4242", update_payment_url: "https://app.mygymlondon.co.uk/#billing",
   retry_date: "Friday 7 November", final_date: "Monday 17 November", card_brand: "Visa", card_last4: "4242", card_expiry: "11/26",
   pause_date: "Monday 3 November", resume_date: "Monday 1 December", end_date: "Friday 28 November", final_payment: "£35.00", refund_reason: "a cancelled class pass", renewal_date: "Monday 10 November",
-  review_url: "https://g.page/r/mygymlondon/review", referrer_name: "Sara", friend_name: "Alex", referral_url: "https://app.mygymlondon.co.uk/?ref=sara", reward: "a free week", count: "50",
+  referrer_name: "Sara", friend_name: "Alex", referral_url: "https://app.mygymlondon.co.uk/?ref=sara", reward: "a free week", count: "50",
   campaign_subject: "Spring bootcamp starts Monday 9 March", campaign_preheader: "Six weeks, three sessions a week, one great you.", campaign_title: "Spring bootcamp", campaign_button: "Reserve my place", campaign_url: "https://app.mygymlondon.co.uk/#timetable",
   campaign_body: "Our six-week Spring bootcamp starts on Monday 9 March. Three sessions a week, all levels, and a friendly group to keep you going. Places are limited to 16.",
   message_preview: "Hi, do you run beginner classes in the evening?", offer_name: "January offer", offer_terms: "Offer ends 31 January. One use per person.", company: "Enfield Digital Ltd",

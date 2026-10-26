@@ -37,15 +37,16 @@ Website style: red band with a slanted edge, small chip label, bold capital head
 
 Not checked: emails Wix sends outside its Automations list (sign-up verification, password reset, Bookings reminder settings, invoice wording). The `auth-*` and reminder emails cover them, but compare with the live Wix emails before switching Wix off.
 
-## To confirm (business or legal decisions I must not guess)
-1. Legal business name and VAT status for receipts (`business_legal_name`, `vat_line` in `render.mjs`).
-2. Failed-payment schedule: first notice day 0, second day 3, final day 10, then pause? (`payment-failed-1/2/final`).
-3. Pause rules, cancellation notice period and refund wording (`cancellation_terms`, `refund_timing`).
-4. Reminder time (2 hours before) and whether reminders go by email, push, or both (push exists today).
-5. Which emails to switch on at launch (`missed-class` is optional; marketing emails need consent first).
-6. Instagram, Google review and directions links (placeholders in `render.mjs` and `sample.mjs`).
-7. Data retention per form (default 2 years, Kids 1 year): see `../forms/forms.mjs`.
-A solicitor or accountant should read receipts, refund and marketing wording before launch.
+## Decisions made with the owner (2026-10-26) and what is still open
+Decided (all in `settings.mjs`, `render.mjs` and `../forms/forms.mjs`, and tested):
+- Failed payment: first notice on day 0, retry on day 5 with a second reminder, final notice on day 14, membership paused on day 21.
+- Class reminders: an email 2 hours before AND the phone alert.
+- Replies to enquiries are promised within one working day.
+- Optional emails on at launch: we-miss-you (30 days away), review request (after the 5th class), milestones (10, 50, 100). Missed-class note stays off.
+- Sole trader: receipts simply say "MyGym London". Not VAT registered, so no VAT line.
+- Cancellation and refund wording is copied from the live Terms: 1 week's notice before the next billing date, refund within 1 month of paying.
+- Form data is deleted after 2 years (Kids Gym 1 year). Instagram and directions links are the real ones.
+Google review link: set and checked (opens the gym's Google review page). Still open: a solicitor or accountant reading receipts, refund, marketing and Kids wording before launch.
 
 ## How they will be sent (next steps, not done yet)
 - Member and gym emails: one send function (reuses the Resend setup from `send-booking-email`) calls `render()`.

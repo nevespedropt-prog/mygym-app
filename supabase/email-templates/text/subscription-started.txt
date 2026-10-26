@@ -9,7 +9,7 @@ Price: {{amount}} {{billing_period}}
 Started: {{start_date}}
 Next payment: {{next_payment_date}}
 
-You can pause or cancel any time from the app, under Profile. 
+You can pause or cancel any time from the app, under Profile. To cancel, give us at least 1 week's notice before your next billing date.
 
 Book your first class: https://app.mygymlondon.co.uk/#timetable
 

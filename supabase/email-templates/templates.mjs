@@ -30,7 +30,7 @@ t("class-cancelled-by-gym", { group: "Bookings", when: "When the gym cancels a c
   title: "We have had to cancel your class", cta: { label: "See other classes", url: "{{app_url}}#timetable" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We are sorry, but we have had to cancel this class:" }, { kv: [["Class", "{{class_name}}"], ["When", "{{when}}"], ["Reason", "{{reason}}", "reason"]] }, { p: "Your booking has been removed and nothing is owed on your side. You can pick another class in the app." }, { muted: "Sorry again for the change. If you have questions, just reply to this email." }] });
 
-t("class-reminder", { group: "Bookings", when: "{{reminder_hours}} hours before a booked class", subject: "Reminder: {{class_name}} at {{time}} today", pre: "Starts at {{time}}. Cancel up to {{cancel_minutes}} minutes before if you cannot make it.",
+t("class-reminder", { group: "Bookings", when: "2 hours before a booked class (sent as an email and as a phone alert)", subject: "Reminder: {{class_name}} at {{time}} today", pre: "Starts at {{time}}. Cancel up to {{cancel_minutes}} minutes before if you cannot make it.",
   title: "Your class is coming up", cta: { label: "View my bookings", url: "{{app_url}}#bookings" },
   body: [{ p: "Hi {{first_name}}," }, { kv: [["Class", "{{class_name}}"], ["Starts", "{{when}}"], ["Coach", "{{coach}}", "coach"], ["Where", "{{gym_address}}"]] }, { muted: "Cannot make it? Please cancel up to {{cancel_minutes}} minutes before, so someone else can take your space." }] });
 
@@ -59,11 +59,11 @@ t("payment-failed-1", { group: "Membership & payments", when: "The day a payment
   title: "Your payment did not go through", cta: { label: "Update my card", url: "{{update_payment_url}}" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We tried to take {{amount}} for your {{plan_name}} membership, but the payment was declined." }, { note: "No action is needed if you have already sorted it. Otherwise, please update your card. We will try again on {{retry_date}}." }, { muted: "Common reasons: an expired card, not enough funds, or your bank asking for extra confirmation." }] });
 
-t("payment-failed-2", { group: "Membership & payments", when: "A few days after the first failed payment (second reminder)", subject: "Reminder: your payment is still outstanding", pre: "Update your card to keep your membership active.",
+t("payment-failed-2", { group: "Membership & payments", when: "Day 5 after the first failed payment, once the retry has also failed (second reminder)", subject: "Reminder: your payment is still outstanding", pre: "Update your card to keep your membership active.",
   title: "Your payment is still outstanding", cta: { label: "Update my card", url: "{{update_payment_url}}" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "We still have not been able to take {{amount}} for your {{plan_name}} membership." }, { p: "Please update your card by {{final_date}} to keep your membership active." }, { muted: "Having a difficult month? Reply to this email and we will help." }] });
+  body: [{ p: "Hi {{first_name}}," }, { p: "We tried again, but we still have not been able to take {{amount}} for your {{plan_name}} membership." }, { p: "Please update your card by {{final_date}} to keep your membership active." }, { muted: "Having a difficult month? Reply to this email and we will help." }] });
 
-t("payment-failed-final", { group: "Membership & payments", when: "Last notice before a membership is paused for non-payment", subject: "Final notice: your membership will be paused on {{final_date}}", pre: "Please update your card today.",
+t("payment-failed-final", { group: "Membership & payments", when: "Day 14 after the first failed payment (last notice; the membership is paused on day 21)", subject: "Final notice: your membership will be paused on {{final_date}}", pre: "Please update your card today.",
   title: "Final notice before we pause your membership", cta: { label: "Update my card now", url: "{{update_payment_url}}" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We have not been able to take {{amount}} for your {{plan_name}} membership. If it is not resolved by {{final_date}}, your membership will be paused and you will not be able to book." }, { muted: "Once your payment is updated, your membership starts again straight away." }] });
 
@@ -85,7 +85,7 @@ t("membership-resumed", { group: "Membership & payments", when: "When a paused m
 
 t("membership-cancelled", { group: "Membership & payments", when: "When a membership is cancelled", subject: "Your membership has been cancelled", pre: "You can keep booking until {{end_date}}.",
   title: "Your membership is cancelled", cta: { label: "Rejoin any time", url: "{{site_url}}memberships" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "We are sorry to see you go. Your {{plan_name}} membership has been cancelled." }, { kv: [["Last day of access", "{{end_date}}"], ["Final payment", "{{final_payment}}", "final_payment"]] }, { muted: "Anything we could have done better? Reply to this email, we read every message. You are always welcome back." }] });
+  body: [{ p: "Hi {{first_name}}," }, { p: "We are sorry to see you go. Your {{plan_name}} membership has been cancelled." }, { kv: [["Last day of access", "{{end_date}}"], ["Final payment", "{{final_payment}}", "final_payment"]] }, { muted: "{{refund_policy}}" }, { muted: "Anything we could have done better? Reply to this email, we read every message. You are always welcome back." }] });
 
 t("refund-issued", { group: "Membership & payments", when: "When a refund is issued", subject: "Your refund of {{amount}}", pre: "It is on its way to your card.",
   title: "Your refund is on its way", to: "member",

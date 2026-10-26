@@ -9,7 +9,9 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "health-form-due",
@@ -21,7 +23,9 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "booking-confirmation",
@@ -36,7 +40,9 @@
       "first_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "booking-cancelled",
@@ -50,7 +56,9 @@
       "first_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "class-cancelled-by-gym",
@@ -65,14 +73,16 @@
       "reason",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "class-reminder",
     "group": "Bookings",
     "to": "member",
     "marketing": false,
-    "when": "{{reminder_hours}} hours before a booked class",
+    "when": "2 hours before a booked class (sent as an email and as a phone alert)",
     "subject": "Reminder: {{class_name}} at {{time}} today",
     "needs": [
       "class_name",
@@ -81,7 +91,9 @@
       "time",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "waitlist-joined",
@@ -96,7 +108,9 @@
       "position",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "waitlist-booked",
@@ -110,7 +124,9 @@
       "first_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "missed-class",
@@ -124,7 +140,9 @@
       "first_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": false,
+    "trigger": null
   },
   {
     "id": "subscription-started",
@@ -142,7 +160,9 @@
       "plan_name",
       "start_date"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "payment-receipt",
@@ -161,7 +181,9 @@
       "plan_name",
       "receipt_number"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "payment-failed-1",
@@ -177,14 +199,16 @@
       "retry_date",
       "update_payment_url"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "payment-failed-2",
     "group": "Membership & payments",
     "to": "member",
     "marketing": false,
-    "when": "A few days after the first failed payment (second reminder)",
+    "when": "Day 5 after the first failed payment, once the retry has also failed (second reminder)",
     "subject": "Reminder: your payment is still outstanding",
     "needs": [
       "amount",
@@ -193,14 +217,16 @@
       "plan_name",
       "update_payment_url"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "payment-failed-final",
     "group": "Membership & payments",
     "to": "member",
     "marketing": false,
-    "when": "Last notice before a membership is paused for non-payment",
+    "when": "Day 14 after the first failed payment (last notice; the membership is paused on day 21)",
     "subject": "Final notice: your membership will be paused on {{final_date}}",
     "needs": [
       "amount",
@@ -209,7 +235,9 @@
       "plan_name",
       "update_payment_url"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "card-expiring",
@@ -225,7 +253,9 @@
       "first_name",
       "update_payment_url"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "plan-changed",
@@ -242,7 +272,9 @@
       "plan_name",
       "start_date"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "membership-paused",
@@ -257,7 +289,9 @@
       "plan_name",
       "resume_date"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "membership-resumed",
@@ -271,7 +305,9 @@
       "next_payment_date",
       "plan_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "membership-cancelled",
@@ -286,7 +322,9 @@
       "first_name",
       "plan_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "refund-issued",
@@ -301,7 +339,9 @@
       "payment_date",
       "refund_reason"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "renewal-reminder",
@@ -316,7 +356,9 @@
       "plan_name",
       "renewal_date"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "we-miss-you",
@@ -328,7 +370,11 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterDaysWithoutVisit": 30
+    }
   },
   {
     "id": "review-request",
@@ -338,10 +384,14 @@
     "when": "After a member's 5th class (once)",
     "subject": "Would you rate us, {{first_name}}?",
     "needs": [
-      "first_name",
-      "review_url"
+      "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterClasses": 5,
+      "once": true
+    }
   },
   {
     "id": "referral-invite",
@@ -356,7 +406,9 @@
       "referrer_name",
       "reward"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "referral-reward",
@@ -370,7 +422,9 @@
       "friend_name",
       "reward"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "milestone",
@@ -383,7 +437,15 @@
       "count",
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "atClasses": [
+        10,
+        50,
+        100
+      ]
+    }
   },
   {
     "id": "newsletter",
@@ -401,7 +463,9 @@
       "campaign_url",
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "enquiry-autoreply",
@@ -414,7 +478,9 @@
       "first_name",
       "message_preview"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "pt-enquiry-autoreply",
@@ -426,7 +492,9 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "trial-confirmation",
@@ -440,7 +508,9 @@
       "first_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "offer-autoreply",
@@ -454,7 +524,9 @@
       "offer_name",
       "offer_terms"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "corporate-autoreply",
@@ -467,7 +539,9 @@
       "company",
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "kids-registration-received",
@@ -480,7 +554,9 @@
       "child_first_name",
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "lead-followup-1",
@@ -492,7 +568,11 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterDays": 2
+    }
   },
   {
     "id": "lead-followup-2",
@@ -504,7 +584,11 @@
     "needs": [
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterDays": 7
+    }
   },
   {
     "id": "newsletter-welcome",
@@ -517,7 +601,9 @@
       "confirm_url",
       "first_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-new-enquiry",
@@ -535,7 +621,9 @@
       "person_phone",
       "source_page"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-new-member",
@@ -550,7 +638,9 @@
       "plan_name",
       "source_page"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-payment-failed",
@@ -566,7 +656,9 @@
       "plan_name",
       "retry_date"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-change-request",
@@ -583,7 +675,9 @@
       "request_type",
       "sla"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-new-review",
@@ -599,7 +693,9 @@
       "person_name",
       "rating"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "auth-reset-password",
@@ -609,7 +705,9 @@
     "when": "When a member asks to reset their password",
     "subject": "Reset your MY GYM London password",
     "needs": [],
-    "auth": true
+    "auth": true,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "auth-confirm-email-change",
@@ -619,7 +717,9 @@
     "when": "When a member changes their email address",
     "subject": "Confirm your new email address",
     "needs": [],
-    "auth": true
+    "auth": true,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "auth-invite",
@@ -629,7 +729,9 @@
     "when": "When you invite a member of staff to the back end",
     "subject": "You have been invited to MY GYM London",
     "needs": [],
-    "auth": true
+    "auth": true,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "auth-magic-link",
@@ -639,7 +741,9 @@
     "when": "If you switch on sign-in by email link",
     "subject": "Your MY GYM London sign-in link",
     "needs": [],
-    "auth": true
+    "auth": true,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "booking-rescheduled",
@@ -654,7 +758,9 @@
       "old_when",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "trial-ending",
@@ -670,7 +776,9 @@
       "next_payment_date",
       "plan_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "membership-ended",
@@ -684,7 +792,9 @@
       "first_name",
       "plan_name"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "refer-a-friend-prompt",
@@ -697,7 +807,9 @@
       "first_name",
       "reward"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-new-booking",
@@ -714,7 +826,9 @@
       "spaces_left",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-overbooked",
@@ -730,7 +844,9 @@
       "class_name",
       "when"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "admin-membership-cancelled",
@@ -746,7 +862,9 @@
       "plan_name",
       "reason"
     ],
-    "auth": false
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
   },
   {
     "id": "auth-password-changed",
@@ -756,6 +874,8 @@
     "when": "After a member changes their password (security notice)",
     "subject": "Your MY GYM London password was changed",
     "needs": [],
-    "auth": true
+    "auth": true,
+    "onAtLaunch": true,
+    "trigger": null
   }
 ]

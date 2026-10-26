@@ -16,10 +16,10 @@
 | Signs up to the newsletter | `newsletter-welcome` (confirm link), then nothing until they confirm | Built and tested (`submit-form`, `marketing-consent`, `email.html`) |
 | Clicks confirm or unsubscribe in an email | Records it | Built and tested (needs deploy) |
 | Creates an app account | `welcome` | SQL hook written and dry-run tested (`migration-email-hooks.sql`) |
-| Books a class in the app | `booking-confirmation` | The OLD plain email is still what sends. Switching to the new design: not done |
-| Cancels a booking in the app | `booking-cancelled` | Not built (change goes in `book-class`) |
+| Books a class in the app | `booking-confirmation` | LIVE (2026-10-26). SQL trigger, `migration-email-hook-booking.sql`. Wix bookings skipped |
+| Cancels a booking in the app | `booking-cancelled` | LIVE. `book-class` v8 sends it after a successful cancel |
 | Gym cancels a class | `class-cancelled-by-gym` to everyone booked | Not built (needs a back end button) |
-| Class is 2 hours away | `class-reminder` (email) plus the phone alert | Not built (change goes in `send-class-reminders`) |
+| Class is 2 hours away | `class-reminder` (email) plus the phone alert | Email LIVE: database schedule every 5 minutes, `migration-email-hook-class-reminder.sql`. The phone alert stays at 1 hour before (unchanged) |
 | Joins a waiting list, gets a place | `waitlist-joined`, `waitlist-booked` | Not built (no waiting list in the app yet) |
 | Buys or changes a plan, payment taken or failed, pause, cancel, refund | `subscription-started`, `payment-receipt`, `payment-failed-*`, `plan-changed`, `membership-*`, `refund-issued`, `renewal-reminder`, `card-expiring`, `trial-ending` | Not built. Payments stay on Wix until later, so these need Wix webhooks or the later payment move |
 | Quiet for 30 days, 5th class, 10 / 50 / 100 classes | `we-miss-you`, `review-request`, `milestone` | Not built (daily schedule; sends to nobody until marketing consent exists) |

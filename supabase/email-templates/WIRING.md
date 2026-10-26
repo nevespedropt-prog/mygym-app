@@ -34,3 +34,8 @@
 4. Push the app so `email.html` goes live, then put the form script on the website pages (`forms/forms.js` with `window.MGL_FORMS`).
 
 Rebuild the shared file after changing any email, form or the validator: `node supabase/shared/bundle.mjs`. Run all checks: see the list in `supabase/README-CHECKS.md`.
+
+## Live status (2026-10-26)
+- LIVE: tables, `submit-form`, `marketing-consent`, `send-email` (JWT off, secret header required), `email.html`/`email.js`, welcome email on new app accounts.
+- Tested live: contact form stored and both emails arrived at info@; fake confirm link refused; send-email refuses calls without the secret; helper to send-email to Resend delivered a welcome email.
+- Waiting: the website pages do not call `submit-form` yet (the form script is not on any page). Redeploy `submit-form` from `deploy.ts` to pick up nicer gym-alert subjects.

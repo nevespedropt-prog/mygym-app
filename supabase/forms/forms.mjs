@@ -19,11 +19,11 @@ const base = { privacy: privacyLine, honeypot: "company_website", minSeconds: 3,
 const F = [];
 const f = (id, o) => F.push({ id, ...base, ...o });
 
-f("contact", { title: "Get in touch", intro: "Questions about classes, memberships or anything else? Send us a message and we will reply within one working day.", where: "www: Contact page and footer",
+f("contact", { adminLabel: "website message", title: "Get in touch", intro: "Questions about classes, memberships or anything else? Send us a message and we will reply within one working day.", where: "www: Contact page and footer",
   fields: [name(), email(), phone(), { id: "topic", type: "select", label: "What is it about?", required: true, options: ["Memberships and prices", "Classes and timetable", "Personal training", "Kids Gym", "Something else"] }, message(), ...utm],
   success: "Thanks, we have your message. We will reply within one working day.", notify: "admin-new-enquiry", autoreply: "enquiry-autoreply", pipeline: "new", source: "contact" });
 
-f("pt-enquiry", { title: "Personal training enquiry", intro: "Tell us what you want to achieve and a coach will get in touch to talk it through.", where: "www: Personal Training page",
+f("pt-enquiry", { adminLabel: "personal training enquiry", title: "Personal training enquiry", intro: "Tell us what you want to achieve and a coach will get in touch to talk it through.", where: "www: Personal Training page",
   fields: [name(), email(), phone(true), { id: "goal", type: "select", label: "Your main goal", required: true, options: ["Lose weight", "Build strength", "Get fitter", "Recover from an injury", "Train for an event", "Something else"] },
     { id: "experience", type: "radio", label: "How would you describe your training so far?", required: true, options: ["New to it", "Some experience", "Experienced"] },
     { id: "times", type: "checkbox-group", label: "Best times for you", required: false, options: ["Mornings", "Daytime", "Evenings", "Weekends"] },
@@ -31,21 +31,21 @@ f("pt-enquiry", { title: "Personal training enquiry", intro: "Tell us what you w
   success: "Thanks! A coach will contact you within one working day.", notify: "admin-new-enquiry", autoreply: "pt-enquiry-autoreply", pipeline: "new", source: "pt", sensitive: true,
   privacy: `We use your details only to arrange your training. If you mention health information we use it only to keep you safe in sessions. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
 
-f("trial-class", { title: "Book a free trial class", intro: "Your first class is on us. Pick a class and we will confirm your place by email.", where: "www: Join page, Instagram link, landing pages",
+f("trial-class", { adminLabel: "free trial booking", title: "Book a free trial class", intro: "Your first class is on us. Pick a class and we will confirm your place by email.", where: "www: Join page, Instagram link, landing pages",
   fields: [name(), email(), phone(true), { id: "class", type: "select", label: "Which class?", required: true, optionsFrom: "timetable", help: "The list comes from the live timetable." }, { id: "date", type: "date", label: "Which day?", required: true, minDays: 1, maxDays: 30 },
     { id: "experience", type: "radio", label: "Have you trained before?", required: false, options: ["Yes, regularly", "A bit", "Not for a while", "Never"] }, ...utm],
   success: "Thanks! We will confirm your free trial by email shortly.", notify: "admin-new-enquiry", autoreply: "enquiry-autoreply", afterConfirm: "trial-confirmation", pipeline: "trial", source: "trial",
   consents: [marketing, { id: "health_ready", required: true, text: "I am fit to exercise, or I will tell the coach before the class about anything that might affect me." }] });
 
-f("landing-offer", { title: "Claim this offer", intro: "Leave your details and we will get you started.", where: "www: landing pages such as /january (one form, the offer name is a hidden field)",
+f("landing-offer", { adminLabel: "offer sign-up", title: "Claim this offer", intro: "Leave your details and we will get you started.", where: "www: landing pages such as /january (one form, the offer name is a hidden field)",
   fields: [name(), email(), phone(true), { id: "offer_name", type: "hidden" }, ...utm],
   success: "Thanks, you are on the list. We will be in touch within one working day.", notify: "admin-new-enquiry", autoreply: "offer-autoreply", pipeline: "new", source: "offer" });
 
-f("corporate-enquiry", { title: "Group sessions for your team", intro: "Tell us about your team and we will come back with options and a quote.", where: "www: Corporate wellness page",
+f("corporate-enquiry", { adminLabel: "corporate enquiry", title: "Group sessions for your team", intro: "Tell us about your team and we will come back with options and a quote.", where: "www: Corporate wellness page",
   fields: [name("full_name", "Your name"), { id: "company", type: "text", label: "Company", required: true, max: 100 }, email("Work email"), phone(), { id: "team_size", type: "select", label: "Roughly how many people?", required: true, options: ["Under 10", "10 to 20", "20 to 50", "More than 50"] }, { id: "days", type: "checkbox-group", label: "Preferred days", required: false, options: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] }, message("Anything else we should know?", false), ...utm],
   success: "Thanks! We will come back to you within two working days.", notify: "admin-new-enquiry", autoreply: "corporate-autoreply", pipeline: "new", source: "corporate" });
 
-f("kids-registration", { title: "Kids Gym registration", intro: "For children aged 6 to 11, with a parent or guardian's consent. We confirm each place within two working days.", where: "www: Kids Gym page; app: before a first Kids Gym booking",
+f("kids-registration", { adminLabel: "Kids Gym registration", title: "Kids Gym registration", intro: "For children aged 6 to 11, with a parent or guardian's consent. We confirm each place within two working days.", where: "www: Kids Gym page; app: before a first Kids Gym booking",
   fields: [{ id: "parent_name", type: "text", label: "Parent or guardian name", required: true, autocomplete: "name", max: 80 }, email("Parent or guardian email"), phone(true, "Parent or guardian phone"),
     { id: "child_first_name", type: "text", label: "Child's first name", required: true, max: 40 }, { id: "child_last_name", type: "text", label: "Child's last name", required: true, max: 40 }, { id: "child_dob", type: "date", label: "Child's date of birth", required: true, ageMin: 6, ageMax: 11, help: "Kids Gym is for ages 6 to 11." },
     { id: "emergency_name", type: "text", label: "Emergency contact name", required: true, max: 80 }, { id: "emergency_phone", type: "tel", label: "Emergency contact phone", required: true, max: 25 },

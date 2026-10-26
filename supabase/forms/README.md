@@ -44,3 +44,18 @@ Also usable as plain links (Instagram bio, ads, QR codes): open the address in a
 
 ## To confirm
 Retention periods, the exact consent wording (a solicitor should read the Kids form and the marketing wording), and who replies to enquiries and within what time (the emails promise one working day).
+
+## Wix buttons until the Hostinger move (2026-10-26)
+Netlify still blocks framing, so use plain buttons that open the form page (same tab or new tab). Suggested places on the current Wix site:
+
+| Wix page | Button text | Opens |
+|---|---|---|
+| contact-8 (Contact) | Send us a message | https://app.mygymlondon.co.uk/f/contact.html |
+| our-personal-training-offer | Ask about personal training | https://app.mygymlondon.co.uk/f/pt-enquiry.html |
+| book-a-free-class | Book a free trial | https://app.mygymlondon.co.uk/f/trial-class.html |
+| Kids pages / services | Register your child | https://app.mygymlondon.co.uk/f/kids-registration.html |
+| Footer (every page) | Get news and offers | https://app.mygymlondon.co.uk/f/newsletter-signup.html |
+| Corporate page (if any) | Get a team quote | https://app.mygymlondon.co.uk/f/corporate-enquiry.html |
+
+Before replacing an existing Wix form or booking button, check what Wix does with it today (automations, member records). Wix's own free-class booking can stay until you decide.
+To allow embedding later: Netlify, Deploys, Trigger deploy, Clear cache and deploy site, then check `curl -I https://app.mygymlondon.co.uk/f/contact.html` shows `frame-ancestors https://www.mygymlondon.co.uk`. Remove the `X-Probe` lines from `_headers` once that works.

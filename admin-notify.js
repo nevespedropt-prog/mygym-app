@@ -33,14 +33,19 @@
     classes = q.data || [];
     var order = { Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6, Sunday: 7 };
     classes.sort(function (a, b) { return (order[a.day_name] - order[b.day_name]) || String(a.start_time).localeCompare(String(b.start_time)); });
-    $("cls").innerHTML = classes.map(function (c) { return '<option value="' + c.id + '">' + c.day_name + " " + String(c.start_time).slice(0, 5) + " - " + (c.kind === "gym" ? "Gym session" : c.name).replace(/</g, "&lt;") + "</option>"; }).join("");
+    fillClasses();
     $("form").classList.remove("hide");
     setDate();
+  }
+  function fillClasses() {
+    var gym = $("showGym").checked;
+    $("cls").innerHTML = classes.filter(function (c) { return gym || c.kind !== "gym"; }).map(function (c) { return '<option value="' + c.id + '">' + c.day_name + " " + String(c.start_time).slice(0, 5) + " - " + (c.kind === "gym" ? "Gym session" : c.name).replace(/</g, "&lt;") + "</option>"; }).join("");
   }
   function setDate() { var c = classes.find(function (x) { return String(x.id) === $("cls").value; }); if (c) $("date").value = nextDate(c.day_name); reset(); }
   function reset() { checked = null; $("send").disabled = true; $("out").className = "box hide"; }
 
   $("cls").addEventListener("change", setDate);
+  $("showGym").addEventListener("change", function () { fillClasses(); setDate(); });
   $("date").addEventListener("change", reset);
   $("reason").addEventListener("input", function () { $("send").disabled = true; checked = null; });
 

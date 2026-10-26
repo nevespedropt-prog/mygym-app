@@ -22,6 +22,7 @@
   .box { margin-top: 18px; padding: 14px 16px; background: var(--bg); border-left: 4px solid var(--red); color: var(--ink); }
   .box.err { background: #fdecec; border-color: var(--deep); }
   .box.ok { background: #e6f5ec; border-color: #238a52; }
+  .gymtoggle { font-weight: 500; font-size: 14px; margin: 8px 0 0; color: var(--mut); }
   .hide { display: none; }
 </style>
 </head>
@@ -33,6 +34,7 @@
   <div id="form" class="hide">
     <label for="cls">Class</label>
     <select id="cls"></select>
+    <label class="gymtoggle"><input type="checkbox" id="showGym" style="width:auto;min-height:0;margin-right:8px">Also show gym slots</label>
     <label for="date">Date</label>
     <input id="date" type="date">
     <label for="reason">Reason (optional, shown in the email)</label>

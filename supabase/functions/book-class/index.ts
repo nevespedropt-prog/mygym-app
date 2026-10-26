@@ -41,6 +41,30 @@ async function wix(method: string, path: string, body?: unknown) {
   return { ok: res.ok, status: res.status, data };
 }
 
+/** The details the "booking-cancelled" email needs. Gym sessions are called "Gym session". */
+export function cancelEmailVars(row: { date: string }, c: { name: string; start_time: string; kind: string }, fullName?: string | null) {
+  const when = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(new Date(row.date + "T12:00:00Z")) + " at " + String(c.start_time).slice(0, 5);
+  return { first_name: (fullName ?? "").trim().split(/\s+/)[0] || "there", class_name: c.kind === "gym" ? "Gym session" : c.name, when };
+}
+
+/** Email the member that their booking is cancelled (new email library, via send-email). Never blocks or fails the cancellation. */
+// deno-lint-ignore no-explicit-any
+async function emailCancelled(db: any, row: { id: string; class_id: number; user_id: string; date: string }, to: string) {
+  try {
+    const [{ data: c }, { data: p }] = await Promise.all([
+      db.from("classes").select("name, start_time, kind").eq("id", row.class_id).maybeSingle(),
+      db.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle(),
+    ]);
+    if (!c || !to) return;
+    await fetch(Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-cron-secret": Deno.env.get("CRON_SECRET") ?? "" },
+      body: JSON.stringify({ template: "booking-cancelled", to, vars: cancelEmailVars(row, c, p?.full_name), dedupe_key: "cancel-" + row.id }),
+      signal: AbortSignal.timeout(4000),
+    });
+  } catch (_e) { /* the cancellation already happened; a missing email is not worth failing it */ }
+}
+
 /** Cancel a Wix booking (no Wix email; our 10-minute rule has already been checked). Tries twice. */
 async function wixCancel(bookingId: string): Promise<boolean> {
   for (let i = 0; i < 2; i++) {
@@ -95,6 +119,7 @@ async function handle(req: Request): Promise<Response> {
         return json(502, { error: "We couldn't cancel this just now. Please try again in a minute." });
       }
     }
+    await emailCancelled(db, row, user.email);
     return json(200, { ok: true });
   }
 

@@ -6,11 +6,10 @@ import { fileURLToPath } from "node:url";
 import { stripTypeScriptTypes } from "node:module";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "functions");
-for (const name of ["submit-form", "send-email", "marketing-consent"]) {
+for (const name of ["submit-form", "send-email", "marketing-consent", "admin-class-cancelled"]) {
   const dir = resolve(root, name);
   const parts = [];
-  const lib = readFileSync(resolve(dir, "lib.js"), "utf8").replace(/^export\s+/gm, "");
-  parts.push("// ---- shared library (generated) ----\n" + lib);
+  if (existsSync(resolve(dir, "lib.js"))) parts.push("// ---- shared library (generated) ----\n" + readFileSync(resolve(dir, "lib.js"), "utf8").replace(/^export\s+/gm, ""));
   if (existsSync(resolve(dir, "logic.ts"))) {
     const logic = readFileSync(resolve(dir, "logic.ts"), "utf8").replace(/^import .*\.\/lib\.js";\s*$/gm, "").replace(/^export\s+/gm, "");
     parts.push("// ---- logic ----\n" + logic);

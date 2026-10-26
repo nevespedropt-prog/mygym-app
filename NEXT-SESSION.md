@@ -73,6 +73,7 @@ Details: PROJECT-NOTES.md (dated entries), the app-builder skill, MASTER-PROMPT.
 - Next: switch booking-confirmation to the new design, hook cancel (book-class) and class reminder email (send-class-reminders), daily schedules for we-miss-you / review / milestone / lead follow-ups, then the owner steps listed in WIRING.md.
 
 ## End of 2026-10-26 (everything below is LIVE and pushed unless marked)
+- Tests done on 2026-10-26 (verified in email_events): a real in-app booking sent the new confirmation, cancelling it sent the cancelled email, and a campaign test email sent. Still untested for real: 2-hour reminder, engagement emails, admin-notify send.
 - Emails and forms back end: tables, functions submit-form / send-email / marketing-consent / admin-class-cancelled / admin-campaign, email.html, welcome hook, booking confirmation + cancellation (book-class v8) + 2-hour class reminder (cron every 5 min), daily engagement emails (cron 09:30 UTC, confirmed subscribers only), admin pages admin-notify.html and admin-campaign.html, app v29 (optional news-and-offers box at sign-up + Profile switch).
 - Website forms: app.mygymlondon.co.uk/f/<form>.html (embed or link). Netlify headers now live in `_headers` only (needed "Clear cache and deploy site"; specific rules REPLACE the /* CSP, so each repeats the full CSP).
 - Status table of every email: supabase/email-templates/WIRING.md. All checks: supabase/README-CHECKS.md.

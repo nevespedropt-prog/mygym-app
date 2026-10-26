@@ -82,3 +82,6 @@ Details: PROJECT-NOTES.md (dated entries), the app-builder skill, MASTER-PROMPT.
 - Resend keys: keep `mygym-app` (live emails) and `Supabase auth 2` (Supabase SMTP). The first `Supabase auth` key was removed.
 - Left for next time: form links/embeds on the Wix pages (contact-8 is not the contact page), check Wix duplicate booking reminders/cancellations, payment emails, enquiry status controls (back end), real run of the 2-hour reminder and engagement emails, admin-notify send with a real booking, solicitor review of privacy/terms wording.
 
+
+## NETLIFY DEPLOYS ARE PAUSED until 2026-11-19 (credits used up on 2026-10-26)
+The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only by default) is skipped and will deploy when credits return. Do NOT push app/website changes before the 19th unless urgent; batch into one push after. Back-end work (Supabase functions, SQL, emails, schedules) needs no Netlify deploy and still works.

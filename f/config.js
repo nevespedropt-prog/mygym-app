@@ -1,0 +1,1 @@
+window.MGL_FORMS = { endpoint: "https://ldmksxyilykyfnqnuytv.supabase.co/functions/v1/submit-form", supabaseUrl: "https://ldmksxyilykyfnqnuytv.supabase.co", anonKey: "sb_publishable_gboSvVSFxQT0xDSEzbeYxw_E1OO3TRp" };

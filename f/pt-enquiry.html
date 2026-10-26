@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Personal training enquiry | MY GYM London</title>
+<link rel="stylesheet" href="forms.css">
+</head>
+<body>
+<form class="mgl-form" data-form="pt-enquiry" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Personal training enquiry</h2>
+  <p class="intro">Tell us what you want to achieve and a coach will get in touch to talk it through.</p>
+  <div class="field"><label for="pt-enquiry-full_name">Your name <span class="req" aria-hidden="true">*</span></label><input type="text" name="full_name" id="pt-enquiry-full_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="pt-enquiry-email">Email address <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="pt-enquiry-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="pt-enquiry-phone">Phone number <span class="req" aria-hidden="true">*</span></label><input type="tel" name="phone" id="pt-enquiry-phone" maxlength="25" autocomplete="tel" inputmode="tel" required aria-required="true"></div>
+  <div class="field"><label for="pt-enquiry-goal">Your main goal <span class="req" aria-hidden="true">*</span></label><select name="goal" id="pt-enquiry-goal" required aria-required="true"><option value="">Choose…</option><option>Lose weight</option><option>Build strength</option><option>Get fitter</option><option>Recover from an injury</option><option>Train for an event</option><option>Something else</option></select></div>
+  <fieldset class="field group"><legend>How would you describe your training so far? <span class="req" aria-hidden="true">*</span></legend><label class="opt"><input type="radio" name="experience" value="New to it" required> <span>New to it</span></label><label class="opt"><input type="radio" name="experience" value="Some experience"> <span>Some experience</span></label><label class="opt"><input type="radio" name="experience" value="Experienced"> <span>Experienced</span></label></fieldset>
+  <fieldset class="field group"><legend>Best times for you</legend><label class="opt"><input type="checkbox" name="times" value="Mornings"> <span>Mornings</span></label><label class="opt"><input type="checkbox" name="times" value="Daytime"> <span>Daytime</span></label><label class="opt"><input type="checkbox" name="times" value="Evenings"> <span>Evenings</span></label><label class="opt"><input type="checkbox" name="times" value="Weekends"> <span>Weekends</span></label></fieldset>
+  <div class="field"><label for="pt-enquiry-health_note">Anything we should know? (optional)</label><textarea name="health_note" id="pt-enquiry-health_note" rows="3" maxlength="600" aria-describedby="pt-enquiry-health_note-help"></textarea><p class="help" id="pt-enquiry-health_note-help">Only share what you are comfortable with. We will talk through health details in person.</p></div>
+  <input type="hidden" name="utm_source" id="pt-enquiry-utm_source">
+  <input type="hidden" name="utm_medium" id="pt-enquiry-utm_medium">
+  <input type="hidden" name="utm_campaign" id="pt-enquiry-utm_campaign">
+  <input type="hidden" name="page_url" id="pt-enquiry-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents"><label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label></div>
+  <p class="privacy">We use your details only to arrange your training. If you mention health information we use it only to keep you safe in sessions. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks! A coach will contact you within one working day."></p>
+</form>
+<script src="config.js"></script>
+<script src="forms.js"></script>
+</body>
+</html>

@@ -57,6 +57,12 @@ export async function processSubmission(input: Input, ctx: Ctx, d: Deps): Promis
   if (!v.ok) return { status: 422, body: { ok: false, error: "Please check the form.", errors: v.errors } };
 
   const data = v.data as Record<string, any>;
+  // a trial class runs on one weekday: the chosen day must be that weekday ("HIIT, Wednesday 07:00")
+  if (form.id === "trial-class" && data.class && data.date) {
+    const wd = String(data.class).match(/, (Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday) \d{2}:\d{2}$/)?.[1];
+    const actual = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long" }).format(new Date(data.date + "T12:00:00Z"));
+    if (wd && wd !== actual) return { status: 422, body: { ok: false, error: `That class runs on ${wd}s. Please pick a ${wd}.`, errors: [{ field: "date", message: `That class runs on ${wd}s.` }] } };
+  }
   const personEmail: string = data.email ?? ctx.user?.email ?? "";
   const personName: string = data.full_name ?? data.parent_name ?? (ctx.user ? await d.profileName(ctx.user.id) : "") ?? "";
 

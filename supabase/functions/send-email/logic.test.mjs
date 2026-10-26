@@ -26,4 +26,8 @@ ok(r.body.sent && s.sent[0].marketing && s.sent[0].unsubscribeUrl === "https://u
 // admin templates default to the gym address
 ({ s, d } = mk()); r = await sendEmail({ template: "admin-new-enquiry", vars: { admin_url: "https://a", form_name: "contact form", person_name: "P", person_email: "p@x.co", person_phone: "1", message: "m", source_page: "s" } }, d);
 ok(r.body.sent && s.sent[0].to === "info@mygymlondon.co.uk", "admin default recipient (" + JSON.stringify(r.body) + ")");
+// test sends skip consent, are marked, and never dedupe
+({ s, d } = mk()); const nv = { first_name: "N", campaign_subject: "S", campaign_preheader: "P", campaign_title: "T", campaign_body: "B", campaign_button: "Go", campaign_url: "https://x.co" };
+r = await sendEmail({ template: "newsletter", to: "a@b.co", vars: nv, test: true, dedupe_key: "k" }, d); r = await sendEmail({ template: "newsletter", to: "a@b.co", vars: nv, test: true, dedupe_key: "k" }, d);
+ok(s.sent.length === 2 && s.sent[0].subject.startsWith("[TEST] "), "test sends skip consent and dedupe, subject marked");
 console.log(`${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

@@ -2,7 +2,7 @@
 # and adds the security headers that GitHub Pages cannot send. GitHub Pages ignores this file (see _config.yml).
 
 [build]
-  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html email.html email.js dist/ && cp -r fonts icons vendor dist/ && cp _headers dist/"
+  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html email.html email.js dist/ && cp -r fonts icons vendor dist/ && cp -r f dist/ && cp _headers dist/"
   publish = "dist"
 
 [[headers]]
@@ -10,11 +10,48 @@
   [headers.values]
     Strict-Transport-Security = "max-age=31536000"
     X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=()"
     Cross-Origin-Opener-Policy = "same-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+
+# the app itself may never be shown inside another site (clickjacking). Every app page is listed here; the form pages in /f are the only ones allowed in a frame
+[[headers]]
+  for = "/"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+[[headers]]
+  for = "/cookies.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+[[headers]]
+  for = "/privacy.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+[[headers]]
+  for = "/terms.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+[[headers]]
+  for = "/email.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
+
+# the website's form pages may be embedded by our own website (and by the Wix editor while the site is still on Wix), nowhere else
+[[headers]]
+  for = "/f/*"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors https://www.mygymlondon.co.uk https://mygymlondon.co.uk https://*.wixsite.com https://*.wix.com https://*.editorx.io"
 
 # fonts and icons used by our emails (CORS) are in the _headers file next to this one
 

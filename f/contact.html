@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Get in touch | MY GYM London</title>
+<link rel="stylesheet" href="forms.css">
+</head>
+<body>
+<form class="mgl-form" data-form="contact" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Get in touch</h2>
+  <p class="intro">Questions about classes, memberships or anything else? Send us a message and we will reply within one working day.</p>
+  <div class="field"><label for="contact-full_name">Your name <span class="req" aria-hidden="true">*</span></label><input type="text" name="full_name" id="contact-full_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="contact-email">Email address <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="contact-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="contact-phone">Phone number (optional)</label><input type="tel" name="phone" id="contact-phone" maxlength="25" autocomplete="tel" inputmode="tel"></div>
+  <div class="field"><label for="contact-topic">What is it about? <span class="req" aria-hidden="true">*</span></label><select name="topic" id="contact-topic" required aria-required="true"><option value="">Choose…</option><option>Memberships and prices</option><option>Classes and timetable</option><option>Personal training</option><option>Kids Gym</option><option>Something else</option></select></div>
+  <div class="field"><label for="contact-message">How can we help? <span class="req" aria-hidden="true">*</span></label><textarea name="message" id="contact-message" rows="5" maxlength="1500" required aria-required="true"></textarea></div>
+  <input type="hidden" name="utm_source" id="contact-utm_source">
+  <input type="hidden" name="utm_medium" id="contact-utm_medium">
+  <input type="hidden" name="utm_campaign" id="contact-utm_campaign">
+  <input type="hidden" name="page_url" id="contact-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents"><label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label></div>
+  <p class="privacy">We use your details only to reply to you. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks, we have your message. We will reply within one working day."></p>
+</form>
+<script src="config.js"></script>
+<script src="forms.js"></script>
+</body>
+</html>

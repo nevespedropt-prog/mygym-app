@@ -1,5 +1,6 @@
 /* MY GYM London forms: the website's look. White, red #e03939, Barlow Condensed capitals for headings, Inter for text.
    Drop this file next to the form HTML. Works on the website and inside the app. */
+.mgl-form,.mgl-form *{box-sizing:border-box}
 .mgl-form{--red:#e03939;--deep:#a03535;--pink:#fdecec;--ink:#17171a;--mut:#62616a;--line:#e6e4e4;--alt:#f6f5f4;max-width:560px;margin:0 auto;padding:30px 28px;background:#fff;border:1px solid var(--line);font:16px/1.55 Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);position:relative}
 .mgl-form::before{content:"";position:absolute;left:-1px;top:-1px;right:-1px;height:6px;background:var(--red)}
 .mgl-form h2{font:800 40px/.98 "Barlow Condensed","Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.02em;margin:6px 0 10px}

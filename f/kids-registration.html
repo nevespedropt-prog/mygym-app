@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kids Gym registration | MY GYM London</title>
+<link rel="stylesheet" href="forms.css">
+</head>
+<body>
+<form class="mgl-form" data-form="kids-registration" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Kids Gym registration</h2>
+  <p class="intro">For children aged 6 to 11, with a parent or guardian's consent. We confirm each place within two working days.</p>
+  <div class="field"><label for="kids-registration-parent_name">Parent or guardian name <span class="req" aria-hidden="true">*</span></label><input type="text" name="parent_name" id="kids-registration-parent_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-email">Parent or guardian email <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="kids-registration-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-phone">Parent or guardian phone <span class="req" aria-hidden="true">*</span></label><input type="tel" name="phone" id="kids-registration-phone" maxlength="25" autocomplete="tel" inputmode="tel" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-child_first_name">Child's first name <span class="req" aria-hidden="true">*</span></label><input type="text" name="child_first_name" id="kids-registration-child_first_name" maxlength="40" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-child_last_name">Child's last name <span class="req" aria-hidden="true">*</span></label><input type="text" name="child_last_name" id="kids-registration-child_last_name" maxlength="40" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-child_dob">Child's date of birth <span class="req" aria-hidden="true">*</span></label><input type="date" name="child_dob" id="kids-registration-child_dob" data-age-min="6" data-age-max="11" required aria-required="true" aria-describedby="kids-registration-child_dob-help"><p class="help" id="kids-registration-child_dob-help">Kids Gym is for ages 6 to 11.</p></div>
+  <div class="field"><label for="kids-registration-emergency_name">Emergency contact name <span class="req" aria-hidden="true">*</span></label><input type="text" name="emergency_name" id="kids-registration-emergency_name" maxlength="80" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-emergency_phone">Emergency contact phone <span class="req" aria-hidden="true">*</span></label><input type="tel" name="emergency_phone" id="kids-registration-emergency_phone" maxlength="25" inputmode="tel" required aria-required="true"></div>
+  <div class="field"><label for="kids-registration-medical">Medical conditions, allergies or additional needs (optional)</label><textarea name="medical" id="kids-registration-medical" rows="3" maxlength="600" aria-describedby="kids-registration-medical-help"></textarea><p class="help" id="kids-registration-medical-help">Only what a coach needs to know to keep your child safe.</p></div>
+  <input type="hidden" name="utm_source" id="kids-registration-utm_source">
+  <input type="hidden" name="utm_medium" id="kids-registration-utm_medium">
+  <input type="hidden" name="utm_campaign" id="kids-registration-utm_campaign">
+  <input type="hidden" name="page_url" id="kids-registration-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents"><label class="opt consent"><input type="checkbox" name="consent_parental_responsibility" value="1" required aria-required="true"> <span>I have parental responsibility for this child and I consent to them taking part in Kids Gym sessions. <span class="req" aria-hidden="true">*</span></span></label><label class="opt consent"><input type="checkbox" name="consent_medical_use" value="1"> <span>I agree MY GYM London may use the medical information above only to keep my child safe in sessions. (Needed if you have filled in the medical box.)</span></label><label class="opt consent"><input type="checkbox" name="consent_photos" value="1"> <span>I am happy for photos that include my child to be used on MY GYM London's website and social media.</span></label><label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label></div>
+  <p class="privacy">We keep your child's details private and use them only for their sessions and for contacting you. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks! We will confirm your child's place within two working days."></p>
+</form>
+<script src="config.js"></script>
+<script src="forms.js"></script>
+</body>
+</html>

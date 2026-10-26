@@ -1,0 +1,44 @@
+@font-face{font-family:"Barlow Condensed";font-weight:800;font-style:normal;font-display:swap;src:url("../fonts/barlow-condensed-800.woff2") format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-style:normal;font-display:swap;src:url("../fonts/barlow-condensed-700.woff2") format("woff2")}
+html,body{margin:0;background:transparent}body{padding:0}
+.mgl-form{margin:0 auto}
+/* MY GYM London forms: the website's look. White, red #e03939, Barlow Condensed capitals for headings, Inter for text.
+   Drop this file next to the form HTML. Works on the website and inside the app. */
+.mgl-form,.mgl-form *{box-sizing:border-box}
+.mgl-form{--red:#e03939;--deep:#a03535;--pink:#fdecec;--ink:#17171a;--mut:#62616a;--line:#e6e4e4;--alt:#f6f5f4;max-width:560px;margin:0 auto;padding:30px 28px;background:#fff;border:1px solid var(--line);font:16px/1.55 Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);position:relative}
+.mgl-form::before{content:"";position:absolute;left:-1px;top:-1px;right:-1px;height:6px;background:var(--red)}
+.mgl-form h2{font:800 40px/.98 "Barlow Condensed","Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.02em;margin:6px 0 10px}
+.mgl-form .intro{color:var(--mut);margin:0 0 22px}
+.mgl-form .field{margin:0 0 18px;border:0;padding:0}
+.mgl-form label,.mgl-form legend{display:block;font-weight:600;font-size:14.5px;margin:0 0 6px;padding:0}
+.mgl-form .req{color:var(--red)}
+.mgl-form input[type=text],.mgl-form input[type=email],.mgl-form input[type=tel],.mgl-form input[type=date],.mgl-form input[type=number],.mgl-form select,.mgl-form textarea{width:100%;font:inherit;color:inherit;background:#fff;border:1.5px solid #cfcdd1;border-radius:0;padding:12px 14px;min-height:48px;transition:border-color .12s,box-shadow .12s}
+.mgl-form textarea{resize:vertical}
+.mgl-form input:hover,.mgl-form select:hover,.mgl-form textarea:hover{border-color:#a7a5ab}
+.mgl-form input:focus,.mgl-form select:focus,.mgl-form textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 3px rgba(224,57,57,.18)}
+.mgl-form .help{color:var(--mut);font-size:13px;margin:6px 0 0}
+.mgl-form .group{margin-bottom:18px}
+.mgl-form .opt{display:flex;gap:10px;align-items:flex-start;font-weight:500;margin:0 0 8px;cursor:pointer}
+.mgl-form .opt input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--red);flex-shrink:0}
+.mgl-form .consents{background:var(--alt);border-left:4px solid var(--red);padding:14px 16px;margin:6px 0 16px}
+.mgl-form .consent{font-size:14px;color:#3a3a41}
+.mgl-form .consent:last-child{margin-bottom:0}
+.mgl-form .privacy{font-size:13px;color:var(--mut);margin:0 0 18px}
+.mgl-form .privacy a{color:var(--deep)}
+.mgl-form .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.mgl-form .btn{appearance:none;border:0;cursor:pointer;background:var(--red);color:#fff;font:800 22px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:14px 38px 13px 26px;clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:background .12s}
+.mgl-form .btn:hover{background:var(--deep)}
+.mgl-form .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.mgl-form .btn[disabled]{opacity:.6;cursor:wait}
+.mgl-form .status{margin:16px 0 0;font-weight:600;min-height:1.5em}
+.mgl-form .status.ok{color:#1b6b40;background:#e6f5ec;border-left:4px solid #238a52;padding:12px 14px}
+.mgl-form .status.err{color:#8c2323;background:var(--pink);border-left:4px solid var(--deep);padding:12px 14px}
+.mgl-form [aria-invalid=true]{border-color:var(--deep);background:#fff8f8}
+.mgl-form .stars{display:inline-flex;flex-direction:row-reverse;gap:2px}
+.mgl-form .stars input{position:absolute;opacity:0;width:1px;height:1px}
+.mgl-form .stars label{font-size:38px;line-height:1;color:#d8d6da;cursor:pointer;margin:0;padding:0 2px}
+.mgl-form .stars input:checked~label,.mgl-form .stars label:hover,.mgl-form .stars label:hover~label{color:#e9a225}
+.mgl-form .stars input:focus-visible+label{outline:3px solid var(--ink);outline-offset:2px}
+.mgl-form .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:560px){.mgl-form{padding:24px 18px;border-left:0;border-right:0}.mgl-form h2{font-size:34px}}
+@media (prefers-reduced-motion:reduce){.mgl-form *{transition:none!important}}

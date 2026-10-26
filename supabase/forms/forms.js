@@ -24,7 +24,7 @@
     var q = new URLSearchParams(location.search);
     ["utm_source", "utm_medium", "utm_campaign"].forEach(function (k) { var el = form.querySelector("[name=" + k + "]"); if (el) el.value = q.get(k) || ""; });
     var p = form.querySelector("[name=page_url]"); if (p) p.value = location.href.split("#")[0];
-    var o = form.querySelector("[name=offer_name]"); if (o) o.value = form.dataset.offer || document.title;
+    var o = form.querySelector("[name=offer_name]"); if (o) o.value = (q.get("offer") || form.dataset.offer || document.title).slice(0, 100);
   }
   function loadClassOptions(form) {
     form.querySelectorAll("select[data-options-from]").forEach(function (sel) {
@@ -48,6 +48,10 @@
   }
   function status(form, msg, ok) { var s = $(".status", form); s.textContent = msg; s.className = "status " + (ok ? "ok" : "err"); }
 
+  function tellParent() { if (window.parent !== window) { try { window.parent.postMessage({ mglFormHeight: document.documentElement.scrollHeight }, "*"); } catch (e) { /* not embedded */ } } }
+  window.addEventListener("load", tellParent); window.addEventListener("resize", tellParent);
+  if (window.ResizeObserver) new ResizeObserver(tellParent).observe(document.body);
+
   document.querySelectorAll(".mgl-form").forEach(function (form) {
     form._t0 = Date.now(); setDateLimits(form); fillHidden(form); loadClassOptions(form);
     form.addEventListener("submit", function (e) {
@@ -61,7 +65,7 @@
       fetch(cfg.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(collect(form)) })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
-          if (!res.ok) throw new Error(res.j && res.j.error ? res.j.error : "fail");
+          if (!res.ok) throw new Error(res.j && res.j.errors && res.j.errors[0] ? res.j.errors[0].message : res.j && res.j.error ? res.j.error : "fail");
           var high = Number((form.querySelector("[name=rating]:checked") || {}).value) >= 4 && $(".status", form).dataset.successHigh;
           status(form, high || $(".status", form).dataset.success, true); form.reset(); fillHidden(form); form._t0 = Date.now();
         })

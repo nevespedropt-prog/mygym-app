@@ -663,7 +663,7 @@ interface Deps {
   unsubscribeUrl(email: string): Promise<string>;
   deliver(mail: { to: string; subject: string; html: string; text: string; replyTo?: string; marketing: boolean; unsubscribeUrl?: string }): Promise<string>;
 }
-interface Req { template?: string; to?: string; user_id?: string; vars?: Record<string, unknown>; dedupe_key?: string; reply_to?: string; }
+interface Req { template?: string; to?: string; user_id?: string; vars?: Record<string, unknown>; dedupe_key?: string; reply_to?: string; test?: boolean; }
 interface Out { status: number; body: Record<string, unknown>; }
 
 const ADMIN = "info@mygymlondon.co.uk";
@@ -679,9 +679,9 @@ async function sendEmail(r: Req, d: Deps): Promise<Out> {
   if (!EMAIL.test(to)) return { status: 400, body: { ok: false, error: "no_recipient" } };
 
   if (!(await d.templateEnabled(def.id))) return { status: 200, body: { ok: true, skipped: "switched_off" } };
-  if (def.marketing && !(await d.hasConsent(to))) return { status: 200, body: { ok: true, skipped: "no_consent" } };
+  if (def.marketing && !r.test && !(await d.hasConsent(to))) return { status: 200, body: { ok: true, skipped: "no_consent" } };
 
-  const key = String(r.dedupe_key ?? "").slice(0, 200) || `${def.id}:${to}:${crypto.randomUUID()}`;
+  const key = (r.test ? "test:" + crypto.randomUUID() : String(r.dedupe_key ?? "").slice(0, 200)) || `${def.id}:${to}:${crypto.randomUUID()}`;
   if (!(await d.claim(key, def.id, to))) return { status: 200, body: { ok: true, skipped: "already_sent" } };
 
   const vars: Record<string, string> = {};
@@ -697,7 +697,7 @@ async function sendEmail(r: Req, d: Deps): Promise<Out> {
   } catch (e) { await d.finish(key, "failed", "render: " + String((e as Error).message).slice(0, 200)); return { status: 422, body: { ok: false, error: "missing_details", detail: String((e as Error).message) } }; }
 
   try {
-    const id = await d.deliver({ to, subject: mail.subject, html: mail.html, text: mail.text, replyTo: r.reply_to, marketing: !!def.marketing, unsubscribeUrl: unsub });
+    const id = await d.deliver({ to, subject: (r.test ? "[TEST] " : "") + mail.subject, html: mail.html, text: mail.text, replyTo: r.reply_to, marketing: !!def.marketing, unsubscribeUrl: unsub });
     await d.finish(key, "sent", id);
     return { status: 200, body: { ok: true, sent: true } };
   } catch (e) {

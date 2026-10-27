@@ -94,3 +94,8 @@ The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only b
 - `admin-enquiries.html` / `admin-enquiries.js`: lists website form enquiries (newest first, last 300). Buttons set Contacted / Trial booked / Joined / Not now / Spam and there is a private note. "Joined", "Not now" and "Spam" stop the 2-day and 7-day lead follow-up emails (the daily job only emails new, contacted and trial). Admin sign-in is shared with the app (open the app as admin first), row security allows admins only, no database change was needed (the grants and policy already existed).
 - Tested locally with fake data (rendering, HTML escaped, status update sent). Not tested against the real database because it is not deployed yet. After deploy: open https://app.mygymlondon.co.uk/admin-enquiries.html as admin, mark one test enquiry and check the status changes.
 - Added to the build copy list in `netlify.toml`.
+
+## Reminder and engagement email checks (2026-10-27)
+- Rolled-back dry runs on the live database: 2-hour reminder picks the booking (once per booking), review request after the 5th class, milestone after the 10th, we-miss-you at 30 days (not at 29 or 34, not when something is booked ahead), nobody emailed after consent was withdrawn. The booking trigger blocks past dates, so the dry run used `set local session_replication_role = replica`.
+- Real cron run of the reminder: owner booked Open Gym 18:00 at 15:45 (confirmation sent 15:45:38); reminder expected 15:55 to 16:05. Result to be recorded here.
+- Engagement emails cannot run for real yet: nobody has 5/10/50 classes or 30 quiet days with confirmed marketing consent (1 user, 0 consents on 2026-10-27).

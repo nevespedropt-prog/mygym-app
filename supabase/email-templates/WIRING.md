@@ -1,4 +1,4 @@
-# Which action sends which email (status 2026-10-26)
+# Which action sends which email (status 2026-10-27)
 
 "Built and tested" means the code exists and passes tests with a fake database and fake mail service. Nothing is live until the owner runs the SQL, adds the secrets and deploys the functions (steps at the bottom). "Not built" means no code yet.
 
@@ -19,10 +19,10 @@
 | Books a class in the app | `booking-confirmation` | LIVE (2026-10-26). SQL trigger, `migration-email-hook-booking.sql`. Wix bookings skipped |
 | Cancels a booking in the app | `booking-cancelled` | LIVE. `book-class` v8 sends it after a successful cancel |
 | Gym cancels a class | `class-cancelled-by-gym` to everyone booked | Function `admin-class-cancelled` LIVE (admin only). Page `admin-notify.html` ready, needs a push. It only emails: cancel the session in Wix afterwards |
-| Class is 2 hours away | `class-reminder` (email) plus the phone alert | Email LIVE: database schedule every 5 minutes, `migration-email-hook-class-reminder.sql`. The phone alert stays at 1 hour before (unchanged) |
+| Class is 2 hours away | `class-reminder` (email) plus the phone alert | Email LIVE: database schedule every 5 minutes, `migration-email-hook-class-reminder.sql`. The phone alert stays at 1 hour before (unchanged). Real run PASSED 2026-10-27 (booking 18:00, reminder sent 15:55:03, no duplicate) |
 | Joins a waiting list, gets a place | `waitlist-joined`, `waitlist-booked` | Not built (no waiting list in the app yet) |
 | Buys or changes a plan, payment taken or failed, pause, cancel, refund | `subscription-started`, `payment-receipt`, `payment-failed-*`, `plan-changed`, `membership-*`, `refund-issued`, `renewal-reminder`, `card-expiring`, `trial-ending` | Not built. Payments stay on Wix until later, so these need Wix webhooks or the later payment move |
-| Quiet for 30 days, 5th class, 10 / 50 / 100 classes | `we-miss-you`, `review-request`, `milestone` | LIVE (2026-10-26): database schedule daily 09:30 UTC, `migration-email-hook-engagement.sql`. Only members with confirmed marketing consent; nobody is emailed until the app/sign-up collects it |
+| Quiet for 30 days, 5th class, 10 / 50 / 100 classes | `we-miss-you`, `review-request`, `milestone` | LIVE (2026-10-26): database schedule daily 09:30 UTC, `migration-email-hook-engagement.sql`. Only members with confirmed marketing consent; nobody is emailed until the app/sign-up collects it Selection logic checked 2026-10-27 with rolled-back dry runs (5th, 10th class, 30 days, withdrawn consent); no real run yet, nobody qualifies. |
 | Leaves an enquiry unanswered 2 and 7 days | `lead-followup-1`, `lead-followup-2` | LIVE and tested for real (2026-10-26): daily 10:00 UTC, `migration-email-hook-leads.sql`. Only enquiries whose person ticked the marketing box; stops when marked joined / not now / spam or an app account exists. Also sends `refer-a-friend-prompt` 3 to 5 days after a member with consent joins |
 | Gym sends a campaign | `newsletter` | Function `admin-campaign` + page `admin-campaign.html` built and tested (needs deploy + push). Test-to-yourself first; only confirmed subscribers; batches; no double sends |
 | Resets password, changes email, invited, magic link, password changed | `auth-*` | Owner pastes the HTML into Supabase, Authentication, Emails |

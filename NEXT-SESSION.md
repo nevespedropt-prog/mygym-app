@@ -97,5 +97,5 @@ The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only b
 
 ## Reminder and engagement email checks (2026-10-27)
 - Rolled-back dry runs on the live database: 2-hour reminder picks the booking (once per booking), review request after the 5th class, milestone after the 10th, we-miss-you at 30 days (not at 29 or 34, not when something is booked ahead), nobody emailed after consent was withdrawn. The booking trigger blocks past dates, so the dry run used `set local session_replication_role = replica`.
-- Real cron run of the reminder: owner booked Open Gym 18:00 at 15:45 (confirmation sent 15:45:38); reminder expected 15:55 to 16:05. Result to be recorded here.
+- Real cron run of the reminder: PASSED 2026-10-27. Owner booked Open Gym 18:00 at 15:45 (confirmation sent 15:45:38); the 5-minute job queued the reminder at 15:55:00 and it was sent 15:55:03; the 16:00 run sent no duplicate.
 - Engagement emails cannot run for real yet: nobody has 5/10/50 classes or 30 quiet days with confirmed marketing consent (1 user, 0 consents on 2026-10-27).

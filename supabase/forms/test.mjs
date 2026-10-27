@@ -30,7 +30,7 @@ for (const f of forms) {
   t(f.id + ": uses the website's request, not a third party", !/action="https?:/.test(html));
 }
 const kids = forms.find((x) => x.id === "kids-registration");
-t("kids form: age 6 to 11 and parental consent required", kids.fields.find((x) => x.id === "child_dob").ageMin === 6 && kids.fields.find((x) => x.id === "child_dob").ageMax === 11 && kids.consents.find((c) => c.id === "parental_responsibility").required);
+t("kids form: age 8 and over and parental consent required", kids.fields.find((x) => x.id === "child_dob").ageMin === 8 && kids.fields.find((x) => x.id === "child_dob").ageMax === 17 && kids.consents.find((c) => c.id === "parental_responsibility").required);
 t("newsletter uses double opt-in", forms.find((x) => x.id === "newsletter-signup").doubleOptIn === true);
 console.log(`${forms.length} forms checked: ${ok} checks passed, ${bad} failed`);
 process.exit(bad ? 1 : 0);

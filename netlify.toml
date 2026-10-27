@@ -2,7 +2,7 @@
 # and adds the security headers that GitHub Pages cannot send. GitHub Pages ignores this file (see _config.yml).
 
 [build]
-  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html email.html email.js admin-notify.html admin-notify.js admin-campaign.html admin-campaign.js dist/ && cp -r fonts icons vendor dist/ && cp -r f dist/ && cp _headers dist/"
+  command = "mkdir -p dist && cp index.html app.js db.js timetable.js config.js sw.js manifest.json cookies.html privacy.html terms.html email.html email.js admin-notify.html admin-notify.js admin-campaign.html admin-campaign.js admin-enquiries.html admin-enquiries.js dist/ && cp -r fonts icons vendor dist/ && cp -r f dist/ && cp _headers dist/"
   publish = "dist"
 
 # Security headers are in the _headers file next to this one (that file is the one Netlify applies reliably).

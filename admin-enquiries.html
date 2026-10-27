@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Enquiries | MY GYM admin</title>
+<style>
+  @font-face { font-family: "Barlow Condensed"; font-weight: 800; src: url("fonts/barlow-condensed-800.woff2") format("woff2"); font-display: swap; }
+  :root { --red: #e03939; --deep: #a03535; --ink: #17171a; --mut: #62616a; --line: #e6e4e4; --bg: #f6f5f4; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  main { max-width: 760px; margin: 24px auto; }
+  h1 { margin: 0 0 8px; font: 800 36px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; text-transform: uppercase; }
+  p { margin: 0 0 14px; color: var(--mut); }
+  .top { background: #fff; border-top: 6px solid var(--red); padding: 24px; }
+  select { font: inherit; padding: 10px 12px; min-height: 44px; border: 1.5px solid #cfcdd1; background: #fff; border-radius: 0; }
+  .box { margin-top: 14px; padding: 14px 16px; background: var(--bg); border-left: 4px solid var(--red); color: var(--ink); }
+  .box.err { background: #fdecec; border-color: var(--deep); }
+  .card { background: #fff; margin-top: 14px; padding: 16px 18px; border-left: 4px solid #cfcdd1; }
+  .card.new { border-color: var(--red); }
+  .card.joined { border-color: #238a52; }
+  .head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+  .head b { font-size: 18px; }
+  .meta { color: var(--mut); font-size: 14px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; background: var(--ink); color: #fff; }
+  dl { margin: 10px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 14.5px; }
+  dt { color: var(--mut); }
+  dd { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  a { color: var(--ink); }
+  .btns { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  button { font: inherit; font-size: 14px; font-weight: 700; border: 0; padding: 10px 14px; min-height: 44px; cursor: pointer; background: var(--ink); color: #fff; }
+  button.on { background: var(--red); }
+  button.sec { background: #fff; color: var(--ink); border: 1.5px solid #cfcdd1; }
+  button[disabled] { opacity: .5; cursor: not-allowed; }
+  textarea { width: 100%; margin-top: 10px; font: inherit; font-size: 14.5px; padding: 8px 10px; border: 1.5px solid #cfcdd1; border-radius: 0; min-height: 56px; }
+  select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1>Enquiries</h1>
+    <p>Every website form enquiry. Mark each one so follow-up emails stop for people who have joined or are not interested.</p>
+    <div id="gate" class="box hide"></div>
+    <div id="tools" class="hide">
+      <label for="flt">Show </label>
+      <select id="flt">
+        <option value="open">Open (new, contacted, trial)</option>
+        <option value="new">New only</option>
+        <option value="joined">Joined</option>
+        <option value="not_now">Not now</option>
+        <option value="spam">Spam</option>
+        <option value="all">Everything</option>
+      </select>
+      <select id="frm"><option value="">All forms</option></select>
+    </div>
+  </div>
+  <div id="list"></div>
+</main>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="admin-enquiries.js"></script>
+</body>
+</html>

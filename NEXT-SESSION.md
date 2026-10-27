@@ -99,3 +99,9 @@ The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only b
 - Rolled-back dry runs on the live database: 2-hour reminder picks the booking (once per booking), review request after the 5th class, milestone after the 10th, we-miss-you at 30 days (not at 29 or 34, not when something is booked ahead), nobody emailed after consent was withdrawn. The booking trigger blocks past dates, so the dry run used `set local session_replication_role = replica`.
 - Real cron run of the reminder: PASSED 2026-10-27. Owner booked Open Gym 18:00 at 15:45 (confirmation sent 15:45:38); the 5-minute job queued the reminder at 15:55:00 and it was sent 15:55:03; the 16:00 run sent no duplicate.
 - Engagement emails cannot run for real yet: nobody has 5/10/50 classes or 30 quiet days with confirmed marketing consent (1 user, 0 consents on 2026-10-27).
+
+## Where we stopped (2026-10-27, end of session)
+- Done today: privacy/cookie wording synced; SEO/AI-search/schema/llms.txt on the new site; map coordinates; real Google reviews added; legal draft banner hidden; cancellation rule = 10 minutes before (code enforces it); enquiries admin page (waits for Netlify deploy on or after 2026-11-19); real 2-hour reminder run PASSED; engagement emails dry-run only; skill, MASTER-PROMPT, memory synced.
+- Next: Hostinger. Owner has not yet said which plan is bought. Recommendation given: shared web hosting (not builder), Wix stays nameserver/DNS holder, only root + www A records change, Google Workspace email (MX at Google, billed via Wix) untouched, join.mygymlondon.co.uk still to be created in Wix. Upload `website-code` (includes .htaccess) to public_html, then test redirects (/privacy, old Wix addresses), headers, each form, checkout.
+- Open owner decisions: Kids Gym age (8+ in terms/privacy/plans vs "6 to 11" on the Kids Gym page and the registration form).
+- Unpushed local commits in the app repo (do not push before 2026-11-19 unless urgent, and ask first).

@@ -59,8 +59,7 @@ export function requiredVars(def) {
 
 const hero = (title, kicker) => `
 <tr><td style="background:${C.red};padding:34px 32px 30px 32px">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-left:3px solid ${C.white};padding:1px 0 1px 11px;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${C.white}">${esc(kicker)}</td></tr></table>
-  <h1 style="margin:14px 0 0 0;font-family:${DISP};font-weight:800;font-size:46px;line-height:46px;letter-spacing:.02em;text-transform:uppercase;color:${C.white}">${title}</h1>
+  <h1 style="margin:0;font-family:${DISP};font-weight:800;font-size:46px;line-height:46px;letter-spacing:.02em;text-transform:uppercase;color:${C.white}">${title}</h1>
 </td></tr>
 <tr><td style="line-height:0;font-size:0;background-color:${C.red};background-image:linear-gradient(to bottom right,${C.red} 49.6%,${C.white} 50%);height:26px">&nbsp;</td></tr>`;
 
@@ -104,7 +103,7 @@ const footer = (def, vars) => {
 <tr><td style="background:${C.ink};padding:28px 32px">
   <p style="margin:0 0 6px 0;font-family:${DISP};font-weight:800;font-size:22px;letter-spacing:.1em;text-transform:uppercase;color:#ffffff">MY GYM London</p>
   <p style="margin:0 0 14px 0;font-family:${BODY};font-size:13px;line-height:1.6;color:#cfcdd1">${esc(vars.gym_address)}<br>${link(esc(vars.gym_email), "mailto:" + vars.gym_email)}</p>
-  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "our-classes")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "services-4")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
+  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "our-classes")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "memberships")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
   <p style="margin:0;font-family:${BODY};font-size:11.5px;line-height:1.6;color:#9a99a1">${why}<br>${esc(vars.business_legal_name)}${vars.vat_line ? ". " + esc(vars.vat_line) : ""}</p>
 </td></tr>`;
 };
@@ -129,7 +128,7 @@ a{color:${C.red}}
 <table role="presentation" class="wrap" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${C.white}">
 <tr><td style="padding:18px 32px;background:${C.white}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td style="vertical-align:middle"><img src="${vars.assets_url}icons/logo-header.png" width="132" alt="MY GYM London" style="display:block;border:0;height:auto;max-width:132px"></td>
-<td align="right" style="vertical-align:middle;font-family:${BODY};font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${C.mut}">${esc(def.group)}</td></tr></table></td></tr>
+</tr></table></td></tr>
 ${inner}
 </table></td></tr></table>
 </body></html>`;

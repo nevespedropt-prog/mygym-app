@@ -88,7 +88,7 @@ t("membership-resumed", { group: "Membership & payments", when: "When a paused m
   body: [{ p: "Hi {{first_name}}," }, { p: "Great to have you back. Your {{plan_name}} membership is active again. Your next payment is on {{next_payment_date}}." }] });
 
 t("membership-cancelled", { group: "Membership & payments", when: "When a membership is cancelled", subject: "Your membership has been cancelled", pre: "You can keep booking until {{end_date}}.",
-  title: "Your membership is cancelled", cta: { label: "Rejoin any time", url: "{{site_url}}services-4" },
+  title: "Your membership is cancelled", cta: { label: "Rejoin any time", url: "{{site_url}}memberships" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We are sorry to see you go. Your {{plan_name}} membership has been cancelled." }, { kv: [["Last day of access", "{{end_date}}"], ["Final payment", "{{final_payment}}", "final_payment"]] }, { muted: "{{refund_policy}}" }, { muted: "Anything we could have done better? Reply to this email, we read every message. You are always welcome back." }] });
 
 t("refund-issued", { group: "Membership & payments", when: "When a refund is issued", subject: "Your refund of {{amount}}", pre: "It is on its way to your card.",
@@ -205,7 +205,7 @@ t("trial-ending", { group: "Membership & payments", when: "3 days before a free 
   body: [{ p: "Hi {{first_name}}," }, { p: "Your free trial of {{plan_name}} ends on {{end_date}}. To carry on training, choose a plan and your first payment of {{amount}} will be taken on {{next_payment_date}}." }, { muted: "Not for you? No action needed. Your trial simply ends and you will not be charged." }] });
 
 t("membership-ended", { group: "Membership & payments", when: "When a fixed-length plan or pass runs out", subject: "Your {{plan_name}} has ended", pre: "Here is how to carry on.",
-  title: "Your plan has ended", cta: { label: "See memberships", url: "{{site_url}}services-4" },
+  title: "Your plan has ended", cta: { label: "See memberships", url: "{{site_url}}memberships" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Your {{plan_name}} ended on {{end_date}}. You can no longer book classes until you start a new plan." }, { muted: "It takes two minutes to restart, and your account and history are exactly as you left them." }] });
 
 t("refer-a-friend-prompt", { group: "Keep members engaged", marketing: true, when: "A few days after a member joins (once)", subject: "Train with a friend, {{first_name}}?", pre: "Bring someone along.",
@@ -332,8 +332,7 @@ function requiredVars(def) {
 
 const hero = (title, kicker) => `
 <tr><td style="background:${C.red};padding:34px 32px 30px 32px">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-left:3px solid ${C.white};padding:1px 0 1px 11px;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${C.white}">${esc(kicker)}</td></tr></table>
-  <h1 style="margin:14px 0 0 0;font-family:${DISP};font-weight:800;font-size:46px;line-height:46px;letter-spacing:.02em;text-transform:uppercase;color:${C.white}">${title}</h1>
+  <h1 style="margin:0;font-family:${DISP};font-weight:800;font-size:46px;line-height:46px;letter-spacing:.02em;text-transform:uppercase;color:${C.white}">${title}</h1>
 </td></tr>
 <tr><td style="line-height:0;font-size:0;background-color:${C.red};background-image:linear-gradient(to bottom right,${C.red} 49.6%,${C.white} 50%);height:26px">&nbsp;</td></tr>`;
 
@@ -377,7 +376,7 @@ const footer = (def, vars) => {
 <tr><td style="background:${C.ink};padding:28px 32px">
   <p style="margin:0 0 6px 0;font-family:${DISP};font-weight:800;font-size:22px;letter-spacing:.1em;text-transform:uppercase;color:#ffffff">MY GYM London</p>
   <p style="margin:0 0 14px 0;font-family:${BODY};font-size:13px;line-height:1.6;color:#cfcdd1">${esc(vars.gym_address)}<br>${link(esc(vars.gym_email), "mailto:" + vars.gym_email)}</p>
-  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "our-classes")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "services-4")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
+  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "our-classes")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "memberships")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
   <p style="margin:0;font-family:${BODY};font-size:11.5px;line-height:1.6;color:#9a99a1">${why}<br>${esc(vars.business_legal_name)}${vars.vat_line ? ". " + esc(vars.vat_line) : ""}</p>
 </td></tr>`;
 };
@@ -402,7 +401,7 @@ a{color:${C.red}}
 <table role="presentation" class="wrap" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${C.white}">
 <tr><td style="padding:18px 32px;background:${C.white}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td style="vertical-align:middle"><img src="${vars.assets_url}icons/logo-header.png" width="132" alt="MY GYM London" style="display:block;border:0;height:auto;max-width:132px"></td>
-<td align="right" style="vertical-align:middle;font-family:${BODY};font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${C.mut}">${esc(def.group)}</td></tr></table></td></tr>
+</tr></table></td></tr>
 ${inner}
 </table></td></tr></table>
 </body></html>`;

@@ -244,3 +244,56 @@ do $$ declare f text; begin
   end loop;
 end $$;
 revoke all on function public._need(text[]) from authenticated;
+
+-- 10. extra numbers for the dashboard (heatmap, class fill, sign-up trend, activity feed, schedule health). Added 2026-10-28.
+create or replace function public.admin_insights() returns jsonb
+language plpgsql stable security definer set search_path = public, auth, pg_temp as $$
+declare r text := public._need(array['admin', 'manager', 'reception', 'coach']);
+  today date := (now() at time zone 'Europe/London')::date;
+  tomorrow date := (now() at time zone 'Europe/London')::date + 1;
+  out jsonb;
+begin
+  out := jsonb_build_object(
+    'avg_fill_14d', (select case when sum(cap) > 0 then round(100.0 * sum(bk) / sum(cap)) end from (
+      select (select coalesce(sum(c.capacity), 0) from public.classes c where c.active and c.kind = 'class' and c.day_name = trim(to_char(g, 'FMDay'))) cap,
+             (select count(*) from public.class_bookings b join public.classes c on c.id = b.class_id where c.kind = 'class' and b.date = g::date::text)
+           + (select count(*) from public.wix_other_bookings w join public.classes c on c.id = w.class_id where c.kind = 'class' and w.date = g::date::text) bk
+      from generate_series(today - 13, today, interval '1 day') g) x),
+    'heat', coalesce((select jsonb_agg(jsonb_build_object('day', day_name, 'time', start_time, 'name', name, 'cap', capacity, 'avg', avgb)) from (
+      select c.day_name, c.start_time, c.name, c.capacity,
+        round(((select count(*) from public.class_bookings b where b.class_id = c.id and b.date::date between today - 27 and today)
+             + (select count(*) from public.wix_other_bookings w where w.class_id = c.id and w.date::date between today - 27 and today))::numeric / 4, 1) avgb
+      from public.classes c where c.active and c.kind = 'class') h), '[]'::jsonb),
+    'tomorrow_busy', coalesce((select jsonb_agg(jsonb_build_object('name', name, 'time', start_time, 'booked', bk, 'capacity', capacity) order by start_time) from (
+      select c.name, c.start_time, c.capacity,
+        (select count(*) from public.class_bookings b where b.class_id = c.id and b.date = tomorrow::text) + (select count(*) from public.wix_other_bookings w where w.class_id = c.id and w.date = tomorrow::text) bk
+      from public.classes c where c.active and c.kind = 'class' and c.day_name = trim(to_char(tomorrow, 'FMDay'))) t where capacity > 0 and bk >= 0.8 * capacity), '[]'::jsonb));
+  if r in ('admin', 'manager', 'reception') then
+    out := out || jsonb_build_object(
+      'members_prev_7d', (select count(*) from auth.users where created_at between now() - interval '14 days' and now() - interval '7 days'),
+      'signups_by_day', (select jsonb_agg(n order by d) from (select g::date d, (select count(*) from auth.users u where (u.created_at at time zone 'Europe/London')::date = g::date) n from generate_series(today - 13, today, interval '1 day') g) s),
+      'health_missing', (select count(*) from auth.users u where not exists (select 1 from public.member_health h where h.user_id = u.id and h.consent_health is true)));
+  end if;
+  out := out || jsonb_build_object('activity', coalesce((select jsonb_agg(a order by (a->>'at') desc) from (
+    select a from (
+      select jsonb_build_object('kind', 'booking', 'title', public._short_name(pr.full_name) || ' booked ' || c.name, 'sub', b.date || ' at ' || c.start_time, 'at', b.created_at) a
+        from public.class_bookings b join public.classes c on c.id = b.class_id left join public.profiles pr on pr.id = b.user_id
+      union all
+      select jsonb_build_object('kind', 'member', 'title', public._short_name(pr2.full_name) || ' joined', 'sub', 'New app account', 'at', u.created_at)
+        from auth.users u left join public.profiles pr2 on pr2.id = u.id where r in ('admin', 'manager', 'reception') and u.created_at > now() - interval '30 days'
+      union all
+      select jsonb_build_object('kind', 'enquiry', 'title', 'New ' || lower(s.form_id) || ' enquiry', 'sub', coalesce(s.data->>'full_name', s.data->>'parent_name', s.data->>'email', ''), 'at', s.created_at)
+        from public.form_submissions s where r in ('admin', 'manager', 'reception') and s.created_at > now() - interval '30 days'
+      union all
+      select jsonb_build_object('kind', 'email', 'title', 'Email failed: ' || e.template, 'sub', left(coalesce(e.detail, ''), 80), 'at', e.created_at)
+        from public.email_events e where r in ('admin', 'manager') and e.status <> 'sent' and e.created_at > now() - interval '30 days'
+    ) u2 order by (a->>'at') desc limit 12) z), '[]'::jsonb));
+  if r in ('admin', 'manager') then
+    out := out || jsonb_build_object('jobs', coalesce((select jsonb_agg(jsonb_build_object('job', j.jobname, 'status', d.status, 'at', d.start_time) order by j.jobname)
+      from cron.job j left join lateral (select status, start_time from cron.job_run_details x where x.jobid = j.jobid order by start_time desc limit 1) d on true
+      where j.jobname in ('sync-wix-bookings', 'sync-timetable', 'class-reminder-emails', 'engagement-emails', 'lead-and-referral-emails', 'weekly-report', 'send-class-reminders')), '[]'::jsonb));
+  end if;
+  return out;
+end $$;
+revoke all on function public.admin_insights() from public, anon;
+grant execute on function public.admin_insights() to authenticated;

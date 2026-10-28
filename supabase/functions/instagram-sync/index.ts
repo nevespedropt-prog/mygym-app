@@ -45,8 +45,9 @@ Deno.serve(async (req) => {
       token = j.access_token; expires = Date.now() + (Number(j.expires_in) || 5184000) * 1000;
       await db.from("instagram_token").upsert({ id: 1, token, expires_at: new Date(expires).toISOString(), refreshed_at: new Date().toISOString() });
     } else if (!expires) {
-      await db.from("sync_log").upsert({ id: "instagram", last_run: new Date().toISOString(), last_result: { ok: false, what: "token refresh failed", status: r.status } });
-      return json(502, { ok: false, reason: "Token refresh failed" });
+      // a brand-new token cannot be renewed for the first 24 hours: use it as it is (it lasts 60 days) and remember that, so the renewal is tried again when about 20 days are left
+      expires = Date.now() + 58 * 864e5;
+      await db.from("instagram_token").upsert({ id: 1, token, expires_at: new Date(expires).toISOString(), refreshed_at: new Date().toISOString() });
     }
   }
 

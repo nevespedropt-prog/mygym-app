@@ -12,6 +12,25 @@ Deno.serve(async (req) => {
   if (want && req.headers.get("x-cron-secret") !== want) return json(401, { ok: false });
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 
+  // 0. ALTERNATIVE SOURCE: a Behold feed (behold.so) instead of our own Instagram token. Set the secret BEHOLD_FEED_URL (the JSON feed address from Behold) to use it.
+  const beholdUrl = Deno.env.get("BEHOLD_FEED_URL") ?? "";
+  if (beholdUrl) {
+    const r0 = await fetch(beholdUrl); const j0 = await r0.json().catch(() => ({}));
+    const list: any[] = Array.isArray(j0) ? j0 : Array.isArray(j0.posts) ? j0.posts : [];
+    const rows0 = list.map((m: any) => ({
+      id: String(m.id), permalink: String(m.permalink ?? ""), image_url: String(m.mediaType === "VIDEO" ? (m.thumbnailUrl ?? "") : (m.sizes?.medium?.mediaUrl ?? m.mediaUrl ?? "")),
+      media_type: String(m.mediaType ?? "IMAGE"), caption: String(m.caption ?? "").slice(0, 300), posted_at: m.timestamp ?? null, updated_at: new Date().toISOString(),
+    })).filter((x) => x.permalink && x.image_url);
+    if (!r0.ok || !rows0.length) {
+      await db.from("sync_log").upsert({ id: "instagram", last_run: new Date().toISOString(), last_result: { ok: false, source: "behold", status: r0.status } });
+      return json(502, { ok: false, reason: "Could not read the Behold feed" });
+    }
+    await db.from("instagram_posts").upsert(rows0);
+    await db.from("instagram_posts").delete().not("id", "in", `(${rows0.map((x) => `"${x.id}"`).join(",")})`);
+    await db.from("sync_log").upsert({ id: "instagram", last_run: new Date().toISOString(), last_result: { ok: true, source: "behold", posts: rows0.length } });
+    return json(200, { ok: true, source: "behold", posts: rows0.length });
+  }
+
   // 1. the token: newest saved one, else the one the owner pasted into Secrets
   const { data: saved } = await db.from("instagram_token").select("token, expires_at").eq("id", 1).maybeSingle();
   let token = saved?.token ?? Deno.env.get("INSTAGRAM_TOKEN") ?? "";

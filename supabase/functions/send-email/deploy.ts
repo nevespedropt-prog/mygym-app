@@ -136,7 +136,7 @@ t("trial-confirmation", { group: "Website forms", to: "lead", when: "When someon
   title: "Your free trial is booked", cta: { label: "Get directions", url: "{{directions_url}}" },
   body: [{ p: "Hi {{first_name}}," }, { kv: [["Class", "{{class_name}}"], ["When", "{{when}} (UK time)"], ["Where", "{{gym_address}}"]] }, { list: ["Arrive about 10 minutes early so we can say hello.", "Wear comfortable clothes and trainers.", "Bring a water bottle."] }, { muted: "Cannot make it? Reply to this email and we will move you." }] });
 
-t("offer-autoreply", { group: "Website forms", to: "lead", when: "Right after a landing-page offer form is sent", subject: "Your {{offer_name}} offer is on its way", pre: "Here is what happens next.",
+t("offer-autoreply", { group: "Website forms", to: "lead", when: "Right after a landing-page offer form is sent", subject: "Your enquiry about {{offer_name}}", pre: "Here is what happens next.",
   title: "Thanks, we have got your details", body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for your interest in {{offer_name}}. A member of the team will contact you within one working day to get you started." }, { muted: "{{offer_terms}}", if: "offer_terms" }] });
 
 t("corporate-autoreply", { group: "Website forms", to: "lead", when: "Right after the corporate wellness form is sent", subject: "Thanks for your enquiry about group sessions", pre: "We will come back with a quote.",

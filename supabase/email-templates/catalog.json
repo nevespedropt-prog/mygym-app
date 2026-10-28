@@ -516,7 +516,7 @@
     "to": "lead",
     "marketing": false,
     "when": "Right after a landing-page offer form is sent",
-    "subject": "Your {{offer_name}} offer is on its way",
+    "subject": "Your enquiry about {{offer_name}}",
     "needs": [
       "first_name",
       "offer_name",

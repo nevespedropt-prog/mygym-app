@@ -1,5 +1,5 @@
 // MY GYM London: keep the app's class timetable AND gym hours in step with the website (Wix Bookings).
-// Runs every hour from the database (see supabase/schedule-timetable-sync.sql) and can be called by hand.
+// Runs every 10 minutes from the database (was hourly until 2026-10-28) (see supabase/schedule-timetable-sync.sql) and can be called by hand.
 //
 // What it does:
 //   1. Reads the website's class sessions for the next 14 days (so each weekday appears twice).

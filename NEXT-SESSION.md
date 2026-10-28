@@ -136,3 +136,7 @@ Owner decision: after the full move off Wix, Wix only takes payments and keeps t
 - Keep in Wix: site member emails (reset password, confirm email, approved), they serve the checkout site logins.
 - OPEN QUESTION for the owner: Wix Bookings still provides the class sessions and space counts that the app syncs with. "Wix only for payments" means the timetable and bookings must also move into our system (a bigger project, see website-redesign/OWN-PLATFORM-PLAN.md). Until then Wix Bookings emails (confirmation, cancelled, changes, reminder) are the ones we replaced with ours; keep checking for duplicates.
 - UNTESTED: the function has only been syntax-checked, never run against Wix. The test step above is mandatory.
+
+## Wix sync every 10 minutes (2026-10-28, owner decision)
+- Wix Bookings stays the source for class sessions, spaces and bookings; the app and the new website follow it by sync. The timetable sync (`sync-timetable`) now runs every 10 minutes (was hourly: `select cron.alter_job(1, schedule := '*/10 * * * *')`, applied live, same secret header). The booking sync (`sync-wix-bookings`) already ran every 5 minutes and stays. The payment sync (`sync-wix-payments`) will be every 15 minutes when switched on.
+- So "Wix only for payments" is NOT the plan for bookings: Wix keeps the sessions and bookings. When the transition plan is written, the payment emails come from us but Wix Bookings stays live.

@@ -21,3 +21,4 @@ select cron.schedule(
     );
   $cron$
 );
+-- 2026-10-28: schedule changed live to every 10 minutes: select cron.alter_job(1, schedule := '*/10 * * * *');

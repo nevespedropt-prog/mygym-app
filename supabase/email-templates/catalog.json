@@ -611,7 +611,6 @@
     "when": "Every time a website form is sent",
     "subject": "New {{form_name}}: {{person_name}}",
     "needs": [
-      "admin_url",
       "form_name",
       "message",
       "person_email",
@@ -631,7 +630,6 @@
     "when": "When a new member joins",
     "subject": "New member: {{person_name}}",
     "needs": [
-      "admin_url",
       "person_name",
       "plan_name",
       "source_page"
@@ -648,7 +646,6 @@
     "when": "When a member's payment fails",
     "subject": "Payment failed: {{person_name}}, {{amount}}",
     "needs": [
-      "admin_url",
       "amount",
       "person_name",
       "plan_name",
@@ -666,7 +663,6 @@
     "when": "When a member asks to pause or cancel through the form",
     "subject": "{{request_type}} request: {{person_name}}",
     "needs": [
-      "admin_url",
       "from_date",
       "person_name",
       "reason",
@@ -685,7 +681,6 @@
     "when": "When a member leaves a rating below 4 stars in the feedback form",
     "subject": "Low rating from {{person_name}}: {{rating}} stars",
     "needs": [
-      "admin_url",
       "class_name",
       "message",
       "person_name",
@@ -816,7 +811,6 @@
     "when": "Each time a booking is made (can be switched to a daily summary)",
     "subject": "New booking: {{person_name}}, {{class_name}} {{when}}",
     "needs": [
-      "admin_url",
       "class_name",
       "person_name",
       "source_page",
@@ -835,7 +829,6 @@
     "when": "If a session ever ends up with more people than spaces (for example from a sync clash)",
     "subject": "Overbooked: {{class_name}}, {{when}}",
     "needs": [
-      "admin_url",
       "booked",
       "capacity",
       "class_name",
@@ -853,7 +846,6 @@
     "when": "When a member cancels their membership",
     "subject": "Membership cancelled: {{person_name}}",
     "needs": [
-      "admin_url",
       "end_date",
       "person_name",
       "plan_name",

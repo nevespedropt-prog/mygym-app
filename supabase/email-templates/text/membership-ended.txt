@@ -6,7 +6,7 @@ Your {{plan_name}} ended on {{end_date}}. You can no longer book classes until y
 
 It takes two minutes to restart, and your account and history are exactly as you left them.
 
-See memberships: https://www.mygymlondon.co.uk/memberships
+See memberships: https://www.mygymlondon.co.uk/services-4
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

@@ -7,7 +7,7 @@ Next retry: {{retry_date}}
 
 The member has already been emailed. Nothing to do unless you want to follow up personally.
 
-Open payments: {{admin_url}}
+Open payments: https://app.mygymlondon.co.uk/
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

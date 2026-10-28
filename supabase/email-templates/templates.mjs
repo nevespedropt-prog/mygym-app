@@ -14,7 +14,7 @@ t("welcome", { group: "Account", when: "Right after a member creates their accou
   body: [{ p: "Hi {{first_name}}," }, { p: "Your account is ready. Here is how to get started:" }, { list: ["Open the app and tap Timetable to see this week's classes.", "Pick a class or gym hour and tap Book. You get a confirmation straight away.", "Complete your short health form once, so you are ready for your first session."] }, { muted: "Add the app to your phone's home screen for one-tap access: open it in your browser and choose Add to Home Screen." }] });
 
 t("health-form-due", { group: "Account", when: "When a member has not completed or renewed their health form", subject: "Please complete your health form", pre: "It takes about two minutes.",
-  title: "A quick health form before you train", cta: { label: "Complete the form", url: "{{app_url}}#health" },
+  title: "A quick health form before you train", cta: { label: "Complete the form", url: "{{app_url}}#profile" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We need an up-to-date health form on file before you can book. It takes about two minutes and helps our coaches keep you safe." }, { note: "Your answers are kept private and only used by the MY GYM London team." }] });
 
 /* ================= BOOKINGS ================= */
@@ -84,7 +84,7 @@ t("membership-resumed", { group: "Membership & payments", when: "When a paused m
   body: [{ p: "Hi {{first_name}}," }, { p: "Great to have you back. Your {{plan_name}} membership is active again. Your next payment is on {{next_payment_date}}." }] });
 
 t("membership-cancelled", { group: "Membership & payments", when: "When a membership is cancelled", subject: "Your membership has been cancelled", pre: "You can keep booking until {{end_date}}.",
-  title: "Your membership is cancelled", cta: { label: "Rejoin any time", url: "{{site_url}}memberships" },
+  title: "Your membership is cancelled", cta: { label: "Rejoin any time", url: "{{site_url}}services-4" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We are sorry to see you go. Your {{plan_name}} membership has been cancelled." }, { kv: [["Last day of access", "{{end_date}}"], ["Final payment", "{{final_payment}}", "final_payment"]] }, { muted: "{{refund_policy}}" }, { muted: "Anything we could have done better? Reply to this email, we read every message. You are always welcome back." }] });
 
 t("refund-issued", { group: "Membership & payments", when: "When a refund is issued", subject: "Your refund of {{amount}}", pre: "It is on its way to your card.",
@@ -122,7 +122,7 @@ t("newsletter", { group: "Campaigns", marketing: true, when: "Base layout for ne
 
 /* ================= PEOPLE WHO USE A WEBSITE FORM (not members yet) ================= */
 t("enquiry-autoreply", { group: "Website forms", to: "lead", when: "Right after the contact form is sent", subject: "Thanks for getting in touch", pre: "We will reply within one working day.",
-  title: "We have got your message", cta: { label: "See the timetable", url: "{{site_url}}timetable" },
+  title: "We have got your message", cta: { label: "See the timetable", url: "{{site_url}}our-classes" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for contacting MY GYM London. We have your message and will reply within one working day." }, { kv: [["You wrote", "{{message_preview}}", "message_preview"]] }] });
 
 t("pt-enquiry-autoreply", { group: "Website forms", to: "lead", when: "Right after the personal training form is sent", subject: "Thanks for your personal training enquiry", pre: "A coach will be in touch shortly.",
@@ -142,11 +142,11 @@ t("kids-registration-received", { group: "Website forms", to: "lead", when: "Whe
   title: "Kids Gym registration received", body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for registering {{child_first_name}} for Kids Gym. We will check the details and confirm {{child_first_name}}'s place within two working days." }, { note: "Kids can only train with a parent or guardian's consent on file. We keep the details you gave us private and only use them for {{child_first_name}}'s sessions." }] });
 
 t("lead-followup-1", { group: "Website forms", marketing: true, to: "lead", when: "2 days after an enquiry, if they have not booked yet (stops when they join)", subject: "Ready to try a class, {{first_name}}?", pre: "Your first class is on us.",
-  title: "Ready when you are", cta: { label: "Book a free trial", url: "{{site_url}}trial" },
+  title: "Ready when you are", cta: { label: "Book a free trial", url: "{{site_url}}book-a-free-class" },
   body: [{ p: "Hi {{first_name}}," }, { p: "You got in touch with us recently. If you would still like to try MY GYM London, your first class is free. Pick a time that suits you and we will do the rest." }] });
 
 t("lead-followup-2", { group: "Website forms", marketing: true, to: "lead", when: "7 days after an enquiry, if still no booking (last one)", subject: "Last note from us, {{first_name}}", pre: "No pressure, the offer stays open.",
-  title: "Still thinking about it?", cta: { label: "Book a free trial", url: "{{site_url}}trial" },
+  title: "Still thinking about it?", cta: { label: "Book a free trial", url: "{{site_url}}book-a-free-class" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Just one last note. If now is not the right time, that is fine. Your free trial offer stays open whenever you are ready." }] });
 
 t("newsletter-welcome", { group: "Website forms", marketing: true, to: "lead", when: "When someone joins the email list from the website footer (double opt-in)", subject: "Please confirm your email", pre: "One click to finish signing up.",
@@ -201,11 +201,11 @@ t("trial-ending", { group: "Membership & payments", when: "3 days before a free 
   body: [{ p: "Hi {{first_name}}," }, { p: "Your free trial of {{plan_name}} ends on {{end_date}}. To carry on training, choose a plan and your first payment of {{amount}} will be taken on {{next_payment_date}}." }, { muted: "Not for you? No action needed. Your trial simply ends and you will not be charged." }] });
 
 t("membership-ended", { group: "Membership & payments", when: "When a fixed-length plan or pass runs out", subject: "Your {{plan_name}} has ended", pre: "Here is how to carry on.",
-  title: "Your plan has ended", cta: { label: "See memberships", url: "{{site_url}}memberships" },
+  title: "Your plan has ended", cta: { label: "See memberships", url: "{{site_url}}services-4" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Your {{plan_name}} ended on {{end_date}}. You can no longer book classes until you start a new plan." }, { muted: "It takes two minutes to restart, and your account and history are exactly as you left them." }] });
 
 t("refer-a-friend-prompt", { group: "Keep members engaged", marketing: true, when: "A few days after a member joins (once)", subject: "Train with a friend, {{first_name}}?", pre: "Bring someone along.",
-  title: "Bring a friend, you both win", cta: { label: "Invite a friend", url: "{{app_url}}#refer" },
+  title: "Bring a friend, you both win", cta: { label: "Invite a friend", url: "{{site_url}}refer-friends" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Training is easier with someone alongside you. Invite a friend and come along together." }] });
 
 t("admin-new-booking", { group: "To the gym", to: "admin", when: "Each time a booking is made (can be switched to a daily summary)", subject: "New booking: {{person_name}}, {{class_name}} {{when}}", pre: "{{spaces_left}} spaces left.",

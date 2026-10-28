@@ -10,7 +10,7 @@ export const SAMPLE = {
   campaign_subject: "Spring bootcamp starts Monday 9 March", campaign_preheader: "Six weeks, three sessions a week, one great you.", campaign_title: "Spring bootcamp", campaign_button: "Reserve my place", campaign_url: "https://app.mygymlondon.co.uk/#timetable",
   campaign_body: "Our six-week Spring bootcamp starts on Monday 9 March. Three sessions a week, all levels, and a friendly group to keep you going. Places are limited to 16.",
   message_preview: "Hi, do you run beginner classes in the evening?", offer_name: "January offer", offer_terms: "Offer ends 31 January. One use per person.", company: "Enfield Digital Ltd",
-  child_first_name: "Mia", confirm_url: "https://app.mygymlondon.co.uk/confirm?token=sample", unsubscribe_url: "https://app.mygymlondon.co.uk/unsubscribe?token=sample",
-  form_name: "contact form", message: "Hi, I'd like to know if you have any spaces in the evening classes. I'm new to training. Thanks, Hannah", source_page: "www.mygymlondon.co.uk/contact", admin_url: "https://admin.mygymlondon.co.uk/",
+  child_first_name: "Mia", confirm_url: "https://app.mygymlondon.co.uk/email.html?a=confirm&t=sample", unsubscribe_url: "https://app.mygymlondon.co.uk/email.html?a=unsubscribe&t=sample",
+  form_name: "contact form", message: "Hi, I'd like to know if you have any spaces in the evening classes. I'm new to training. Thanks, Hannah", source_page: "www.mygymlondon.co.uk/contact", admin_url: "https://app.mygymlondon.co.uk/",
   request_type: "Pause", from_date: "Monday 3 November", sla: "2 working days", rating: "3", spaces_left: "4", booked: "15", capacity: "14",
 };

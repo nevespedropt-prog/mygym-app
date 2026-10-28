@@ -3,7 +3,7 @@
 Member: {{person_name}}
 Request: {{request_type}}
 
-Open member: {{admin_url}}
+Open member: https://app.mygymlondon.co.uk/
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

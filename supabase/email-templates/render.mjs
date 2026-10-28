@@ -10,6 +10,7 @@ export const GLOBALS = {
   gym_address: "MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS",
   gym_email: "info@mygymlondon.co.uk",
   app_url: "https://app.mygymlondon.co.uk/",
+  admin_url: "https://app.mygymlondon.co.uk/",
   site_url: "https://www.mygymlondon.co.uk/",
   assets_url: "https://app.mygymlondon.co.uk/",
   instagram_url: "https://www.instagram.com/mygym_london",
@@ -103,7 +104,7 @@ const footer = (def, vars) => {
 <tr><td style="background:${C.ink};padding:28px 32px">
   <p style="margin:0 0 6px 0;font-family:${DISP};font-weight:800;font-size:22px;letter-spacing:.1em;text-transform:uppercase;color:#ffffff">MY GYM London</p>
   <p style="margin:0 0 14px 0;font-family:${BODY};font-size:13px;line-height:1.6;color:#cfcdd1">${esc(vars.gym_address)}<br>${link(esc(vars.gym_email), "mailto:" + vars.gym_email)}</p>
-  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "timetable")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "memberships")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
+  <p style="margin:0 0 16px 0;font-family:${BODY};font-size:13px;color:#cfcdd1">${link("Timetable", vars.site_url + "our-classes")} &nbsp;&middot;&nbsp; ${link("Memberships", vars.site_url + "services-4")} &nbsp;&middot;&nbsp; ${link("Instagram", vars.instagram_url)}</p>
   <p style="margin:0;font-family:${BODY};font-size:11.5px;line-height:1.6;color:#9a99a1">${why}<br>${esc(vars.business_legal_name)}${vars.vat_line ? ". " + esc(vars.vat_line) : ""}</p>
 </td></tr>`;
 };

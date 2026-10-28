@@ -4,7 +4,7 @@ Hi {{first_name}},
 
 Just one last note. If now is not the right time, that is fine. Your free trial offer stays open whenever you are ready.
 
-Book a free trial: https://www.mygymlondon.co.uk/trial
+Book a free trial: https://www.mygymlondon.co.uk/book-a-free-class
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

@@ -4,7 +4,7 @@ Hi {{first_name}},
 
 Training is easier with someone alongside you. Invite a friend and come along together.
 
-Invite a friend: https://app.mygymlondon.co.uk/#refer
+Invite a friend: https://www.mygymlondon.co.uk/refer-friends
 
 MY GYM London
 MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS

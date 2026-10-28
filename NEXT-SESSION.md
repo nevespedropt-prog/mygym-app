@@ -152,3 +152,4 @@ Owner decision: after the full move off Wix, Wix only takes payments and keeps t
 
 ## Reminder decision (2026-10-28, supersedes the note above)
 - Wix automation "Remind clients about upcoming sessions" is ACTIVE: email 1 day before every session (2,939 sent, last 27 Oct 18:30). Our reminder is 2 hours before (+ phone alert at 1 hour). So members who book more than a day ahead get both. Owner decision: leave both as they are for now. At the full transition: switch Wix's reminder off (Wix dashboard, Automations, App automations) and, if wanted, build a day-before email of our own first so members keep the early warning.
+- (same day, final) Owner: NO day-before reminder is needed in our system. The 2-hour email plus the phone alert is enough. At the full transition just switch Wix's day-before reminder off; do not rebuild it.

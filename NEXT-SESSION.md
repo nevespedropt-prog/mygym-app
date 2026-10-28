@@ -149,3 +149,6 @@ Owner decision: after the full move off Wix, Wix only takes payments and keeps t
 
 ## Duplicate reminder check (2026-10-28)
 - Owner confirmed they received only ONE reminder email (ours) for the Open Gym 18:00 test booking made at 15:45. Limit: that booking was only 2h15m ahead, so a Wix reminder set for e.g. 24 hours before would not have been triggered. Re-check with the first booking made at least a day ahead (look for a second reminder from Wix); if one arrives, switch off the Wix "session reminder" automation (owner decision).
+
+## Reminder decision (2026-10-28, supersedes the note above)
+- Wix automation "Remind clients about upcoming sessions" is ACTIVE: email 1 day before every session (2,939 sent, last 27 Oct 18:30). Our reminder is 2 hours before (+ phone alert at 1 hour). So members who book more than a day ahead get both. Owner decision: leave both as they are for now. At the full transition: switch Wix's reminder off (Wix dashboard, Automations, App automations) and, if wanted, build a day-before email of our own first so members keep the early warning.

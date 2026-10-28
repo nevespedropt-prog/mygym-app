@@ -117,3 +117,7 @@ The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only b
 - When resumed: owner edits the footer text themselves, or Claude does it after (1) the owner's own changes are published or discarded, and (2) the Personal Training page draft is checked for the abandoned edit (our form box added, old Wix form removed) and fixed before any Publish.
 - Also noticed: the live Wix /privacy-notice page shows a school (pupil data) privacy text. It redirects to our privacy page after the move to Hostinger.
 - Still open from the Google Business Profile item: website link, asking members for reviews, Search Console and Bing verification (after launch).
+
+## Security check queries and new-member sign-up (2026-10-28)
+- Security check queries A to D from migration-security-pass-2.sql run read-only on the live database: A none, B only classes SELECT for anon, C only is_admin for anon (two helper functions from the admin back end, _first_name and _short_name, were also open and were closed the same day), D only the owner is admin. Back office functions re-tested after the change.
+- New-member sign-up through the restricted Wix key (member-signup) and the app's gym-plan check were NOT tested after the key was narrowed on 2026-10-20. Owner decision: no action now. When the first real new member joins, check the edge function logs for member-signup and check-gym-access straight away.

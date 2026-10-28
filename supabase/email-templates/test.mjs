@@ -20,7 +20,7 @@ for (const d of templates) {
   t(d.id + ": logo has alt text, links are https or mailto", /alt="MY GYM London"/.test(r.html) && ![...r.html.matchAll(/href="([^"]*)"/g)].some((m) => !/^(https:|mailto:|\{\{)/.test(m[1])));
   const copy = r.text + r.subject + d.body.map((b) => JSON.stringify(b)).join("");
   t(d.id + ": no em or en dashes in the wording", !/[–—]/.test(copy));
-  if (d.marketing) t(d.id + ": marketing email carries an unsubscribe link", /unsubscribe/i.test(r.html) && /unsubscribe_url|Unsubscribe/.test(r.html) && r.html.includes(SAMPLE.unsubscribe_url));
+  if (d.marketing) t(d.id + ": marketing email carries an unsubscribe link", /unsubscribe/i.test(r.html) && /unsubscribe_url|Unsubscribe/.test(r.html) && r.html.includes(SAMPLE.unsubscribe_url.replace(/&/g, "&amp;")));
   else t(d.id + ": service email says why it was sent", /service email|team|sent even/.test(r.html));
   if (d.auth && d.cta) t(d.id + ": keeps the Supabase link variable", goTemplate);
   const safe = render(d.id, { ...SAMPLE, first_name: '<img src=x onerror=alert(1)>', person_name: "<script>x</script>" });

@@ -1,4 +1,4 @@
--- MY GYM London: admin back end (staff roles + read/write functions). Written 2026-10-28. NOT YET APPLIED to the live database.
+-- MY GYM London: admin back end (staff roles + read/write functions). Written 2026-10-28. APPLIED to the live database on 2026-10-28 (migration name admin_backend_roles_and_functions).
 -- Roles: admin (owner, = profiles.is_admin), manager, reception, coach. The back end calls ONLY these functions; no table is opened up.
 -- Every function checks the caller's role itself (SECURITY DEFINER) and returns only what that role may see. Health answers are viewed through one function that writes an audit row.
 -- Needs: schema.sql (is_admin, profiles), migration-forms-and-consent.sql, migration-email-hooks.sql. Safe to run twice.

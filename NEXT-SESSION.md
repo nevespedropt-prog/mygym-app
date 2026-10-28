@@ -146,3 +146,6 @@ Owner decision: after the full move off Wix, Wix only takes payments and keeps t
 - Website: the home strip shows the 6 latest posts from /functions/v1/instagram-feed (tested locally: live pictures and links). Without the feed the 6 built-in photos stay. Privacy and cookie notice now name Instagram (Meta); app privacy.html/cookies.html regenerated locally (deploy waits for Netlify credits).
 - Alternative if Meta ever blocks: Behold feed via BEHOLD_FEED_URL secret (code ready in instagram-sync).
 - Token and Meta app are tied to the owner's personal Facebook login: keep access to it, and note the 60-day token expiry if the sync ever fails for 60 days.
+
+## Duplicate reminder check (2026-10-28)
+- Owner confirmed they received only ONE reminder email (ours) for the Open Gym 18:00 test booking made at 15:45. Limit: that booking was only 2h15m ahead, so a Wix reminder set for e.g. 24 hours before would not have been triggered. Re-check with the first booking made at least a day ahead (look for a second reminder from Wix); if one arrives, switch off the Wix "session reminder" automation (owner decision).

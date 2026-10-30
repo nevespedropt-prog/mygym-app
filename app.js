@@ -616,6 +616,18 @@
       if (!$('#exList .exrow')) addExercise();
     });
     row.appendChild(del);
+    const mv = (cls, txt, label, dir) => {
+      const b = el('button', 'ex-mv ' + cls, txt); b.type = 'button'; b.title = label; b.setAttribute('aria-label', label);
+      b.addEventListener('click', () => {
+        const other = dir < 0 ? row.previousElementSibling : row.nextElementSibling;
+        if (!other) return;
+        if (dir < 0) row.parentNode.insertBefore(row, other); else row.parentNode.insertBefore(other, row);
+        renumberEx(); saveDraft();
+      });
+      return b;
+    };
+    row.appendChild(mv('ex-up', '▲', 'Move this exercise up', -1));
+    row.appendChild(mv('ex-down', '▼', 'Move this exercise down', 1));
     row.appendChild(el('div', 'exhead', 'Exercise'));
     row.appendChild(exercisePicker(data.name));
     const r3 = el('div', 'row3');
@@ -638,7 +650,13 @@
     return 'ok';
   }
   function renumberEx() {
-    $$('#exList .exrow').forEach((r, i) => { const h = r.querySelector('.exhead'); if (h) h.textContent = 'Exercise ' + (i + 1); });
+    const all = $$('#exList .exrow');
+    all.forEach((r, i) => {
+      const h = r.querySelector('.exhead'); if (h) h.textContent = 'Exercise ' + (i + 1);
+      const u = r.querySelector('.ex-up'), d = r.querySelector('.ex-down');
+      if (u) u.disabled = i === 0;
+      if (d) d.disabled = i === all.length - 1;
+    });
   }
   /* An unfinished workout is kept on this device, so closing the app by accident loses nothing. */
   let builderReady = false;                   // the draft has been loaded into the form (saving before that would wipe it)

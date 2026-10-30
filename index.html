@@ -230,6 +230,12 @@ details.priv p{margin:8px 0 0;line-height:1.45}
 .exrow{position:relative;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--bg)}
 .exrow .ex-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--mut);font-size:15px;cursor:pointer;padding:2px 7px;z-index:2}
 .exrow .ex-del:active{color:var(--acc)}
+.exrow .ex-mv{position:absolute;top:6px;background:none;border:none;color:var(--mut);font-size:13px;cursor:pointer;padding:2px 8px;z-index:2;line-height:1.4}
+.exrow .ex-up{right:70px}
+.exrow .ex-down{right:38px}
+.exrow .ex-mv:active:not(:disabled){color:var(--acc)}
+.exrow .ex-mv:disabled{opacity:.25;cursor:default}
+
 .exrow .field{margin-bottom:8px}
 .exrow .row3{margin-bottom:0}
 .exrow .row3 .field{margin-bottom:0}
@@ -254,7 +260,7 @@ details.priv p{margin:8px 0 0;line-height:1.45}
 .expick.new{color:var(--acc);font-weight:700;justify-content:flex-start}
 .expick:disabled{color:var(--mut);font-weight:400;cursor:default}
 .expick:last-child{border-bottom:none}
-.exhead{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.4px;margin-bottom:8px;padding-right:26px;text-transform:uppercase}
+.exhead{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.4px;margin-bottom:8px;padding-right:110px;text-transform:uppercase}
 /* grouped session history */
 .wlog-session{padding:12px 0;border-bottom:1px solid var(--line)}
 .wlog-session:first-child{padding-top:0}

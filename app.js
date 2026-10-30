@@ -580,24 +580,26 @@
     const go = el('button', 'btn-small exgo'); go.type = 'button'; go.hidden = true; nf.appendChild(go);
     const msg = el('div', 'exmsg'); msg.hidden = true; nf.appendChild(msg);
     const yt = el('div', 'exyt'); yt.hidden = true; nf.appendChild(yt);
+    let settled = String(value || '').trim().toLowerCase();   // a name that arrived already filled in (Repeat, Edit, a saved draft, the Library) needs no Add button
     const found = () => { const q = name.value.trim().toLowerCase(); return q ? exBase.find((x) => x.name.toLowerCase() === q) : null; };
     function say(t, bad) { msg.hidden = !t; msg.textContent = t || ''; msg.className = 'exmsg' + (bad ? ' bad' : ''); }
     function state() {
       say('');
-      yt.textContent = ''; const fy = found(); yt.hidden = !fy; if (fy) yt.appendChild(ytLink(fy.name));
-      if (!name.value.trim()) { go.hidden = true; return; }
+      const typed = name.value.trim();
+      yt.textContent = ''; yt.hidden = !typed; if (typed) yt.appendChild(ytLink(typed));
+      if (!typed || typed.toLowerCase() === settled) { go.hidden = true; return; }
       const f = found(); go.hidden = false; go.disabled = false;
       go.textContent = f ? 'Add exercise' : 'Create exercise'; go.className = 'btn-small exgo' + (f ? '' : ' mut');
     }
     go.addEventListener('click', async () => {
       const f = found(); pop.hidden = true;
-      if (f) { name.value = f.name; say('✓ ' + f.name + ' added'); go.hidden = true; return; }
+      if (f) { name.value = f.name; settled = f.name.toLowerCase(); say('✓ ' + f.name + ' added'); go.hidden = true; return; }
       if (cat.value === 'All') { say('Pick a category first (the box on the right) so we can file it.', true); cat.focus(); return; }
       go.disabled = true; go.textContent = 'Saving…';
       try {
         const x = await DB.addExercise(name.value.trim(), cat.value);
         if (!exBase.some((e) => e.name.toLowerCase() === x.name.toLowerCase())) exBase.push(x);
-        name.value = x.name; say('✓ ' + x.name + ' saved to your own exercises'); go.hidden = true;
+        name.value = x.name; settled = x.name.toLowerCase(); say('✓ ' + x.name + ' saved to your own exercises'); go.hidden = true;
       } catch (e) { go.disabled = false; go.textContent = 'Create exercise'; say((e && e.message) || 'Could not save it.', true); }
     });
     name.addEventListener('focus', render); name.addEventListener('input', () => { render(); state(); });
@@ -706,6 +708,23 @@
     const top = $('#paneWorkouts'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  /* Repeat a logged workout: copies it into the form as a NEW workout (today's date) with last time's numbers, ready to change */
+  function builderHasWork() {
+    if (!editingId) return collectExercises().length > 0 || ($('#wTitle').value || '').trim() !== '';
+    const k = draftKey(); let d = null;
+    try { d = k ? JSON.parse(localStorage.getItem(k) || 'null') : null; } catch (e) {}
+    return !!(d && ((d.exercises && d.exercises.length) || d.title));
+  }
+  function repeatWorkout(w) {
+    editingId = null; wCancel.hidden = true; $('#wSave').textContent = 'Save workout';
+    $('#wTitle').value = w.title || '';
+    $('#exList').textContent = '';
+    exListOf(w).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
+    ensureRows(); builderReady = true; saveDraft();
+    toast($('#wErr'), 'Repeating "' + (w.title || 'Workout') + '". Change the numbers or add exercises, then tap Save workout.', false);
+    const top = $('#paneWorkouts'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   $('#wSave').addEventListener('click', async () => {
     const exs = collectExercises();
     if (!exs.length || !exs.some((x) => x.name)) return toast($('#wErr'), 'Add at least one exercise with a name.', true);
@@ -769,10 +788,19 @@
         ul.appendChild(line);
       });
       body.appendChild(ul);
-      body.appendChild(el('div', 'wlog-tip', 'Tap Edit to add the weights you lifted and your sets and reps. Tap ▶ next to an exercise to watch how it is done.'));
+      body.appendChild(el('div', 'wlog-tip', 'Tap Edit to add the weights you lifted and your sets and reps. Tap Repeat to do this workout again as a new entry. Tap ▶ next to an exercise to watch how it is done.'));
       const acts = el('div', 'wlog-acts');
       const edit = el('button', 'btn-small ghost', 'Edit'); edit.type = 'button'; edit.title = 'Edit this workout';
       edit.addEventListener('click', () => startEdit(w));
+      const rpt = el('button', 'btn-small ghost', 'Repeat'); rpt.type = 'button'; rpt.title = 'Do this workout again as a new entry';
+      let rptArmed = false;
+      rpt.addEventListener('click', () => {
+        if (!rptArmed && builderHasWork()) {
+          rptArmed = true; rpt.textContent = 'Replace unfinished? Tap again';
+          setTimeout(() => { rptArmed = false; rpt.textContent = 'Repeat'; }, 4000); return;
+        }
+        rptArmed = false; rpt.textContent = 'Repeat'; repeatWorkout(w);
+      });
       const del = el('button', 'btn-small mut', 'Delete'); del.type = 'button'; del.title = 'Delete this workout';
       let armed = false;
       del.addEventListener('click', async () => {
@@ -782,7 +810,7 @@
         if (editingId === w.id) resetBuilder();
         renderWorkouts(); renderDash();
       });
-      acts.appendChild(edit); acts.appendChild(del);
+      acts.appendChild(edit); acts.appendChild(rpt); acts.appendChild(del);
       body.appendChild(acts);
       sess.appendChild(body);
       box.appendChild(sess);

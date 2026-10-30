@@ -524,8 +524,8 @@
     f.appendChild(i); return f;
   }
   /* ---- exercise search bar: type to search, pick a category, or add your own ---- */
-  const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes'];
-  const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Core', 'Cardio', 'Full body'];
+  const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes', 'Lower back'];
+  const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Lower back', 'Core', 'Cardio', 'Full body'];
   let exBase = null;
   function exInCat(x, c) {
     return c === 'All' || x.muscle_group === c

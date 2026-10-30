@@ -177,6 +177,7 @@
     await turnOffReminders(true);
     await DB.signOut();
     authed = false; me = null; profile = null; gymState = null; healthRec = undefined; paintLocks();
+    builderReady = false; editingId = null; wCancel.hidden = true; $('#wSave').textContent = 'Save workout'; $('#exList').textContent = ''; $('#wTitle').value = '';
     setNav();
     go('home');
   });
@@ -625,6 +626,7 @@
   function addExercise(data) { $('#exList').appendChild(exerciseRow(data)); renumberEx(); }
   /* Library "Add to my workout": puts the exercise into the Log page builder (replacing the one blank row if that is all there is) */
   function addToWorkout(x) {
+    ensureBuilder();
     const rows = $$('#exList .exrow');
     const names = rows.map((r) => (r.querySelector('.ex-name').value || '').trim().toLowerCase());
     if (names.indexOf(String(x.name).toLowerCase()) !== -1) return 'dup';
@@ -636,7 +638,36 @@
   function renumberEx() {
     $$('#exList .exrow').forEach((r, i) => { const h = r.querySelector('.exhead'); if (h) h.textContent = 'Exercise ' + (i + 1); });
   }
-  function ensureBuilder() { if (!$('#exList .exrow')) addExercise(); }
+  /* An unfinished workout is kept on this device, so closing the app by accident loses nothing. */
+  let builderReady = false;                   // the draft has been loaded into the form (saving before that would wipe it)
+  const draftKey = () => (me ? 'mygym_wdraft_' + (me.id || me.email) : null);
+  function clearDraft() { const k = draftKey(); if (k) { try { localStorage.removeItem(k); } catch (e) {} } }
+  function saveDraft() {
+    const k = draftKey(); if (!k || !builderReady || editingId) return;
+    try {
+      const exs = collectExercises(), title = ($('#wTitle').value || '').trim();
+      if (!exs.length && !title) localStorage.removeItem(k);
+      else localStorage.setItem(k, JSON.stringify({ title: title, exercises: exs }));
+    } catch (e) {}
+  }
+  function restoreDraft() {
+    const k = draftKey(); if (!k) return false;
+    let d = null; try { d = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) {}
+    if (!d || !((d.exercises && d.exercises.length) || d.title)) return false;
+    $('#wTitle').value = d.title || '';
+    (d.exercises || []).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
+    ensureRows();
+    toast($('#wErr'), 'Your unfinished workout is back. Pick up where you left off.', false);
+    return true;
+  }
+  function ensureRows() { if (!$('#exList .exrow')) addExercise(); }
+  function ensureBuilder() {
+    if (!$('#exList .exrow') && !restoreDraft()) addExercise();
+    builderReady = true;
+  }
+  setInterval(saveDraft, 1500);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveDraft(); });
+  window.addEventListener('pagehide', saveDraft);
   function collectExercises() {
     return $$('#exList .exrow').map((r) => ({
       name: (r.querySelector('.ex-name').value || '').trim(),
@@ -659,7 +690,8 @@
   $('#wSave').insertAdjacentElement('afterend', wCancel);
   function resetBuilder() {
     editingId = null; wCancel.hidden = true;
-    $('#wTitle').value = ''; $('#exList').textContent = ''; addExercise();
+    $('#wTitle').value = ''; $('#exList').textContent = '';
+    if (!restoreDraft()) addExercise();
     $('#wSave').textContent = 'Save workout';
   }
   wCancel.addEventListener('click', resetBuilder);
@@ -684,6 +716,7 @@
     try {
       if (editing) await DB.updateWorkout(editing, { title: title, exercise: summary, exercises: exs });
       else await DB.addWorkout({ date: fmtISO(new Date()), title: title, exercise: summary, exercises: exs, notes: '' });
+      if (!editing) clearDraft();
       resetBuilder();
       renderWorkouts(); renderDash();
     } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); $('#wSave').textContent = editing ? 'Update workout' : 'Save workout'; }

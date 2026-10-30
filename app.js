@@ -177,7 +177,7 @@
     await turnOffReminders(true);
     await DB.signOut();
     authed = false; me = null; profile = null; gymState = null; healthRec = undefined; paintLocks();
-    builderReady = false; editingId = null; wCancel.hidden = true; $('#wSave').textContent = 'Save workout'; $('#exList').textContent = ''; $('#wTitle').value = '';
+    builderReady = false; editingId = null; wCancel.hidden = true; $('#wSave').textContent = 'Save workout'; $('#exList').textContent = ''; $('#wTitle').value = ''; setWDate(null, false);
     setNav();
     go('home');
   });
@@ -402,7 +402,7 @@
       ]);
       const monday = new Date(); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
       const monISO = fmtISO(monday);
-      const weekCount = wins.filter((w) => w.date >= monISO).length;
+      const weekCount = wins.filter((w) => w.date >= monISO && w.date <= fmtISO(new Date())).length;   // planned (future) workouts do not count yet
       $('#statWeek').textContent = weekCount;
       const pct = Math.min(100, Math.round((weekCount / WEEK_GOAL) * 100));
       $('#goalBar').style.width = pct + '%';
@@ -659,6 +659,13 @@
     });
   }
   /* An unfinished workout is kept on this device, so closing the app by accident loses nothing. */
+  const todayISO = () => fmtISO(new Date());
+  let dateTouched = false;                    // true once the member picks a date themselves (otherwise it follows today)
+  function setWDate(v, touched) { $('#wDate').value = v || todayISO(); dateTouched = !!touched; }
+  function chosenDate() {
+    const v = $('#wDate').value, lim = new Date(); const lo = new Date(lim); lo.setFullYear(lo.getFullYear() - 1); const hi = new Date(lim); hi.setFullYear(hi.getFullYear() + 1);
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) && v >= fmtISO(lo) && v <= fmtISO(hi) ? v : null;
+  }
   let builderReady = false;                   // the draft has been loaded into the form (saving before that would wipe it)
   const draftKey = () => (me ? 'mygym_wdraft_' + (me.id || me.email) : null);
   function clearDraft() { const k = draftKey(); if (k) { try { localStorage.removeItem(k); } catch (e) {} } }
@@ -667,7 +674,7 @@
     try {
       const exs = collectExercises(), title = ($('#wTitle').value || '').trim();
       if (!exs.length && !title) localStorage.removeItem(k);
-      else localStorage.setItem(k, JSON.stringify({ title: title, exercises: exs }));
+      else localStorage.setItem(k, JSON.stringify({ title: title, exercises: exs, date: dateTouched ? $('#wDate').value : null }));
     } catch (e) {}
   }
   function restoreDraft() {
@@ -675,6 +682,7 @@
     let d = null; try { d = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) {}
     if (!d || !((d.exercises && d.exercises.length) || d.title)) return false;
     $('#wTitle').value = d.title || '';
+    if (d.date && /^\d{4}-\d{2}-\d{2}$/.test(d.date)) setWDate(d.date, true);
     (d.exercises || []).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
     ensureRows();
     toast($('#wErr'), 'Your unfinished workout is back. Pick up where you left off.', false);
@@ -682,6 +690,7 @@
   }
   function ensureRows() { if (!$('#exList .exrow')) addExercise(); }
   function ensureBuilder() {
+    if (!dateTouched && !editingId) setWDate(null, false);   // follow today while the member has not chosen a date
     if (!$('#exList .exrow') && !restoreDraft()) addExercise();
     builderReady = true;
   }
@@ -710,14 +719,15 @@
   $('#wSave').insertAdjacentElement('afterend', wCancel);
   function resetBuilder() {
     editingId = null; wCancel.hidden = true;
-    $('#wTitle').value = ''; $('#exList').textContent = '';
+    $('#wTitle').value = ''; $('#exList').textContent = ''; setWDate(null, false);
     if (!restoreDraft()) addExercise();
     $('#wSave').textContent = 'Save workout';
   }
   wCancel.addEventListener('click', resetBuilder);
+  $('#wDate').addEventListener('input', () => { dateTouched = true; saveDraft(); });
   function startEdit(w) {
     editingId = w.id;
-    $('#wTitle').value = w.title || '';
+    $('#wTitle').value = w.title || ''; setWDate(w.date, true);
     $('#exList').textContent = '';
     exListOf(w).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
     ensureBuilder();
@@ -735,7 +745,7 @@
   }
   function repeatWorkout(w) {
     editingId = null; wCancel.hidden = true; $('#wSave').textContent = 'Save workout';
-    $('#wTitle').value = w.title || '';
+    $('#wTitle').value = w.title || ''; setWDate(null, false);
     $('#exList').textContent = '';
     exListOf(w).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
     ensureRows(); builderReady = true; saveDraft();
@@ -748,11 +758,13 @@
     if (!exs.length || !exs.some((x) => x.name)) return toast($('#wErr'), 'Add at least one exercise with a name.', true);
     const title = ($('#wTitle').value || '').trim();
     const summary = summaryOf(exs.map((x) => x.name), exs.length + ' exercises');
+    const wdate = chosenDate();
+    if (!wdate) return toast($('#wErr'), 'Pick a date within the last or next 12 months.', true);
     const editing = editingId;
     $('#wSave').disabled = true; $('#wSave').textContent = 'Saving…';
     try {
-      if (editing) await DB.updateWorkout(editing, { title: title, exercise: summary, exercises: exs });
-      else await DB.addWorkout({ date: fmtISO(new Date()), title: title, exercise: summary, exercises: exs, notes: '' });
+      if (editing) await DB.updateWorkout(editing, { date: wdate, title: title, exercise: summary, exercises: exs });
+      else await DB.addWorkout({ date: wdate, title: title, exercise: summary, exercises: exs, notes: '' });
       if (!editing) clearDraft();
       resetBuilder();
       renderWorkouts(); renderDash();
@@ -776,13 +788,18 @@
     const box = $('#wHistory'); box.textContent = '';
     let logs = []; try { logs = await DB.getWorkouts(60); } catch (e) {}
     if (!logs.length) { box.appendChild(el('p', 'note', 'No workouts logged yet. Your first one is waiting 💪')); return; }
+    logs.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.created_at).localeCompare(String(a.created_at)));
+    const today = todayISO();
     logs.forEach((w) => {
       const exs = exListOf(w);
+      const planned = w.date > today;
       const sess = el('div', 'wlog-session' + (openWo.has(w.id) ? ' open' : ''));
       const head = el('button', 'wlog-head'); head.type = 'button';
       head.setAttribute('aria-expanded', openWo.has(w.id) ? 'true' : 'false');
       const t = el('div');
-      t.appendChild(el('b', '', w.title || 'Workout'));
+      const tl = el('b', '', w.title || 'Workout');
+      if (planned) { const pc = el('span', 'chip planned', 'Planned'); pc.style.marginLeft = '8px'; tl.appendChild(pc); }
+      t.appendChild(tl);
       t.appendChild(el('small', '', fmtShort(w.date) + ' · ' + exs.length + (exs.length === 1 ? ' exercise' : ' exercises')));
       head.appendChild(t);
       const tog = el('span', 'wlog-toggle', openWo.has(w.id) ? '−' : '+'); tog.setAttribute('aria-hidden', 'true');
@@ -884,10 +901,11 @@
   async function renderProgress() {
     const cv = $('#progChart');
     const stats = $('#progStats'); stats.textContent = '';
-    const [ws0, wos] = await Promise.all([
+    const [ws0, wosAll] = await Promise.all([
       DB.getWeights().catch(() => []),
       DB.getWorkouts(500).catch(() => [])
     ]);
+    const wos = wosAll.filter((w) => w.date <= fmtISO(new Date()));   // planned (future) workouts do not count yet
     const ws = measBlocked() ? [] : ws0;
     if (measBlocked() && progMode !== 'vol') stats.appendChild(el('p', 'note', 'Weight and body fat tracking is off. You can turn it on in the Health & safety form (Profile → Health & consent) if you want to track it.'));
 

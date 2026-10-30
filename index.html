@@ -59,6 +59,7 @@ h2{font:800 28px/1.05 var(--disp);text-transform:uppercase;letter-spacing:.03em;
 h2[style]{font-size:22px !important}
 .sub{color:var(--mut);font-size:14px;margin-bottom:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.chip.planned{background:var(--accs);color:var(--acc)}
 .chip{display:inline-block;background:var(--accs);color:var(--acc);
   font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   border-radius:999px;padding:5px 11px;margin-bottom:8px}
@@ -422,6 +423,7 @@ nav.show{display:block}
   <div id="paneWorkouts">
     <div class="card">
       <div class="field"><label>Session name (optional)</label><input id="wTitle" placeholder="e.g. Push day · Full body · Monday Blast"></div>
+      <div class="field"><label for="wDate">Workout date</label><input id="wDate" type="date"><small class="note" style="display:block;margin-top:4px">Planning ahead? Pick the day you will do it. A future date shows as Planned.</small></div>
       <div id="exList"></div>
       <button class="btn-small mut" id="addEx" type="button" style="margin:2px 0 12px;width:100%">+ Add another exercise</button>
       <div class="err" id="wErr"></div>

@@ -240,6 +240,9 @@ details.priv p{margin:8px 0 0;line-height:1.45}
 .exbar .ex-cat{flex:0 0 46%;min-width:0;padding-left:10px;padding-right:6px}
 .expop{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-height:240px;overflow-y:auto;z-index:20}
 .exsec{position:sticky;top:0;background:var(--card2);color:var(--mut);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:6px 12px}
+.exgo{width:100%;margin-top:8px}
+.exmsg{margin-top:8px;font-size:13px;font-weight:700;color:#2b8a3e}
+.exmsg.bad{color:var(--acc)}
 .exerr{color:var(--acc);text-transform:none;font-size:13px;letter-spacing:0}
 .expick{display:flex;justify-content:flex-start;gap:8px;align-items:center;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line);padding:11px 12px;font:inherit;font-size:14px;cursor:pointer;color:var(--txt)}
 .expick small{color:#9a99a1;font-size:12.5px;white-space:nowrap}
@@ -400,7 +403,7 @@ nav.show{display:block}
     <div class="card">
       <div class="field"><label>Session name (optional)</label><input id="wTitle" placeholder="e.g. Push day · Full body · Monday Blast"></div>
       <div id="exList"></div>
-      <button class="btn-small mut" id="addEx" type="button" style="margin:2px 0 12px;width:100%">+ Add exercise</button>
+      <button class="btn-small mut" id="addEx" type="button" style="margin:2px 0 12px;width:100%">+ Add another exercise</button>
       <div class="err" id="wErr"></div>
       <button class="cta" id="wSave" style="margin:4px 0 0">Save workout</button>
     </div>

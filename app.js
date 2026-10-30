@@ -561,31 +561,37 @@
         part.forEach((x) => {
           const b = el('button', 'expick'); b.type = 'button';
           b.appendChild(el('b', '', x.name)); b.appendChild(el('small', '', x.muscle_group + (x.mine ? ' · yours' : '')));
-          b.addEventListener('click', () => { name.value = x.name; pop.hidden = true; });
+          b.addEventListener('click', () => { name.value = x.name; pop.hidden = true; state(); });
           pop.appendChild(b);
         });
       });
-      if (q && !all.some((x) => x.name.toLowerCase() === q)) {
-        const typed = name.value.trim();
-        const b = el('button', 'expick new'); b.type = 'button';
-        if (cat.value === 'All') { b.textContent = 'Not in the list? Pick a category above to add "' + typed + '"'; b.disabled = true; }
-        else {
-          b.textContent = '+ Add "' + typed + '" as your own (' + cat.value + ')';
-          b.addEventListener('click', async () => {
-            try {
-              const x = await DB.addExercise(typed, cat.value);
-              if (!exBase.some((e) => e.name.toLowerCase() === x.name.toLowerCase())) exBase.push(x);
-              name.value = x.name; pop.hidden = true;
-            } catch (e) {
-              pop.textContent = ''; pop.appendChild(el('div', 'exsec exerr', (e && e.message) || 'Could not add it.'));
-            }
-          });
-        }
-        pop.appendChild(b);
-      }
       pop.hidden = !pop.children.length;
     }
-    name.addEventListener('focus', render); name.addEventListener('input', render); cat.addEventListener('change', () => { render(); name.focus(); });
+    /* the button under the bar: "Add exercise" for one in the list, "Create exercise" for the member's own */
+    const go = el('button', 'btn-small exgo'); go.type = 'button'; go.hidden = true; nf.appendChild(go);
+    const msg = el('div', 'exmsg'); msg.hidden = true; nf.appendChild(msg);
+    const found = () => { const q = name.value.trim().toLowerCase(); return q ? exBase.find((x) => x.name.toLowerCase() === q) : null; };
+    function say(t, bad) { msg.hidden = !t; msg.textContent = t || ''; msg.className = 'exmsg' + (bad ? ' bad' : ''); }
+    function state() {
+      say('');
+      if (!name.value.trim()) { go.hidden = true; return; }
+      const f = found(); go.hidden = false; go.disabled = false;
+      go.textContent = f ? 'Add exercise' : 'Create exercise'; go.className = 'btn-small exgo' + (f ? '' : ' mut');
+    }
+    go.addEventListener('click', async () => {
+      const f = found(); pop.hidden = true;
+      if (f) { name.value = f.name; say('✓ ' + f.name + ' added'); go.hidden = true; return; }
+      if (cat.value === 'All') { say('Pick a category first (the box on the right) so we can file it.', true); cat.focus(); return; }
+      go.disabled = true; go.textContent = 'Saving…';
+      try {
+        const x = await DB.addExercise(name.value.trim(), cat.value);
+        if (!exBase.some((e) => e.name.toLowerCase() === x.name.toLowerCase())) exBase.push(x);
+        name.value = x.name; say('✓ ' + x.name + ' saved to your own exercises'); go.hidden = true;
+      } catch (e) { go.disabled = false; go.textContent = 'Create exercise'; say((e && e.message) || 'Could not save it.', true); }
+    });
+    name.addEventListener('focus', render); name.addEventListener('input', () => { render(); state(); });
+    cat.addEventListener('change', () => { render(); state(); name.focus(); });
+    state();
     return nf;
   }
   function exerciseRow(data) {

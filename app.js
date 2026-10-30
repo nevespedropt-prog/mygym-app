@@ -532,6 +532,10 @@
     a.addEventListener('click', (e) => e.stopPropagation());
     return a;
   }
+  /* other names for the same exercise ("also known as"): search finds an exercise by any of them */
+  const exAkas = (x) => (Array.isArray(x.also_known_as) ? x.also_known_as : []);
+  const exMatch = (x, q) => !q || x.name.toLowerCase().indexOf(q) !== -1 || exAkas(x).some((a) => a.toLowerCase().indexOf(q) !== -1);
+  const exAkaHit = (x, q) => (q && x.name.toLowerCase().indexOf(q) === -1) ? exAkas(x).find((a) => a.toLowerCase().indexOf(q) !== -1) : null;
   /* ---- exercise search bar: type to search, pick a category, or add your own ---- */
   const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes', 'Lower back'];
   const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Lower back', 'Core', 'Cardio', 'Plyometrics', 'Full body'];
@@ -559,7 +563,7 @@
       pop.textContent = '';
       const q = name.value.trim().toLowerCase();
       const all = exBase;
-      const hits = all.filter((x) => exInCat(x, cat.value) && (!q || x.name.toLowerCase().indexOf(q) !== -1));
+      const hits = all.filter((x) => exInCat(x, cat.value) && exMatch(x, q));
       const secOf = (x) => x.mine ? 'Your own' : EX_UPPER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Upper body' ? 'Upper body'
         : EX_LOWER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Lower body' ? 'Lower body' : x.muscle_group;
       const secs = cat.value === 'All' ? ['Upper body', 'Lower body', 'Core', 'Cardio', 'Plyometrics', 'Full body', 'Your own'] : [null];
@@ -569,7 +573,7 @@
         if (sec) pop.appendChild(el('div', 'exsec', sec));
         part.forEach((x) => {
           const b = el('button', 'expick'); b.type = 'button';
-          b.appendChild(el('b', '', x.name)); b.appendChild(el('small', '', x.muscle_group + (x.mine ? ' · yours' : '')));
+          const ak = exAkaHit(x, q); b.appendChild(el('b', '', x.name)); b.appendChild(el('small', '', (ak ? 'also called ' + ak : x.muscle_group) + (x.mine ? ' · yours' : '')));
           b.addEventListener('click', () => { name.value = x.name; pop.hidden = true; state(); });
           pop.appendChild(b);
         });
@@ -581,7 +585,7 @@
     const msg = el('div', 'exmsg'); msg.hidden = true; nf.appendChild(msg);
     const yt = el('div', 'exyt'); yt.hidden = true; nf.appendChild(yt);
     let settled = String(value || '').trim().toLowerCase();   // a name that arrived already filled in (Repeat, Edit, a saved draft, the Library) needs no Add button
-    const found = () => { const q = name.value.trim().toLowerCase(); return q ? exBase.find((x) => x.name.toLowerCase() === q) : null; };
+    const found = () => { const q = name.value.trim().toLowerCase(); return q ? (exBase.find((x) => x.name.toLowerCase() === q) || exBase.find((x) => exAkas(x).some((a) => a.toLowerCase() === q))) : null; };
     function say(t, bad) { msg.hidden = !t; msg.textContent = t || ''; msg.className = 'exmsg' + (bad ? ' bad' : ''); }
     function state() {
       say('');
@@ -1119,14 +1123,18 @@
     const box = $('#exLibList'); box.textContent = '';
     const list = exData.filter((x) => (exGroup === 'All' || x.muscle_group === exGroup)
       && (exEquip === 'All' || x.equipment === exEquip)
-      && (!q || x.name.toLowerCase().indexOf(q) !== -1));
+      && exMatch(x, q));
     if (!list.length) { box.appendChild(el('p', 'note', 'No exercises match.')); return; }
     list.forEach((x) => {
       const card = el('div', 'card exlib');
       card.appendChild(el('span', 'chip', x.muscle_group));
       card.appendChild(el('span', 'chip eq', x.equipment));
       card.appendChild(el('b', '', x.name));
-      card.appendChild(el('div', 'how', x.how_to));
+      const akaHit = exAkaHit(x, q);
+      if (akaHit) card.appendChild(el('div', 'aka-hit', 'Also called "' + akaHit + '"'));
+      const how = el('div', 'how'); how.appendChild(document.createTextNode(x.how_to));
+      if (exAkas(x).length) how.appendChild(el('div', 'aka', 'Also called: ' + exAkas(x).join(', ')));
+      card.appendChild(how);
       const acts = el('div', 'exlib-acts');
       acts.appendChild(ytLink(x.name));
       if (authed) {

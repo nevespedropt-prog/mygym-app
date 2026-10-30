@@ -523,6 +523,14 @@
     if (val != null && val !== '') i.value = val;
     f.appendChild(i); return f;
   }
+  /* link to a YouTube search for the exercise (no stored links to go stale) */
+  function ytLink(name, cls) {
+    const a = el('a', cls || 'ytbtn', '▶ Watch on YouTube');
+    a.href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' exercise how to');
+    a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.addEventListener('click', (e) => e.stopPropagation());
+    return a;
+  }
   /* ---- exercise search bar: type to search, pick a category, or add your own ---- */
   const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes', 'Lower back'];
   const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Lower back', 'Core', 'Cardio', 'Full body'];
@@ -570,10 +578,12 @@
     /* the button under the bar: "Add exercise" for one in the list, "Create exercise" for the member's own */
     const go = el('button', 'btn-small exgo'); go.type = 'button'; go.hidden = true; nf.appendChild(go);
     const msg = el('div', 'exmsg'); msg.hidden = true; nf.appendChild(msg);
+    const yt = el('div', 'exyt'); yt.hidden = true; nf.appendChild(yt);
     const found = () => { const q = name.value.trim().toLowerCase(); return q ? exBase.find((x) => x.name.toLowerCase() === q) : null; };
     function say(t, bad) { msg.hidden = !t; msg.textContent = t || ''; msg.className = 'exmsg' + (bad ? ' bad' : ''); }
     function state() {
       say('');
+      yt.textContent = ''; const fy = found(); yt.hidden = !fy; if (fy) yt.appendChild(ytLink(fy.name));
       if (!name.value.trim()) { go.hidden = true; return; }
       const f = found(); go.hidden = false; go.disabled = false;
       go.textContent = f ? 'Add exercise' : 'Create exercise'; go.className = 'btn-small exgo' + (f ? '' : ' mut');
@@ -956,6 +966,7 @@
       card.appendChild(el('span', 'chip eq', x.equipment));
       card.appendChild(el('b', '', x.name));
       card.appendChild(el('div', 'how', x.how_to));
+      card.appendChild(ytLink(x.name));
       card.addEventListener('click', () => card.classList.toggle('open'));
       box.appendChild(card);
     });

@@ -547,9 +547,10 @@
       if (!LIVE) return DEMO_EXERCISES.concat(dGet('my_exercises', []));
       const { data, error } = await sb.from('exercises').select('*').order('sort').order('name');
       const base = (error || !data || !data.length) ? DEMO_EXERCISES : data;
-      const { data: mine } = await sb.from('exercise_suggestions').select('name, muscle_group').neq('status', 'rejected');
+      const { data: mine } = await sb.from('exercise_suggestions').select('name, muscle_group, final_name').neq('status', 'rejected');
       const have = new Set(base.map((x) => x.name.toLowerCase()));
-      return base.concat((mine || []).filter((m) => !have.has(m.name.toLowerCase())).map((m) => ({ name: m.name, muscle_group: m.muscle_group, equipment: '', how_to: '', mine: true })));
+      /* a suggestion that was matched to an existing exercise (final_name) is already in the library under that name, so it is not listed twice */
+      return base.concat((mine || []).filter((m) => !have.has(String(m.final_name || m.name).toLowerCase())).map((m) => ({ name: m.final_name || m.name, muscle_group: m.muscle_group, equipment: '', how_to: '', mine: true })));
     },
 
     /* a member suggests an exercise that is not in the list. It is saved separately (exercise_suggestions) and checked

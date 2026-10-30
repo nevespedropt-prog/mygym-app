@@ -534,7 +534,7 @@
   }
   /* ---- exercise search bar: type to search, pick a category, or add your own ---- */
   const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes', 'Lower back'];
-  const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Lower back', 'Core', 'Cardio', 'Full body'];
+  const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Lower back', 'Core', 'Cardio', 'Plyometrics', 'Full body'];
   let exBase = null;
   function exInCat(x, c) {
     return c === 'All' || x.muscle_group === c
@@ -562,7 +562,7 @@
       const hits = all.filter((x) => exInCat(x, cat.value) && (!q || x.name.toLowerCase().indexOf(q) !== -1));
       const secOf = (x) => x.mine ? 'Your own' : EX_UPPER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Upper body' ? 'Upper body'
         : EX_LOWER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Lower body' ? 'Lower body' : x.muscle_group;
-      const secs = cat.value === 'All' ? ['Upper body', 'Lower body', 'Core', 'Cardio', 'Full body', 'Your own'] : [null];
+      const secs = cat.value === 'All' ? ['Upper body', 'Lower body', 'Core', 'Cardio', 'Plyometrics', 'Full body', 'Your own'] : [null];
       secs.forEach((sec) => {
         const part = hits.filter((x) => !sec || secOf(x) === sec).slice(0, 30);
         if (!part.length) return;

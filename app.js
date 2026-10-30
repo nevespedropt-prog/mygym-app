@@ -691,32 +691,30 @@
     return sr || wt || '';
   }
 
+  const openWo = new Set();                   // logged workouts the member has opened; the rest stay minimised
   async function renderWorkouts() {
     const box = $('#wHistory'); box.textContent = '';
     let logs = []; try { logs = await DB.getWorkouts(60); } catch (e) {}
     if (!logs.length) { box.appendChild(el('p', 'note', 'No workouts logged yet. Your first one is waiting 💪')); return; }
     logs.forEach((w) => {
       const exs = exListOf(w);
-      const sess = el('div', 'wlog-session');
-      const head = el('div', 'wlog-head');
+      const sess = el('div', 'wlog-session' + (openWo.has(w.id) ? ' open' : ''));
+      const head = el('button', 'wlog-head'); head.type = 'button';
+      head.setAttribute('aria-expanded', openWo.has(w.id) ? 'true' : 'false');
       const t = el('div');
       t.appendChild(el('b', '', w.title || 'Workout'));
       t.appendChild(el('small', '', fmtShort(w.date) + ' · ' + exs.length + (exs.length === 1 ? ' exercise' : ' exercises')));
       head.appendChild(t);
-      const acts = el('div', 'wlog-acts');
-      const edit = el('button', 'del', 'Edit'); edit.type = 'button'; edit.title = 'Edit this workout';
-      edit.addEventListener('click', () => startEdit(w));
-      const del = el('button', 'del', '✕'); del.type = 'button'; del.title = 'Delete this workout';
-      let armed = false;
-      del.addEventListener('click', async () => {
-        if (!armed) { armed = true; del.textContent = 'Delete?'; setTimeout(() => { armed = false; del.textContent = '✕'; }, 3000); return; }
-        await DB.deleteWorkout(w.id).catch(() => {});
-        if (editingId === w.id) resetBuilder();
-        renderWorkouts(); renderDash();
+      const tog = el('span', 'wlog-toggle', openWo.has(w.id) ? '−' : '+'); tog.setAttribute('aria-hidden', 'true');
+      head.appendChild(tog);
+      head.addEventListener('click', () => {
+        const open = sess.classList.toggle('open');
+        if (open) openWo.add(w.id); else openWo.delete(w.id);
+        tog.textContent = open ? '−' : '+'; head.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-      acts.appendChild(edit); acts.appendChild(del);
-      head.appendChild(acts);
       sess.appendChild(head);
+
+      const body = el('div', 'wlog-body');
       const ul = el('div', 'wlog-ex');
       exs.forEach((x) => {
         const line = el('div', 'wlog-line');
@@ -727,9 +725,23 @@
         if (x.name) { const yl = ytLink(x.name, 'ytmini', '▶'); yl.title = 'Watch how to do ' + x.name + ' on YouTube'; line.appendChild(yl); }
         ul.appendChild(line);
       });
-      sess.appendChild(ul);
-      const tip = el('div', 'wlog-tip', 'Tap Edit to add the weights you lifted and your sets and reps. Tap ▶ next to an exercise to watch how it is done.');
-      sess.appendChild(tip);
+      body.appendChild(ul);
+      body.appendChild(el('div', 'wlog-tip', 'Tap Edit to add the weights you lifted and your sets and reps. Tap ▶ next to an exercise to watch how it is done.'));
+      const acts = el('div', 'wlog-acts');
+      const edit = el('button', 'btn-small ghost', 'Edit'); edit.type = 'button'; edit.title = 'Edit this workout';
+      edit.addEventListener('click', () => startEdit(w));
+      const del = el('button', 'btn-small mut', 'Delete'); del.type = 'button'; del.title = 'Delete this workout';
+      let armed = false;
+      del.addEventListener('click', async () => {
+        if (!armed) { armed = true; del.textContent = 'Tap again to delete'; setTimeout(() => { armed = false; del.textContent = 'Delete'; }, 3000); return; }
+        await DB.deleteWorkout(w.id).catch(() => {});
+        openWo.delete(w.id);
+        if (editingId === w.id) resetBuilder();
+        renderWorkouts(); renderDash();
+      });
+      acts.appendChild(edit); acts.appendChild(del);
+      body.appendChild(acts);
+      sess.appendChild(body);
       box.appendChild(sess);
     });
   }

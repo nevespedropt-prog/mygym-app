@@ -2,7 +2,7 @@
   "name": "MY GYM London",
   "short_name": "MY GYM",
   "description": "Your private community gym in Bush Hill Park, Enfield. Book classes, log workouts, track progress.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

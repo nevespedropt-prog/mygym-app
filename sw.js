@@ -1,8 +1,7 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v31';
+const CACHE = 'mygym-v32';
 const ASSETS = [
   './',
-  './index.html',
   './manifest.json',
   './timetable.js',
   './app.js',
@@ -20,8 +19,18 @@ const ASSETS = [
   './fonts/barlow-condensed-800.woff2'
 ];
 
+/* A response that came through a redirect (Cloudflare turns /index.html into /) cannot be handed to a page navigation:
+   the browser refuses it and shows "This site can't be reached" (ERR_FAILED). So copy it into a plain response before keeping it. */
+const clean = (res) => (res && res.redirected)
+  ? new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers })
+  : res;
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(c => Promise.all(ASSETS.map(a => fetch(a, { cache: 'reload' }).then(res => { if (!res.ok) throw new Error(a); return c.put(a, clean(res)); }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {
@@ -53,12 +62,17 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  /* the app opens at index.html: serve the home page (./) for it, whatever the host does with that address */
+  const isIndex = url.pathname.endsWith('/index.html');
+  const key = isIndex ? './' : e.request;
   e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(hit => {
+    caches.match(key, { ignoreSearch: true }).then(hit => {
+      if (hit && hit.redirected) hit = clean(hit);
       const refresh = fetch(e.request).then(res => {
-        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+        if (res && res.ok && !res.redirected) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(key, copy)); }
+        else if (res && res.ok && res.redirected) { const copy = clean(res.clone()); caches.open(CACHE).then(c => c.put(key, copy)); }
         return res;
-      }).catch(() => hit || caches.match('./index.html'));
+      }).catch(() => hit || caches.match('./'));
       return hit || refresh;
     })
   );

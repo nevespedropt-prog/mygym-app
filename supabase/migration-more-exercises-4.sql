@@ -1,4 +1,4 @@
--- MY GYM London - 30 more exercises: plyometrics (22, new group "Plyometrics", jump box and bodyweight) and sled work (8, group "Cardio")
+-- MY GYM London - 30 more exercises: plyometrics (22, new group "Plyometrics", jump box and bodyweight) and sled work (8, filed as strength: Legs, Full body or Back)
 -- Each how-to starts with the level: Beginner, Intermediate or Advanced.
 -- Paste into Supabase Dashboard -> SQL Editor -> Run (safe to re-run: skips any name already in the library, any capitals).
 with new_rows(name, muscle_group, equipment, how_to, sort) as (values
@@ -26,15 +26,15 @@ with new_rows(name, muscle_group, equipment, how_to, sort) as (values
 ('Explosive push-up','Plyometrics','Bodyweight','Intermediate. Lower to the floor and push up hard so the hands leave the floor, landing with soft elbows.',484),
 ('Dumbbell jump squat','Plyometrics','Dumbbell','Advanced. Hold light dumbbells at the sides, squat and jump up, landing softly.',485),
 ('Double unders','Plyometrics','Skipping rope','Advanced. Swing the rope twice under the feet on every jump, staying tall and relaxed.',486),
--- Sled work (8) -> Cardio
-('Heavy sled push','Cardio','Sled','Advanced. Load the sled heavy, lean into the handles with a flat back and push with short, powerful steps.',487),
-('Light sled sprint push','Cardio','Sled','Intermediate. Load the sled lightly and push it as fast as you can with long, driving steps.',488),
-('Low-handle sled push','Cardio','Sled','Intermediate. Hold the low handles with the body leaning forward, and push with a flat back.',489),
-('High-handle sled push','Cardio','Sled','Intermediate. Hold the high handles with a more upright body and push with steady strides.',490),
-('Single-arm sled push','Cardio','Sled','Advanced. Push the sled with one hand on the handle, keeping the hips and shoulders square.',491),
-('Backward sled drag','Cardio','Sled','Beginner. Face the sled holding the straps or handles, and walk backwards with small steps, pulling it towards you.',492),
-('Sled lateral drag','Cardio','Sled','Intermediate. Strap on or hold the rope, and side-step with the sled following, keeping the hips low.',493),
-('Sled rope pull-in','Cardio','Sled','Intermediate. Stand facing the sled with a rope attached, and pull it in hand over hand, keeping the chest tall.',494)
+-- Sled work (8): strength exercises, not cardio (the existing Sled push and Sled pull were moved to Legs too with: update public.exercises set muscle_group = 'Legs' where name in ('Sled push','Sled pull');)
+('Heavy sled push','Legs','Sled','Advanced. Load the sled heavy, lean into the handles with a flat back and push with short, powerful steps.',487),
+('Light sled sprint push','Legs','Sled','Intermediate. Load the sled lightly and push it as fast as you can with long, driving steps.',488),
+('Low-handle sled push','Legs','Sled','Intermediate. Hold the low handles with the body leaning forward, and push with a flat back.',489),
+('High-handle sled push','Legs','Sled','Intermediate. Hold the high handles with a more upright body and push with steady strides.',490),
+('Single-arm sled push','Full body','Sled','Advanced. Push the sled with one hand on the handle, keeping the hips and shoulders square.',491),
+('Backward sled drag','Legs','Sled','Beginner. Face the sled holding the straps or handles, and walk backwards with small steps, pulling it towards you.',492),
+('Sled lateral drag','Legs','Sled','Intermediate. Strap on or hold the rope, and side-step with the sled following, keeping the hips low.',493),
+('Sled rope pull-in','Back','Sled','Intermediate. Stand facing the sled with a rope attached, and pull it in hand over hand, keeping the chest tall.',494)
 )
 insert into public.exercises (name, muscle_group, equipment, how_to, sort)
 select n.name, n.muscle_group, n.equipment, n.how_to, n.sort

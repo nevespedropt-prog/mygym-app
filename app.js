@@ -523,6 +523,71 @@
     if (val != null && val !== '') i.value = val;
     f.appendChild(i); return f;
   }
+  /* ---- exercise search bar: type to search, pick a category, or add your own ---- */
+  const EX_UPPER = ['Chest', 'Back', 'Shoulders', 'Arms'], EX_LOWER = ['Legs', 'Glutes'];
+  const EX_CATS = ['Upper body', 'Lower body', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 'Core', 'Cardio', 'Full body'];
+  let exBase = null;
+  function exInCat(x, c) {
+    return c === 'All' || x.muscle_group === c
+      || (c === 'Upper body' && EX_UPPER.indexOf(x.muscle_group) !== -1)
+      || (c === 'Lower body' && EX_LOWER.indexOf(x.muscle_group) !== -1);
+  }
+  document.addEventListener('click', (e) => {
+    $$('.expop').forEach((p) => { if (!p.parentNode.contains(e.target)) p.hidden = true; });
+  });
+  function exercisePicker(value) {
+    if (!exBase) { exBase = []; DB.getExercises().then((d) => { exBase = d || []; }).catch(() => {}); }
+    const nf = el('div', 'field exsearch');
+    nf.appendChild(el('label', '', 'Exercise'));
+    const bar = el('div', 'exbar');
+    const name = el('input'); name.className = 'ex-name'; name.placeholder = 'Search exercises…';
+    name.autocomplete = 'off'; name.value = value || '';
+    const cat = el('select'); cat.className = 'ex-cat';
+    [['All', 'All']].concat(EX_CATS.map((c) => [c, c])).forEach((c) => { const o = el('option', '', c[1]); o.value = c[0]; cat.appendChild(o); });
+    bar.appendChild(name); bar.appendChild(cat); nf.appendChild(bar);
+    const pop = el('div', 'expop'); pop.hidden = true; nf.appendChild(pop);
+    function render() {
+      pop.textContent = '';
+      const q = name.value.trim().toLowerCase();
+      const all = exBase;
+      const hits = all.filter((x) => exInCat(x, cat.value) && (!q || x.name.toLowerCase().indexOf(q) !== -1));
+      const secOf = (x) => x.mine ? 'Your own' : EX_UPPER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Upper body' ? 'Upper body'
+        : EX_LOWER.indexOf(x.muscle_group) !== -1 || x.muscle_group === 'Lower body' ? 'Lower body' : x.muscle_group;
+      const secs = cat.value === 'All' ? ['Upper body', 'Lower body', 'Core', 'Cardio', 'Full body', 'Your own'] : [null];
+      secs.forEach((sec) => {
+        const part = hits.filter((x) => !sec || secOf(x) === sec).slice(0, 30);
+        if (!part.length) return;
+        if (sec) pop.appendChild(el('div', 'exsec', sec));
+        part.forEach((x) => {
+          const b = el('button', 'expick'); b.type = 'button';
+          b.appendChild(el('b', '', x.name)); b.appendChild(el('small', '', x.muscle_group + (x.mine ? ' · yours' : '')));
+          b.addEventListener('click', () => { name.value = x.name; pop.hidden = true; });
+          pop.appendChild(b);
+        });
+      });
+      if (q && !all.some((x) => x.name.toLowerCase() === q)) {
+        const typed = name.value.trim();
+        const b = el('button', 'expick new'); b.type = 'button';
+        if (cat.value === 'All') { b.textContent = 'Not in the list? Pick a category above to add "' + typed + '"'; b.disabled = true; }
+        else {
+          b.textContent = '+ Add "' + typed + '" as your own (' + cat.value + ')';
+          b.addEventListener('click', async () => {
+            try {
+              const x = await DB.addExercise(typed, cat.value);
+              if (!exBase.some((e) => e.name.toLowerCase() === x.name.toLowerCase())) exBase.push(x);
+              name.value = x.name; pop.hidden = true;
+            } catch (e) {
+              pop.textContent = ''; pop.appendChild(el('div', 'exsec exerr', (e && e.message) || 'Could not add it.'));
+            }
+          });
+        }
+        pop.appendChild(b);
+      }
+      pop.hidden = !pop.children.length;
+    }
+    name.addEventListener('focus', render); name.addEventListener('input', render); cat.addEventListener('change', () => { render(); name.focus(); });
+    return nf;
+  }
   function exerciseRow(data) {
     data = data || {};
     const row = el('div', 'exrow');
@@ -533,10 +598,7 @@
     });
     row.appendChild(del);
     row.appendChild(el('div', 'exhead', 'Exercise'));
-    const nf = el('div', 'field');
-    nf.appendChild(el('label', '', 'Name'));
-    const name = el('input'); name.className = 'ex-name'; name.placeholder = 'e.g. Goblet squat'; name.value = data.name || '';
-    nf.appendChild(name); row.appendChild(nf);
+    row.appendChild(exercisePicker(data.name));
     const r3 = el('div', 'row3');
     r3.appendChild(fieldNum('Sets', 'ex-sets', 'number', '3', data.sets));
     r3.appendChild(fieldNum('Reps', 'ex-reps', 'text', '10', data.reps));
@@ -873,7 +935,7 @@
 
   async function renderExercises() {
     if (!exData) {
-      exData = await DB.getExercises().catch(() => []);
+      exData = (await DB.getExercises().catch(() => [])).filter((x) => !x.mine);
       fillFilters(exData);
     }
     const q = $('#exSearch').value.trim().toLowerCase();

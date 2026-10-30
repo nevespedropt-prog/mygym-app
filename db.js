@@ -531,12 +531,25 @@
       return data;
     },
 
-    /* ---- exercise library (falls back to the built-in list if the table is missing) ---- */
+    /* ---- exercise library (falls back to the built-in list if the table is missing) ----
+       The member's own suggestions are added to the list so they can use them straight away. */
     async getExercises() {
-      if (!LIVE) return DEMO_EXERCISES;
+      if (!LIVE) return DEMO_EXERCISES.concat(dGet('my_exercises', []));
       const { data, error } = await sb.from('exercises').select('*').order('sort').order('name');
-      if (error || !data || !data.length) return DEMO_EXERCISES;
-      return data;
+      const base = (error || !data || !data.length) ? DEMO_EXERCISES : data;
+      const { data: mine } = await sb.from('exercise_suggestions').select('name, muscle_group').neq('status', 'rejected');
+      const have = new Set(base.map((x) => x.name.toLowerCase()));
+      return base.concat((mine || []).filter((m) => !have.has(m.name.toLowerCase())).map((m) => ({ name: m.name, muscle_group: m.muscle_group, equipment: '', how_to: '', mine: true })));
+    },
+
+    /* a member suggests an exercise that is not in the list. It is saved separately (exercise_suggestions) and checked
+       once a week before it joins the library. Returns the exercise, or throws an Error with a message safe to show. */
+    async addExercise(name, group) {
+      const x = { name: name, muscle_group: group, equipment: '', how_to: '', mine: true };
+      if (!LIVE) { const l = dGet('my_exercises', []); l.push(x); dSet('my_exercises', l); return x; }
+      const { error } = await sb.from('exercise_suggestions').insert({ name: name, muscle_group: group });
+      if (error && error.code !== '23505') throw new Error(error.code === 'P0001' ? error.message : 'Could not save it. Please try again.');
+      return x;
     },
 
     /* ---- meals (recipes, foods, 7-day plans); read-only, empty if the tables are missing ---- */

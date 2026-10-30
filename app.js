@@ -623,6 +623,16 @@
     return row;
   }
   function addExercise(data) { $('#exList').appendChild(exerciseRow(data)); renumberEx(); }
+  /* Library "Add to my workout": puts the exercise into the Log page builder (replacing the one blank row if that is all there is) */
+  function addToWorkout(x) {
+    const rows = $$('#exList .exrow');
+    const names = rows.map((r) => (r.querySelector('.ex-name').value || '').trim().toLowerCase());
+    if (names.indexOf(String(x.name).toLowerCase()) !== -1) return 'dup';
+    const blank = rows.length === 1 && !names[0] && !rows[0].querySelector('.ex-sets').value && !rows[0].querySelector('.ex-reps').value && !rows[0].querySelector('.ex-weight').value;
+    if (blank) $('#exList').textContent = '';
+    addExercise({ name: x.name });
+    return 'ok';
+  }
   function renumberEx() {
     $$('#exList .exrow').forEach((r, i) => { const h = r.querySelector('.exhead'); if (h) h.textContent = 'Exercise ' + (i + 1); });
   }
@@ -1020,7 +1030,21 @@
       card.appendChild(el('span', 'chip eq', x.equipment));
       card.appendChild(el('b', '', x.name));
       card.appendChild(el('div', 'how', x.how_to));
-      card.appendChild(ytLink(x.name));
+      const acts = el('div', 'exlib-acts');
+      acts.appendChild(ytLink(x.name));
+      if (authed) {
+        const addBtn = el('button', 'btn-small addlog', '+ Add to my workout'); addBtn.type = 'button';
+        let added = false;
+        addBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (added) { go('log'); return; }
+          const r = addToWorkout(x);
+          added = true; addBtn.textContent = r === 'dup' ? 'Already in your workout · Open My Log →' : '✅ Added · Open My Log →';
+          setTimeout(() => { added = false; addBtn.textContent = '+ Add to my workout'; }, 12000);
+        });
+        acts.appendChild(addBtn);
+      }
+      card.appendChild(acts);
       card.addEventListener('click', () => card.classList.toggle('open'));
       box.appendChild(card);
     });

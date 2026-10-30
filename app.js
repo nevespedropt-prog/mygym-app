@@ -728,11 +728,7 @@
         ul.appendChild(line);
       });
       sess.appendChild(ul);
-      const tip = el('div', 'wlog-tip');
-      tip.appendChild(document.createTextNode('Not sure how an exercise is done? Tap the ▶ next to it, or open the '));
-      const lib = el('a', '', 'Library'); lib.href = '#'; lib.addEventListener('click', (e) => { e.preventDefault(); go('library'); });
-      tip.appendChild(lib);
-      tip.appendChild(document.createTextNode(', search the exercise and tap Watch on YouTube to see the technique.'));
+      const tip = el('div', 'wlog-tip', 'Tap Edit to add the weights you lifted and your sets and reps. Tap ▶ next to an exercise to watch how it is done.');
       sess.appendChild(tip);
       box.appendChild(sess);
     });

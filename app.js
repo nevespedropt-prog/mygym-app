@@ -524,8 +524,8 @@
     f.appendChild(i); return f;
   }
   /* link to a YouTube search for the exercise (no stored links to go stale) */
-  function ytLink(name, cls) {
-    const a = el('a', cls || 'ytbtn', '▶ Watch on YouTube');
+  function ytLink(name, cls, label) {
+    const a = el('a', cls || 'ytbtn', label || '▶ Watch on YouTube');
     a.href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' exercise how to');
     a.target = '_blank'; a.rel = 'noopener noreferrer';
     a.addEventListener('click', (e) => e.stopPropagation());
@@ -638,24 +638,46 @@
 
   $('#addEx').addEventListener('click', () => { addExercise(); const n = $$('#exList .ex-name'); if (n.length) n[n.length - 1].focus(); });
 
+  /* the database keeps the one-line summary to 100 characters, so cut it here instead of failing the save */
+  function summaryOf(names, fallback) {
+    const t = names.filter(Boolean).join(', ') || fallback;
+    return t.length > 100 ? t.slice(0, 97) + '…' : t;
+  }
+  let editingId = null;                       // set while a logged workout is being edited
+  const wCancel = el('button', 'btn-small mut', 'Cancel editing'); wCancel.type = 'button'; wCancel.hidden = true;
+  wCancel.style.cssText = 'width:100%;margin:8px 0 0';
+  $('#wSave').insertAdjacentElement('afterend', wCancel);
+  function resetBuilder() {
+    editingId = null; wCancel.hidden = true;
+    $('#wTitle').value = ''; $('#exList').textContent = ''; addExercise();
+    $('#wSave').textContent = 'Save workout';
+  }
+  wCancel.addEventListener('click', resetBuilder);
+  function startEdit(w) {
+    editingId = w.id;
+    $('#wTitle').value = w.title || '';
+    $('#exList').textContent = '';
+    exListOf(w).forEach((x) => addExercise({ name: x.name, sets: x.sets, reps: x.reps, weight: x.weight }));
+    ensureBuilder();
+    $('#wSave').textContent = 'Update workout'; wCancel.hidden = false;
+    toast($('#wErr'), 'Editing "' + (w.title || 'Workout') + '". Change what you need, then tap Update workout.', false);
+    const top = $('#paneWorkouts'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   $('#wSave').addEventListener('click', async () => {
     const exs = collectExercises();
     if (!exs.length || !exs.some((x) => x.name)) return toast($('#wErr'), 'Add at least one exercise with a name.', true);
     const title = ($('#wTitle').value || '').trim();
-    const entry = {
-      date: fmtISO(new Date()),
-      title: title,
-      exercise: (exs.map((x) => x.name).filter(Boolean).join(', ') || (exs.length + ' exercises')).slice(0, 140),
-      exercises: exs,
-      notes: ''
-    };
+    const summary = summaryOf(exs.map((x) => x.name), exs.length + ' exercises');
+    const editing = editingId;
     $('#wSave').disabled = true; $('#wSave').textContent = 'Saving…';
     try {
-      await DB.addWorkout(entry);
-      $('#wTitle').value = ''; $('#exList').textContent = ''; addExercise();
+      if (editing) await DB.updateWorkout(editing, { title: title, exercise: summary, exercises: exs });
+      else await DB.addWorkout({ date: fmtISO(new Date()), title: title, exercise: summary, exercises: exs, notes: '' });
+      resetBuilder();
       renderWorkouts(); renderDash();
-    } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); }
-    $('#wSave').disabled = false; $('#wSave').textContent = 'Save workout';
+    } catch (e) { toast($('#wErr'), (e && e.message) || 'Could not save', true); $('#wSave').textContent = editing ? 'Update workout' : 'Save workout'; }
+    $('#wSave').disabled = false;
   });
 
   function exListOf(w) {
@@ -681,9 +703,19 @@
       t.appendChild(el('b', '', w.title || 'Workout'));
       t.appendChild(el('small', '', fmtShort(w.date) + ' · ' + exs.length + (exs.length === 1 ? ' exercise' : ' exercises')));
       head.appendChild(t);
-      const del = el('button', 'del', '✕');
-      del.addEventListener('click', async () => { await DB.deleteWorkout(w.id).catch(() => {}); renderWorkouts(); renderDash(); });
-      head.appendChild(del);
+      const acts = el('div', 'wlog-acts');
+      const edit = el('button', 'del', 'Edit'); edit.type = 'button'; edit.title = 'Edit this workout';
+      edit.addEventListener('click', () => startEdit(w));
+      const del = el('button', 'del', '✕'); del.type = 'button'; del.title = 'Delete this workout';
+      let armed = false;
+      del.addEventListener('click', async () => {
+        if (!armed) { armed = true; del.textContent = 'Delete?'; setTimeout(() => { armed = false; del.textContent = '✕'; }, 3000); return; }
+        await DB.deleteWorkout(w.id).catch(() => {});
+        if (editingId === w.id) resetBuilder();
+        renderWorkouts(); renderDash();
+      });
+      acts.appendChild(edit); acts.appendChild(del);
+      head.appendChild(acts);
       sess.appendChild(head);
       const ul = el('div', 'wlog-ex');
       exs.forEach((x) => {
@@ -692,9 +724,16 @@
         const d = exDesc(x);
         if (d) line.appendChild(el('span', 'nn', ' — ' + d));
         if (x.note) line.appendChild(el('span', 'nn', ' · ' + x.note));
+        if (x.name) { const yl = ytLink(x.name, 'ytmini', '▶'); yl.title = 'Watch how to do ' + x.name + ' on YouTube'; line.appendChild(yl); }
         ul.appendChild(line);
       });
       sess.appendChild(ul);
+      const tip = el('div', 'wlog-tip');
+      tip.appendChild(document.createTextNode('Not sure how an exercise is done? Tap the ▶ next to it, or open the '));
+      const lib = el('a', '', 'Library'); lib.href = '#'; lib.addEventListener('click', (e) => { e.preventDefault(); go('library'); });
+      tip.appendChild(lib);
+      tip.appendChild(document.createTextNode(', search the exercise and tap Watch on YouTube to see the technique.'));
+      sess.appendChild(tip);
       box.appendChild(sess);
     });
   }
@@ -894,14 +933,21 @@
       });
       const btnRow = el('div'); btnRow.style.marginTop = '10px';
       const logBtn = el('button', 'btn-small', '🏋️ Log this plan');
+      let logged = false;
       logBtn.addEventListener('click', async (e) => {
-        e.stopPropagation(); logBtn.disabled = true;
+        e.stopPropagation();
+        if (logged) { go('log'); return; }
+        logBtn.disabled = true;
         try {
           const exs = (t.exercises || []).map((x) => ({ name: x.name, sets: x.sets || null, reps: x.reps ? String(x.reps) : null, weight: null, note: x.note || '' }));
-          await DB.addWorkout({ date: fmtISO(new Date()), title: t.name, exercise: (exs.map((x) => x.name).join(', ') || t.name).slice(0, 140), exercises: exs, notes: '' });
-          logBtn.textContent = '✅ Logged!';
-          setTimeout(() => { logBtn.textContent = '🏋️ Log this plan'; }, 2500);
-        } catch (err) { logBtn.textContent = 'Error'; }
+          await DB.addWorkout({ date: fmtISO(new Date()), title: String(t.name || 'Workout').slice(0, 100), exercise: summaryOf(exs.map((x) => x.name), t.name || 'Workout'), exercises: exs, notes: '' });
+          logged = true; logBtn.textContent = '✅ Logged! Open My Log →';
+          renderWorkouts(); renderDash();
+          setTimeout(() => { logged = false; logBtn.textContent = '🏋️ Log this plan'; }, 12000);
+        } catch (err) {
+          logBtn.textContent = 'Could not log. Tap to try again';
+          setTimeout(() => { logBtn.textContent = '🏋️ Log this plan'; }, 3000);
+        }
         logBtn.disabled = false;
       });
       btnRow.appendChild(logBtn);

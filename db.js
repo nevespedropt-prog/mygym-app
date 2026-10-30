@@ -491,6 +491,16 @@
       if (error) throw error;
     },
 
+    async updateWorkout(id, patch) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      if (!LIVE) {
+        dSet('workouts_' + u.email, dGet('workouts_' + u.email, []).map((w) => (w.id === id ? Object.assign({}, w, patch) : w)));
+        return;
+      }
+      const { error } = await sb.from('workout_logs').update(patch).eq('id', id).eq('user_id', u.id);
+      if (error) throw error;
+    },
+
     async getWorkouts(limit = 50) {
       const u = await DB.getUser(); if (!u) return [];
       if (!LIVE) return dGet('workouts_' + u.email, []).slice(0, limit);

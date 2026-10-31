@@ -1,5 +1,6 @@
 // MY GYM London: member-only signup.
-// Creates a Supabase account only if the email belongs to an APPROVED member of the MyGymLondon Wix site.
+// Creates a Supabase account only if the email belongs to an APPROVED Wix member WITH an active pricing plan.
+// PAYG customers and lapsed members are rejected — they must get a membership on mygymlondon.co.uk first.
 // Secrets (set in Supabase, never in the repo): WIX_API_KEY, WIX_SITE_ID.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -23,14 +24,16 @@ function cors(req: Request) {
 const json = (req: Request, status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
 
-async function isWixMember(email: string): Promise<boolean> {
+const wixHeaders = () => ({
+  "Content-Type": "application/json",
+  "Authorization": Deno.env.get("WIX_API_KEY")!,
+  "wix-site-id": Deno.env.get("WIX_SITE_ID")!,
+});
+
+async function getWixMember(email: string): Promise<{ approved: boolean; id: string | null }> {
   const res = await fetch("https://www.wixapis.com/members/v1/members/query", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": Deno.env.get("WIX_API_KEY")!,
-      "wix-site-id": Deno.env.get("WIX_SITE_ID")!,
-    },
+    headers: wixHeaders(),
     body: JSON.stringify({
       fieldsets: ["EXTENDED"],
       query: { filter: { loginEmail: { $eq: email } }, paging: { limit: 1 } },
@@ -38,7 +41,22 @@ async function isWixMember(email: string): Promise<boolean> {
   });
   if (!res.ok) throw new Error("wix_" + res.status);
   const data = await res.json();
-  return (data.members ?? []).some((m: { status?: string }) => m.status === "APPROVED");
+  const m = (data.members ?? []).find((x: { status?: string }) => x.status === "APPROVED");
+  return { approved: !!m, id: m?.id ?? null };
+}
+
+async function hasActivePlan(memberId: string): Promise<boolean> {
+  const q = new URLSearchParams();
+  q.set("limit", "1");
+  q.set("fieldSet", "BASIC");
+  q.append("orderStatuses", "ACTIVE");
+  q.append("buyerIds", memberId);
+  const res = await fetch("https://www.wixapis.com/pricing-plans/v2/orders?" + q.toString(), {
+    headers: wixHeaders(),
+  });
+  if (!res.ok) throw new Error("wix_plans_" + res.status);
+  const data = await res.json();
+  return (data.orders ?? []).length > 0;
 }
 
 Deno.serve(async (req) => {
@@ -71,16 +89,29 @@ Deno.serve(async (req) => {
   await admin.from("signup_attempts").insert({ ip, email_hash: emailHash });
   await admin.from("signup_attempts").delete().lt("at", new Date(Date.now() - 24 * 3600 * 1000).toISOString());
 
-  let member: boolean;
+  let wixMember: { approved: boolean; id: string | null };
   try {
-    member = await isWixMember(email);
+    wixMember = await getWixMember(email);
   } catch (_e) {
     return json(req, 503, { error: "We can't check membership right now. Please try again in a few minutes." });
   }
-  if (!member) {
+  if (!wixMember.approved) {
     return json(req, 403, {
       code: "NOT_MEMBER",
       error: "This email isn't a MY GYM website member yet. Join on mygymlondon.co.uk first, using the same email, then come back.",
+    });
+  }
+
+  let activePlan: boolean;
+  try {
+    activePlan = wixMember.id ? await hasActivePlan(wixMember.id) : false;
+  } catch (_e) {
+    return json(req, 503, { error: "We can't check membership right now. Please try again in a few minutes." });
+  }
+  if (!activePlan) {
+    return json(req, 403, {
+      code: "NO_ACTIVE_PLAN",
+      error: "The app is for MY GYM members only. Your account doesn't have an active membership plan — visit mygymlondon.co.uk to get one, then come back.",
     });
   }
 

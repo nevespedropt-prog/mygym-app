@@ -37,6 +37,27 @@ f("trial-class", { adminLabel: "free trial booking", title: "Book a free trial c
   success: "Thanks! We will confirm your free trial by email shortly.", notify: "admin-new-enquiry", autoreply: "enquiry-autoreply", afterConfirm: "trial-confirmation", pipeline: "trial", source: "trial",
   consents: [marketing, { id: "health_ready", required: true, text: "I am fit to exercise, or I will tell the coach before the class about anything that might affect me." }] });
 
+f("trial-gym", {
+  adminLabel: "free gym trial",
+  title: "Book a free gym session",
+  intro: "Come and try our gym for free. Leave your details and we will confirm your slot within one working day.",
+  where: "www: Book page",
+  fields: [
+    name(),
+    email(),
+    phone(true),
+    { id: "preferred_date", type: "date", label: "When would you like to come?", required: true, minDays: 1, maxDays: 30 },
+    { id: "preferred_time", type: "radio", label: "Preferred time", required: true, options: ["Morning (5am–12pm)", "Afternoon (12pm–5pm)", "Evening (5pm–midnight)"] },
+    ...utm
+  ],
+  success: "Thanks! We will confirm your free gym session by email within one working day.",
+  notify: "admin-new-enquiry",
+  autoreply: "enquiry-autoreply",
+  pipeline: "trial",
+  source: "trial-gym",
+  consents: [marketing, { id: "health_ready", required: true, text: "I am fit to exercise, or I will tell the coach before the session about anything that might affect me." }]
+});
+
 f("landing-offer", { adminLabel: "offer sign-up", title: "Claim this offer", intro: "Leave your details and we will get you started.", where: "www: landing pages such as /january (one form, the offer name is a hidden field)",
   fields: [name(), email(), phone(true), { id: "offer_name", type: "hidden" }, ...utm],
   success: "Thanks, you are on the list. We will be in touch within one working day.", notify: "admin-new-enquiry", autoreply: "offer-autoreply", pipeline: "new", source: "offer" });
@@ -75,5 +96,10 @@ f("newsletter-signup", { title: "Get news and offers", intro: "Occasional update
   fields: [{ id: "first_name", type: "text", label: "First name (optional)", required: false, max: 40 }, email(), { id: "page_url", type: "hidden" }],
   consents: [{ id: "marketing", required: true, text: "Yes, send me news and offers from MY GYM London by email. I can unsubscribe at any time." }], success: "Almost done! Please check your email and tap the confirm button.", notify: null, autoreply: null, sendsTo: "newsletter-welcome", doubleOptIn: true, source: "newsletter", retentionDays: 1095,
   privacy: `We will only email you if you confirm. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
+
+f("guide-signup", { adminLabel: "free guide sign-up", title: "Get the free MyGym guide", intro: "Part 1 of our Ultimate Fitness Startup guide: how we coach, a getting started checklist, goal setting and a 6 week challenge timeline.", where: "www: /guide page, link in bio, Instagram and Facebook posts",
+  fields: [name("full_name", "First name"), email(), ...utm],
+  success: "Thanks! Your free guide is on its way. Please check your inbox, and your spam folder if it is not there in a few minutes.", notify: "admin-new-enquiry", autoreply: "guide-delivery", doubleOptIn: true, pipeline: "new", source: "guide",
+  privacy: `We use your details to send you the guide. We only send news and offers if you tick the box. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
 
 export default F;

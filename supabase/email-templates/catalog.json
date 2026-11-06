@@ -589,6 +589,52 @@
     }
   },
   {
+    "id": "guide-delivery",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": false,
+    "when": "Right after someone asks for the free MyGym guide on the website (service email, sent whether or not they opt in to news)",
+    "subject": "Your free MyGym guide, {{first_name}}",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": null
+  },
+  {
+    "id": "guide-tips-warmup",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": true,
+    "when": "3 days after someone asked for the free guide and confirmed news and offers (a taste of Part 2; stops when they join)",
+    "subject": "A 5 minute warm-up you can do today, {{first_name}}",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterDays": 3
+    }
+  },
+  {
+    "id": "guide-tips-meals",
+    "group": "Website forms",
+    "to": "lead",
+    "marketing": true,
+    "when": "7 days after someone asked for the free guide and confirmed news and offers (a taste of Part 3; last email in the series; stops when they join)",
+    "subject": "Four ways to meal prep without the stress",
+    "needs": [
+      "first_name"
+    ],
+    "auth": false,
+    "onAtLaunch": true,
+    "trigger": {
+      "afterDays": 7
+    }
+  },
+  {
     "id": "newsletter-welcome",
     "group": "Website forms",
     "to": "lead",

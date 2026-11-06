@@ -151,6 +151,18 @@ t("lead-followup-2", { group: "Website forms", marketing: true, to: "lead", when
   title: "Still thinking about it?", cta: { label: "Book a free trial", url: "{{site_url}}book-a-free-class" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Just one last note. If now is not the right time, that is fine. Your free trial offer stays open whenever you are ready." }] });
 
+t("guide-delivery", { group: "Website forms", to: "lead", when: "Right after someone asks for the free MyGym guide on the website (service email, sent whether or not they opt in to news)", subject: "Your free MyGym guide, {{first_name}}", pre: "Part 1 is ready to download.",
+  title: "Your free MyGym guide", cta: { label: "Download Part 1", url: "{{site_url}}downloads/MyGym-Guide-Part-1.pdf" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for asking for our guide. Part 1 of the MyGym London Ultimate Fitness Startup guide is ready for you. It covers how we coach, a getting started checklist, goal setting and a 6 week challenge timeline." }, { note: "Tip: save the PDF to your phone, so you have your checklist with you at the gym." }, { p: "Not sure where to begin? Try a free class and see if MyGym feels like your gym. Email us at {{gym_email}} and we will help you pick one." }, { muted: "You asked for this guide on our website, so we sent it. We only send news and offers if you ticked the box." }] });
+
+t("guide-tips-warmup", { group: "Website forms", marketing: true, to: "lead", when: "3 days after someone asked for the free guide and confirmed news and offers (a taste of Part 2; stops when they join)", subject: "A 5 minute warm-up you can do today, {{first_name}}", pre: "Three simple moves from Part 2 of our guide.",
+  title: "Warm up before you train", cta: { label: "Try a free class", url: "{{site_url}}classes.html" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Here is something you can use today. Spend five to ten minutes warming up before every session. It raises your heart rate, loosens your joints and gets your body ready to work." }, { list: ["Arm circles: ten forwards and ten backwards. Start small and get bigger.", "Knee raises: ten per leg, lifting each knee to hip height. Hold a wall if you need help with balance.", "Band pull-aparts: ten to fifteen slow reps with a light band at chest height."] }, { p: "These come from Part 2 of our guide, which has full workouts, exercise guides and videos. Part 2 is for MyGym members. If you would like to see what training here feels like, your first class is free." }] });
+
+t("guide-tips-meals", { group: "Website forms", marketing: true, to: "lead", when: "7 days after someone asked for the free guide and confirmed news and offers (a taste of Part 3; last email in the series; stops when they join)", subject: "Four ways to meal prep without the stress", pre: "Simple tips from Part 3 of our guide.",
+  title: "Meal prep without the stress", cta: { label: "Try a free class", url: "{{site_url}}classes.html" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Eating well does not need hours in the kitchen. Here are four simple ways to make it easier." }, { list: ["Pick one prep day. Sunday afternoon works for most people. Batch-cook two proteins, like chicken thighs and lentils, with a tray of roasted veg and a pot of rice or potatoes.", "Build every plate around protein. Aim for a palm-sized portion at each meal: chicken, fish, eggs, Greek yoghurt, tofu or beans.", "Keep it simple. Three or four meals you enjoy, repeated through the week, are easier to stick to than a new recipe every night.", "Have snacks ready. Boiled eggs, yoghurt pots, fruit and a handful of nuts stop you grabbing whatever is nearby."] }, { p: "These tips come from Part 3 of our guide, which also has meal plans, recipes and trackers. Part 3 is for MyGym members. This is our last email in this series. If you ever want to see what MyGym is like, your first class is free." }, { muted: "If you have a medical condition or a specific goal, speak to your coach or GP before making big changes to how you eat." }] });
+
 t("newsletter-welcome", { group: "Website forms", marketing: true, to: "lead", when: "When someone joins the email list from the website footer (double opt-in)", subject: "Please confirm your email", pre: "One click to finish signing up.",
   title: "Confirm your email", cta: { label: "Yes, sign me up", url: "{{confirm_url}}" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Please confirm you would like news and offers from MY GYM London. If this was not you, just ignore this email and nothing will happen." }] });
@@ -253,7 +265,7 @@ const SETTINGS = {
   // Which emails are switched on at launch. Everything not listed as false is on.
   optional: { "we-miss-you": true, "review-request": true, milestone: true, "missed-class": false },
   // When the optional emails fire.
-  triggers: { "we-miss-you": { afterDaysWithoutVisit: 30 }, "review-request": { afterClasses: 5, once: true }, milestone: { atClasses: [10, 50, 100] }, "lead-followup-1": { afterDays: 2 }, "lead-followup-2": { afterDays: 7 } },
+  triggers: { "we-miss-you": { afterDaysWithoutVisit: 30 }, "review-request": { afterClasses: 5, once: true }, milestone: { atClasses: [10, 50, 100] }, "lead-followup-1": { afterDays: 2 }, "lead-followup-2": { afterDays: 7 }, "guide-tips-warmup": { afterDays: 3 }, "guide-tips-meals": { afterDays: 7 } },
   // Wording copied from the live Terms (terms.html): cancel with 1 week's notice before the next billing date; refund within 1 month of paying;
   // no refunds for classes or gym sessions; a cancelled pay-as-you-go class becomes a credit.
   terms: { cancelNoticeDays: 7, refundWindowMonths: 1, classCancelMinutes: 10 },
@@ -524,6 +536,11 @@ f("newsletter-signup", { title: "Get news and offers", intro: "Occasional update
   fields: [{ id: "first_name", type: "text", label: "First name (optional)", required: false, max: 40 }, email(), { id: "page_url", type: "hidden" }],
   consents: [{ id: "marketing", required: true, text: "Yes, send me news and offers from MY GYM London by email. I can unsubscribe at any time." }], success: "Almost done! Please check your email and tap the confirm button.", notify: null, autoreply: null, sendsTo: "newsletter-welcome", doubleOptIn: true, source: "newsletter", retentionDays: 1095,
   privacy: `We will only email you if you confirm. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
+
+f("guide-signup", { adminLabel: "free guide sign-up", title: "Get the free MyGym guide", intro: "Part 1 of our Ultimate Fitness Startup guide: how we coach, a getting started checklist, goal setting and a 6 week challenge timeline.", where: "www: /guide page, link in bio, Instagram and Facebook posts",
+  fields: [name("full_name", "First name"), email(), ...utm],
+  success: "Thanks! Your free guide is on its way. Please check your inbox, and your spam folder if it is not there in a few minutes.", notify: "admin-new-enquiry", autoreply: "guide-delivery", doubleOptIn: true, pipeline: "new", source: "guide",
+  privacy: `We use your details to send you the guide. We only send news and offers if you tick the box. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
 
 
 

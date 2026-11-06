@@ -8,6 +8,8 @@
 | Sends the PT enquiry | `admin-new-enquiry`, `pt-enquiry-autoreply` | Built and tested |
 | Books a free trial | `admin-new-enquiry`, `enquiry-autoreply` | Built and tested. `trial-confirmation` is sent when the gym confirms (needs the back end button) |
 | Claims an offer on a landing page | `admin-new-enquiry`, `offer-autoreply` | Built and tested |
+| Ticks the news box on the free guide form, then 3 and 7 days later | `guide-tips-warmup`, `guide-tips-meals` | Written and tested locally 2026-10-31. NOT live: needs `migration-guide-followups.sql` run in the SQL editor, `send-email` redeployed. Only people who confirmed news and offers; stops when an app account exists or the enquiry is marked joined / not now / spam |
+| Asks for the free MyGym guide (`/guide.html`) | `admin-new-enquiry`, `guide-delivery`; plus `newsletter-welcome` (confirm) only if they tick the news box | Built and tested locally 2026-10-31. NOT deployed: needs `submit-form` and `send-email` redeployed, the PDF uploaded to `/downloads/`, and the site uploaded |
 | Sends the corporate enquiry | `admin-new-enquiry`, `corporate-autoreply` | Built and tested |
 | Registers a child for Kids Gym | `admin-new-enquiry`, `kids-registration-received` | Built and tested |
 | Asks to pause or cancel (app) | `admin-change-request` | Built and tested |

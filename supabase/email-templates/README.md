@@ -1,4 +1,4 @@
-# MY GYM London: email library (53 emails)
+# MY GYM London: email library (56 emails)
 
 Every email the back end sends, written once, in the website's look. Nothing here is live yet and nothing here is a secret.
 

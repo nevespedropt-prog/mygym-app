@@ -163,6 +163,30 @@
     }
   },
   {
+    "id": "trial-gym",
+    "title": "Book a free gym session",
+    "where": "www: Book page",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {"id": "full_name", "type": "text", "required": true},
+      {"id": "email", "type": "email", "required": true},
+      {"id": "phone", "type": "tel", "required": true},
+      {"id": "preferred_date", "type": "date", "required": true},
+      {"id": "preferred_time", "type": "radio", "required": true}
+    ],
+    "consents": [
+      {"id": "health_ready", "required": true},
+      {"id": "marketing", "required": false}
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "enquiry-autoreply",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
+    "rateLimit": {"perIpPerHour": 5}
+  },
+  {
     "id": "landing-offer",
     "title": "Claim this offer",
     "where": "www: landing pages such as /january (one form, the offer name is a hidden field)",
@@ -482,6 +506,39 @@
     "sendsTo": "newsletter-welcome",
     "afterConfirm": null,
     "retentionDays": 1095,
+    "rateLimit": {
+      "perIpPerHour": 5
+    }
+  },
+  {
+    "id": "guide-signup",
+    "title": "Get the free MyGym guide",
+    "where": "www: /guide page, link in bio, Instagram and Facebook posts",
+    "requiresLogin": false,
+    "sensitive": false,
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "required": true
+      }
+    ],
+    "consents": [
+      {
+        "id": "marketing",
+        "required": false
+      }
+    ],
+    "notify": "admin-new-enquiry",
+    "autoreply": "guide-delivery",
+    "sendsTo": null,
+    "afterConfirm": null,
+    "retentionDays": 730,
     "rateLimit": {
       "perIpPerHour": 5
     }

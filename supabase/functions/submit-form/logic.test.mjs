@@ -48,4 +48,11 @@ const extra = [["kids-registration", { parent_name: "P", email: "p@x.co", phone:
  ["pt-enquiry", { full_name: "A", email: "a@x.co", phone: "07700 900123", goal: "Get fitter", experience: "New to it", times: ["Mornings"] }, {}],
  ["corporate-enquiry", { full_name: "A", company: "Acme", email: "a@x.co", team_size: "Under 10" }, {}]];
 for (const [id, data, consent] of extra) { ({ s, d } = mk()); r = await processSubmission({ ...base, form_id: id, data, consent }, ctx, d); ok(r.status === 200 && s.mails.length === 2, id + " two mails"); renders(s); }
+// guide-signup: the guide always goes out; marketing consent only when the box is ticked, and then only after the person confirms
+({ s, d } = mk()); r = await processSubmission({ ...base, form_id: "guide-signup", data: { full_name: "Gina Lee", email: "g@x.co" }, consent: {} }, ctx, d);
+ok(r.status === 200 && s.mails.some((m) => m.template === "guide-delivery" && m.to === "g@x.co" && m.vars.first_name === "Gina"), "guide: delivery email sent without opt-in");
+ok(Object.keys(s.consents).length === 0 && !s.mails.some((m) => m.template === "newsletter-welcome"), "guide: box not ticked means no consent and no confirm email"); renders(s);
+({ s, d } = mk()); r = await processSubmission({ ...base, form_id: "guide-signup", data: { full_name: "Gina Lee", email: "g@x.co" }, consent: { marketing: true } }, ctx, d);
+ok(s.consents["g@x.co"] && s.consents["g@x.co"].confirmed_at === null && s.consents["g@x.co"].source === "guide", "guide: ticked box stays pending until confirmed");
+ok(s.mails.some((m) => m.template === "newsletter-welcome" && m.to === "g@x.co") && s.mails.some((m) => m.template === "guide-delivery"), "guide: confirm email and guide both sent"); renders(s);
 console.log(`${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

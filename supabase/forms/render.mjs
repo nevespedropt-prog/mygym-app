@@ -40,7 +40,7 @@ export function renderForm(form) {
   <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="${form.honeypot}" tabindex="-1" autocomplete="off"></label></div>
   ${consents ? `<div class="consents">${consents}</div>` : ""}
   <p class="privacy">${form.privacy}</p>
-  <button type="submit" class="btn">${form.id === "feedback" ? "Send feedback" : form.id === "refer-a-friend" ? "Send invite" : form.id === "newsletter-signup" ? "Sign me up" : "Send"}</button>
+  <button type="submit" class="btn">${form.id === "feedback" ? "Send feedback" : form.id === "refer-a-friend" ? "Send invite" : form.id === "newsletter-signup" ? "Sign me up" : form.id === "guide-signup" ? "Email me the guide" : "Send"}</button>
   <p class="status" role="status" aria-live="polite" data-success="${esc(form.success)}"${form.successHigh ? ` data-success-high="${esc(form.successHigh)}"` : ""}></p>
 </form>`;
 }

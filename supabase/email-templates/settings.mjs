@@ -20,7 +20,7 @@ export const SETTINGS = {
   // Which emails are switched on at launch. Everything not listed as false is on.
   optional: { "we-miss-you": true, "review-request": true, milestone: true, "missed-class": false },
   // When the optional emails fire.
-  triggers: { "we-miss-you": { afterDaysWithoutVisit: 30 }, "review-request": { afterClasses: 5, once: true }, milestone: { atClasses: [10, 50, 100] }, "lead-followup-1": { afterDays: 2 }, "lead-followup-2": { afterDays: 7 } },
+  triggers: { "we-miss-you": { afterDaysWithoutVisit: 30 }, "review-request": { afterClasses: 5, once: true }, milestone: { atClasses: [10, 50, 100] }, "lead-followup-1": { afterDays: 2 }, "lead-followup-2": { afterDays: 7 }, "guide-tips-warmup": { afterDays: 3 }, "guide-tips-meals": { afterDays: 7 } },
   // Wording copied from the live Terms (terms.html): cancel with 1 week's notice before the next billing date; refund within 1 month of paying;
   // no refunds for classes or gym sessions; a cancelled pay-as-you-go class becomes a credit.
   terms: { cancelNoticeDays: 7, refundWindowMonths: 1, classCancelMinutes: 10 },

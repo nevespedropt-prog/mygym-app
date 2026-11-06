@@ -1,4 +1,4 @@
-# MY GYM London: forms (10 forms)
+# MY GYM London: forms (11 forms)
 
 | Form | Where it lives | Goes to the gym as | Person gets |
 |---|---|---|---|
@@ -6,6 +6,7 @@
 | Personal training enquiry | Website PT page | `admin-new-enquiry` | `pt-enquiry-autoreply` |
 | Free trial class | Website join page, Instagram, landing pages | `admin-new-enquiry` | `enquiry-autoreply`, then `trial-confirmation` when you confirm |
 | Landing-page offer | Any landing page (offer name is a hidden field) | `admin-new-enquiry` | `offer-autoreply` |
+| Free guide sign-up (added 2026-10-31) | `/guide.html` on the new website | `admin-new-enquiry` | `guide-delivery` (link to the PDF; marketing box un-ticked, double opt-in) |
 | Corporate wellness | Website corporate page | `admin-new-enquiry` | `corporate-autoreply` |
 | Kids Gym registration | Website Kids page; app before a first Kids booking | `admin-new-enquiry` | `kids-registration-received` |
 | Pause or cancel my membership | App, Profile (members only) | `admin-change-request` | none (membership emails follow) |

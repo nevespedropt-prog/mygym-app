@@ -19,6 +19,10 @@ t("health-form-due", { group: "Account", when: "When a member has not completed 
   title: "A quick health form before you train", cta: { label: "Complete the form", url: "{{app_url}}#profile" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We need an up-to-date health form on file before you can book. It takes about two minutes and helps our coaches keep you safe." }, { note: "Your answers are kept private and only used by the MY GYM London team." }] });
 
+t("week-one", { group: "Account", when: "7 days after a member's account is created — checks in, asks for feedback, and reminds about the health form if not yet complete", subject: "One week in — how are you finding it, {{first_name}}?", pre: "A quick check-in from the MY GYM London team.",
+  title: "One week at MY GYM London", cta: { label: "Book your next class", url: "{{app_url}}#timetable" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "It has been a week since you joined. We hope you have settled in and that training is going well." }, { note: "Your health form is still outstanding. It takes about two minutes and helps our coaches keep you safe. Open the app, go to Profile, and fill it in whenever you are ready.", if: "health_pending" }, { p: "If you have any feedback on the classes, the app, or anything else — just reply to this email. We read every message and take it seriously." }, { muted: "Not sure what to try next? Open the timetable in the app — there is something for every level." }] });
+
 /* ================= BOOKINGS ================= */
 t("booking-confirmation", { group: "Bookings", when: "Right after a booking is made", subject: "You're booked: {{class_name}}, {{when}}", pre: "See you there. You can cancel up to {{cancel_minutes}} minutes before.",
   title: "Your booking is confirmed", cta: { label: "View my bookings", url: "{{app_url}}#bookings" },

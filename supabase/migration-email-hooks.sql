@@ -54,7 +54,84 @@ revoke all on function public.email_hook_welcome() from public, anon, authentica
 drop trigger if exists email_hook_welcome on public.profiles;
 create trigger email_hook_welcome after insert on public.profiles for each row execute function public.email_hook_welcome();
 
+-- 4. Hook 2: health form reminder ~24 hours after account creation.
+--    Runs every hour, finds members who signed up 23-25h ago and have not yet completed the health form.
+--    The dedupe_key 'health-form-due:<user_id>' guarantees exactly one email per member (the claim mechanism
+--    in send-email rejects any duplicate attempt silently).
+create or replace function public.email_cron_health_reminders() returns void
+language plpgsql security definer set search_path = public, auth, extensions, pg_temp as $$
+declare r record;
+begin
+  for r in
+    select u.id,
+           u.email,
+           coalesce(nullif(split_part(trim(coalesce(pr.full_name, '')), ' ', 1), ''), 'there') as first_name
+    from auth.users u
+    left join public.profiles pr on pr.id = u.id
+    where u.created_at between now() - interval '25 hours' and now() - interval '23 hours'
+      and not exists (
+        select 1 from public.member_health h
+        where h.user_id = u.id and h.consent_health is true
+      )
+  loop
+    perform public.queue_email(
+      'health-form-due',
+      r.id,
+      r.email,
+      jsonb_build_object('first_name', r.first_name),
+      'health-form-due:' || r.id::text
+    );
+  end loop;
+exception when others then
+  null;
+end $$;
+revoke all on function public.email_cron_health_reminders() from public, anon, authenticated;
+
+select cron.schedule('health-form-reminders', '0 * * * *', 'select public.email_cron_health_reminders()');
+
+-- 5. Hook 3: week-one check-in email 7 days after account creation.
+--    Runs every hour (at :30 to stagger from health-form-reminders at :00), finds members who signed up 167–169h ago.
+--    Sends to everyone. Passes health_pending only when the health form is not yet complete, so the
+--    reminder block in the template shows only for those who still need it.
+create or replace function public.email_cron_week_one() returns void
+language plpgsql security definer set search_path = public, auth, extensions, pg_temp as $$
+declare r record;
+begin
+  for r in
+    select u.id,
+           u.email,
+           coalesce(nullif(split_part(trim(coalesce(pr.full_name, '')), ' ', 1), ''), 'there') as first_name,
+           not exists (
+             select 1 from public.member_health h
+             where h.user_id = u.id and h.consent_health is true
+           ) as health_pending
+    from auth.users u
+    left join public.profiles pr on pr.id = u.id
+    where u.created_at between now() - interval '169 hours' and now() - interval '167 hours'
+  loop
+    perform public.queue_email(
+      'week-one',
+      r.id,
+      r.email,
+      jsonb_build_object(
+        'first_name', r.first_name,
+        'health_pending', case when r.health_pending then 'true' else null end
+      ),
+      'week-one:' || r.id::text
+    );
+  end loop;
+exception when others then
+  null;
+end $$;
+revoke all on function public.email_cron_week_one() from public, anon, authenticated;
+
+select cron.schedule('week-one-checkin', '30 * * * *', 'select public.email_cron_week_one()');
+
+-- To switch the week-one check-in off:  select cron.unschedule('week-one-checkin');
+-- To switch the health form reminder off:  select cron.unschedule('health-form-reminders');
 -- To switch the welcome email off:  drop trigger if exists email_hook_welcome on public.profiles;
 -- To undo everything (only if no email has been recorded you want to keep):
+--   select cron.unschedule('week-one-checkin'); drop function if exists public.email_cron_week_one();
+--   select cron.unschedule('health-form-reminders'); drop function if exists public.email_cron_health_reminders();
 --   drop trigger if exists email_hook_welcome on public.profiles; drop function if exists public.email_hook_welcome();
 --   drop function if exists public.queue_email(text, uuid, text, jsonb, text); drop table if exists public.email_events;

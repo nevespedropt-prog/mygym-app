@@ -73,6 +73,7 @@ Deno.serve(async (req) => {
 
   for (const raw of orders) {
     const n = read(raw), old = have.get(n.id), p = await who(n.contact, old);
+    let memberSince: string | null = old?.member_since ?? null;
     const row: Record<string, unknown> = { order_id: n.id, contact_id: n.contact, email: p?.email ?? old?.email ?? null, first_name: p?.first ?? old?.first_name ?? null, full_name: p?.full ?? old?.full_name ?? null,
       plan_name: n.plan, plan_includes: n.includes, amount: n.amount, cycle_unit: n.unit, status: n.status, last_payment_status: n.pay, cycle_index: n.cycle, cycle_started: n.started.toISOString(), end_date: n.end?.toISOString() ?? null,
       auto_renew_canceled: n.cancelled, updated_at: new Date().toISOString(), baseline: old ? old.baseline : firstRun };
@@ -81,12 +82,23 @@ Deno.serve(async (req) => {
     let failedSince: string | null = old?.failed_since ?? null, failedSteps: number = old?.failed_steps ?? 0;
     const next = addCycle(n.started, n.unit, n.count), live = n.status === "ACTIVE", base = { first_name: first, plan_name: n.plan, amount: gbp(n.amount) };
 
+    // PAR-Q health form: sent on every brand-new order, regardless of type
+    if (!old && !firstRun && to) {
+      await mail("par-q", to, { first_name: first }, key("par-q"));
+    }
+
     if (old && !firstRun && to) {
       // new or newly active order
       const becameActive = live && old.status !== "ACTIVE" && old.status !== "PAUSED";
       if (becameActive) {
         await mail("subscription-started", to, { ...base, billing_period: per(n.unit), start_date: day(n.started), next_payment_date: n.unit ? day(next) : "No further payment", plan_includes: n.includes }, key("started"));
         await mail("admin-new-member", adminTo, { person_name: full, plan_name: n.plan, source_page: "Wix checkout" }, key("admin-started"));
+        // membership welcome + workout guide (Part 2) for subscription plans
+        if (n.unit !== "") {
+          if (!memberSince) memberSince = new Date().toISOString();
+          await mail("welcome-member", to, { first_name: first, plan_name: n.plan }, key("welcome-member"));
+          await mail("part2-workout", to, { first_name: first }, key("part2-workout"));
+        }
       }
       // a payment arrived for a new billing cycle (or the first payment)
       if (n.pay === "PAID" && (old.last_payment_status !== "PAID" || n.cycle > (old.cycle_index ?? 0)) && live && n.amount > 0) {
@@ -123,7 +135,7 @@ Deno.serve(async (req) => {
       const renew = next, days = (renew.getTime() - Date.now()) / 864e5;
       if (days > 0 && days <= 7) await mail("renewal-reminder", to, { first_name: first, plan_name: n.plan, amount: gbp(n.amount), renewal_date: day(renew) }, key("renewal-" + n.cycle));
     }
-    row.failed_since = failedSince; row.failed_steps = failedSteps;
+    row.failed_since = failedSince; row.failed_steps = failedSteps; row.member_since = memberSince;
     await db.from("wix_orders").upsert(row);
   }
   await db.from("sync_log").upsert({ id: "wix-payments", last_run: new Date().toISOString(), last_result: { ok: true, mode, orders: tracked, sent, skipped, firstRun } });

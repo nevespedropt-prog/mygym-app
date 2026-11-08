@@ -11,17 +11,21 @@ const T = [];
 const t = (id, o) => T.push({ id, marketing: false, to: "member", ...o });
 
 /* ================= ACCOUNT ================= */
-t("welcome", { group: "Account", when: "Right after a member creates their account", subject: "Welcome to MY GYM London, {{first_name}}", pre: "Here is how to book your first class.",
-  title: "Welcome to MY GYM London", cta: { label: "Open the app", url: "{{app_url}}" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "Your account is ready. Here is how to get started:" }, { list: ["Open the app and tap Timetable to see this week's classes.", "Pick a class or gym hour and tap Book. You get a confirmation straight away.", "Complete your short health form once, so you are ready for your first session."] }, { muted: "Add the app to your phone's home screen for one-tap access: open it in your browser and choose Add to Home Screen." }] });
+t("welcome", { group: "Account", when: "Right after someone creates a website account — delivers Part 1 of the free guide", subject: "Welcome to MY GYM London, {{first_name}}", pre: "Part 1 of your free guide is ready to download.",
+  title: "Welcome to MY GYM London", cta: { label: "Download Part 1", url: "https://ldmksxyilykyfnqnuytv.supabase.co/storage/v1/object/public/guides/MyGym-Guide-Part-1.pdf" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Welcome to MY GYM London. Your Part 1 guide is ready. It covers how we coach, a getting started checklist, goal setting and a 6 week challenge timeline." }, { note: "Tip: save the PDF to your phone so you have your checklist with you at the gym." }, { p: "Not sure where to start? Email us at {{gym_email}} and we will help you pick the right class." }, { muted: "When you are ready to book a class or a gym hour, you can do that on our website or by getting in touch." }] });
 
 t("health-form-due", { group: "Account", when: "When a member has not completed or renewed their health form", subject: "Please complete your health form", pre: "It takes about two minutes.",
   title: "A quick health form before you train", cta: { label: "Complete the form", url: "{{app_url}}#profile" },
   body: [{ p: "Hi {{first_name}}," }, { p: "We need an up-to-date health form on file before you can book. It takes about two minutes and helps our coaches keep you safe." }, { note: "Your answers are kept private and only used by the MY GYM London team." }] });
 
-t("week-one", { group: "Account", when: "7 days after a member's account is created — checks in, asks for feedback, and reminds about the health form if not yet complete", subject: "One week in — how are you finding it, {{first_name}}?", pre: "A quick check-in from the MY GYM London team.",
-  title: "One week at MY GYM London", cta: { label: "Book your next class", url: "{{app_url}}#timetable" },
-  body: [{ p: "Hi {{first_name}}," }, { p: "It has been a week since you joined. We hope you have settled in and that training is going well." }, { note: "Your health form is still outstanding. It takes about two minutes and helps our coaches keep you safe. Open the app, go to Profile, and fill it in whenever you are ready.", if: "health_pending" }, { p: "If you have any feedback on the classes, the app, or anything else — just reply to this email. We read every message and take it seriously." }, { muted: "Not sure what to try next? Open the timetable in the app — there is something for every level." }] });
+t("par-q", { group: "Account", when: "Right after someone makes their first purchase of any service (gym hour, class, membership or PT) — asks them to complete the health form before their first session", subject: "One quick form before your first session, {{first_name}}", pre: "It takes about two minutes.",
+  title: "One quick form before you train", cta: { label: "Complete the health form", url: "{{app_url}}#profile" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Thank you for booking with MY GYM London. Before your first session, we need a short health form on file. It takes about two minutes and helps our coaches look after you." }, { note: "Your answers are kept private and only seen by the MY GYM London team." }, { muted: "Already completed it? Great, you are all set — this goes to everyone on their first booking." }] });
+
+t("part3-nutrition", { group: "Membership & payments", when: "3 days after a member's first membership becomes active — delivers the nutrition guide (Part 3)", subject: "Your nutrition guide is ready, {{first_name}}", pre: "Part 3: meal plans, recipes and a weekly tracker.",
+  title: "Part 3: Your nutrition guide", cta: { label: "Download Part 3", url: "https://ldmksxyilykyfnqnuytv.supabase.co/storage/v1/object/public/guides/MyGym-Guide-Part-3.pdf" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "You are three days into your membership. Here is Part 3 of your guide — it covers nutrition. You will find meal plans, simple recipes and a weekly tracker to help you eat in a way that supports your training." }, { note: "Tip: save the PDF to your phone so you have your tracker with you." }, { p: "If you have any questions about food, training or how to get the most from your membership, just reply to this email." }] });
 
 /* ================= BOOKINGS ================= */
 t("booking-confirmation", { group: "Bookings", when: "Right after a booking is made", subject: "You're booked: {{class_name}}, {{when}}", pre: "See you there. You can cancel up to {{cancel_minutes}} minutes before.",
@@ -56,6 +60,14 @@ t("missed-class", { group: "Bookings", when: "The morning after a member booked 
 t("subscription-started", { group: "Membership & payments", when: "When a new membership starts", subject: "Your {{plan_name}} membership has started", pre: "Everything you need to know in one place.",
   title: "Your membership has started", cta: { label: "Book your first class", url: "{{app_url}}#timetable" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Welcome aboard. Your membership is active." }, { kv: [["Plan", "{{plan_name}}"], ["Price", "{{amount}} {{billing_period}}"], ["Started", "{{start_date}}"], ["Next payment", "{{next_payment_date}}"], ["Includes", "{{plan_includes}}", "plan_includes"]] }, { muted: "You can pause or cancel any time from the app, under Profile. {{cancellation_terms}}" }] });
+
+t("welcome-member", { group: "Membership & payments", when: "When a membership first becomes active — a warm welcome for new gym members", subject: "Welcome to the team, {{first_name}}", pre: "Your membership is live. Here is what to do next.",
+  title: "You are a member", cta: { label: "Book your first class", url: "{{app_url}}#timetable" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Your {{plan_name}} membership is now active. You are part of the MY GYM London team." }, { p: "Here is how to get started:" }, { list: ["Open the app and tap Timetable to see this week's classes.", "Pick a class or gym hour and tap Book — you will get a confirmation straight away.", "If you have not already, complete your short health form under Profile so you are ready for your first session."] }, { muted: "Any questions? Just reply to this email. We are always happy to help." }] });
+
+t("part2-workout", { group: "Membership & payments", when: "When a membership first becomes active — delivers the workout guide (Part 2) to new members", subject: "Your member workout guide, {{first_name}}", pre: "Part 2: workouts, step-by-step exercise guides and videos.",
+  title: "Part 2: Your workout guide", cta: { label: "Download Part 2", url: "https://ldmksxyilykyfnqnuytv.supabase.co/storage/v1/object/public/guides/MyGym-Guide-Part-2.pdf" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Here is Part 2 of your guide, made for members. It has full workouts, step-by-step exercise guides and links to coaching videos, designed to give you a clear plan from day one." }, { note: "Tip: save the PDF to your phone so you have your workouts with you at the gym." }, { p: "In a couple of days you will get Part 3, which covers nutrition." }] });
 
 t("payment-receipt", { group: "Membership & payments", when: "After every successful payment", subject: "Your receipt from MY GYM London, {{amount}}", pre: "Payment received, thank you.",
   title: "Payment received", cta: { label: "View my membership", url: "{{app_url}}#profile" },

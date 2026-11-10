@@ -803,7 +803,6 @@ const ALLOWED_ORIGINS = [
   "https://www.mygymlondon.co.uk",
   "https://mygymlondon.co.uk",
   "https://nevespedropt-prog.github.io",
-  "http://localhost:8137",
 ];
 const FROM = "MY GYM London <info@mygymlondon.co.uk>";
 

@@ -5,7 +5,7 @@
   /* Clickjacking guard: GitHub Pages cannot send frame-ancestors, so if the app is ever loaded inside
      another site's frame, hide it and break out. (Remove this if the app is deliberately embedded.) */
   if (window.top !== window.self) {
-    document.documentElement.style.display = 'none';
+    window.top.location = window.self.location.href;
     try { window.top.location = window.location.href; } catch (e) { /* cross-origin frame: stays hidden */ }
     return;
   }

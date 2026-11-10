@@ -47,7 +47,7 @@ const makeToken = m_tokens.makeToken;
 
 
 
-const ALLOWED_ORIGINS = ["https://app.mygymlondon.co.uk", "https://nevespedropt-prog.github.io", "http://localhost:8137"];
+const ALLOWED_ORIGINS = ["https://app.mygymlondon.co.uk", "https://nevespedropt-prog.github.io"];
 const cors = (req: Request) => ({
   "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(req.headers.get("origin") ?? "") ? req.headers.get("origin")! : ALLOWED_ORIGINS[0],
   "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Vary": "Origin",
@@ -61,9 +61,14 @@ Deno.serve(async (req) => {
   try { b = await req.json(); } catch { return json(req, 400, { ok: false }); }
   const action = b.a === "confirm" ? "confirm" : b.a === "unsubscribe" ? "unsubscribe" : null;
   if (!action) return json(req, 400, { ok: false, error: "Unknown link." });
+  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const ip = (req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
+  const rlKey = "consent:" + ip; const rlCutoff = new Date(Date.now() - 3600_000).toISOString();
+  const { data: rlRow } = await admin.from("rate_limits").select("hits, window_start").eq("key", rlKey).maybeSingle();
+  if (rlRow && rlRow.window_start > rlCutoff && rlRow.hits >= 20) return json(req, 429, { ok: false, error: "Too many requests." });
+  await admin.from("rate_limits").upsert((!rlRow || rlRow.window_start <= rlCutoff) ? { key: rlKey, hits: 1, window_start: new Date().toISOString() } : { key: rlKey, hits: rlRow.hits + 1, window_start: rlRow.window_start });
   const email = await checkToken(Deno.env.get("EMAIL_TOKEN_SECRET") ?? "", action, b.t);
   if (!email) return json(req, 400, { ok: false, error: "This link is not valid. Please use the latest email we sent you." });
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const now = new Date().toISOString();
   if (action === "confirm") {
     // only confirms a request that exists and was not withdrawn after it was made

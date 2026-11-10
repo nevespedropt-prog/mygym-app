@@ -22,13 +22,21 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { checkBookingDate, contactName, findSlot, londonDate, londonHM, matchService, memberSafeError, MAX_UPCOMING, MIN_SECONDS_BETWEEN, useWix } from "./logic.ts";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-const json = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+const ALLOWED_ORIGINS = [
+  "https://app.mygymlondon.co.uk",
+  "https://nevespedropt-prog.github.io",
+];
+function cors(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+const json = (req: Request, status: number, body: Record<string, unknown>) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
 
 const wixHeaders = () => ({
   "Content-Type": "application/json",
@@ -85,19 +93,19 @@ async function wixCancel(bookingId: string): Promise<boolean> {
 }
 
 async function handle(req: Request): Promise<Response> {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json(405, { error: "Method not allowed" });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
+  if (req.method !== "POST") return json(req, 405, { error: "Method not allowed" });
 
   const url = Deno.env.get("SUPABASE_URL")!;
   const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   const db = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   const { data: au } = await db.auth.getUser(token);
   const user = au?.user;
-  if (!user || !user.email) return json(401, { error: "Please sign in again." });
+  if (!user || !user.email) return json(req, 401, { error: "Please sign in again." });
   // runs as the member: row security, triggers and the booking rules all apply exactly as for a direct insert
   const uc = createClient(url, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false }, global: { headers: { Authorization: `Bearer ${token}` } } });
 
-  let body: any; try { body = await req.json(); } catch (_e) { return json(400, { error: "Bad request" }); }
+  let body: any; try { body = await req.json(); } catch (_e) { return json(req, 400, { error: "Bad request" }); }
   const action = body?.action;
 
   const { data: flag } = await db.from("app_flags").select("mode, test_emails").eq("key", "wix_booking").maybeSingle();
@@ -108,75 +116,75 @@ async function handle(req: Request): Promise<Response> {
   if (action === "cancel") {
     const id = String(body?.booking_id ?? "");
     const { data: row } = await db.from("class_bookings").select("id, class_id, user_id, date, wix_booking_id").eq("id", id).eq("user_id", user.id).maybeSingle();
-    if (!row) return json(200, { ok: true });                       // nothing to cancel
+    if (!row) return json(req, 200, { ok: true });                   // nothing to cancel
     const { error: de } = await uc.from("class_bookings").delete().eq("id", id).eq("user_id", user.id);
-    if (de) return json(400, { error: memberSafeError(de.code, de.message), code: de.code });
+    if (de) return json(req, 400, { error: memberSafeError(de.code, de.message), code: de.code });
     if (viaWix && row.wix_booking_id) {
       if (!(await wixCancel(row.wix_booking_id))) {
         // put the app row back (server insert for a Wix booking skips the checks and sends no email)
         await db.from("class_bookings").insert({ class_id: row.class_id, user_id: row.user_id, date: row.date, source: "wix", wix_booking_id: row.wix_booking_id });
         await issue("cancel failed in Wix, app row restored");
-        return json(502, { error: "We couldn't cancel this just now. Please try again in a minute." });
+        return json(req, 502, { error: "We couldn't cancel this just now. Please try again in a minute." });
       }
     }
     await emailCancelled(db, row, user.email);
-    return json(200, { ok: true });
+    return json(req, 200, { ok: true });
   }
 
   // ---------------------------------------------------------------- BOOK
-  if (action !== "book") return json(400, { error: "Bad request" });
+  if (action !== "book") return json(req, 400, { error: "Bad request" });
   const classId = Number(body?.class_id);
   const date = String(body?.date ?? "");
-  if (!Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(400, { error: "Bad request" });
+  if (!Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(req, 400, { error: "Bad request" });
 
   // a member can hold only so many future bookings at once (stops one account taking every space)
   const today = londonDate(new Date());
   const { count: upcoming } = await db.from("class_bookings").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("date", today);
-  if ((upcoming ?? 0) >= MAX_UPCOMING) return json(400, { error: "You have reached the limit of upcoming bookings. Cancel one to book another.", code: "P0001" });
+  if ((upcoming ?? 0) >= MAX_UPCOMING) return json(req, 400, { error: "You have reached the limit of upcoming bookings. Cancel one to book another.", code: "P0001" });
 
   if (!viaWix) {
     const { error } = await uc.from("class_bookings").insert({ class_id: classId, date, user_id: user.id });
-    if (error) return json(400, { error: memberSafeError(error.code, error.message), code: error.code });
-    return json(200, { ok: true, wix: false });
+    if (error) return json(req, 400, { error: memberSafeError(error.code, error.message), code: error.code });
+    return json(req, 200, { ok: true, wix: false });
   }
 
   // 1. the class, and no double booking
   const { data: cls } = await db.from("classes").select("name, kind, day_name, start_time").eq("id", classId).eq("active", true).maybeSingle();
-  if (!cls) return json(400, { error: "Class not available" });
+  if (!cls) return json(req, 400, { error: "Class not available" });
   const { data: dup } = await db.from("class_bookings").select("id").eq("class_id", classId).eq("date", date).eq("user_id", user.id).maybeSingle();
-  if (dup) return json(400, { error: "Already booked", code: "23505" });
+  if (dup) return json(req, 400, { error: "Already booked", code: "23505" });
   // the same rules the database applies, checked BEFORE Wix is touched (so a refused booking never flickers in Wix)
   const dateErr = checkBookingDate(date, cls.day_name, today, String(cls.start_time), londonHM(new Date()), cls.kind);
-  if (dateErr) return json(400, { error: dateErr, code: "P0001" });
+  if (dateErr) return json(req, 400, { error: dateErr, code: "P0001" });
   if (cls.kind === "gym") {
     const { data: pf } = await db.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
     if (!pf?.is_admin) {
       const { data: ma } = await db.from("member_access").select("gym_access, checked_at").eq("user_id", user.id).maybeSingle();
       if (!ma?.gym_access || !(Date.parse(ma.checked_at) > Date.now() - 24 * 3600 * 1000)) {
-        return json(400, { error: "Gym booking is for Gym & Exercise Class members", code: "P0001" });
+        return json(req, 400, { error: "Gym booking is for Gym & Exercise Class members", code: "P0001" });
       }
     }
   }
   // slow down rapid repeat attempts by the same member (each attempt costs several Wix calls)
   const rl = "bk-" + user.id;
   const { data: last } = await db.from("sync_log").select("last_call").eq("id", rl).maybeSingle();
-  if (last && Date.now() - new Date(last.last_call).getTime() < MIN_SECONDS_BETWEEN * 1000) return json(429, { error: "Please wait a few seconds before booking again." });
+  if (last && Date.now() - new Date(last.last_call).getTime() < MIN_SECONDS_BETWEEN * 1000) return json(req, 429, { error: "Please wait a few seconds before booking again." });
   await db.from("sync_log").upsert({ id: rl, last_call: new Date().toISOString() });
 
   // 2. the Wix session
   const sv = await wix("POST", "/_api/bookings/v2/services/query", { query: { paging: { limit: 100 } } });
-  if (!sv.ok) { await issue("services lookup failed " + sv.status); return json(502, { error: "Booking is busy right now. Please try again in a minute." }); }
+  if (!sv.ok) { await issue("services lookup failed " + sv.status); return json(req, 502, { error: "Booking is busy right now. Please try again in a minute." }); }
   const serviceId = matchService(cls.kind, cls.name, (sv.data?.services ?? []).map((s: any) => ({ id: s.id, name: String(s.name ?? "") })));
-  if (!serviceId) { await issue("no Wix service for a class"); return json(502, { error: "Booking is busy right now. Please try again in a minute." }); }
+  if (!serviceId) { await issue("no Wix service for a class"); return json(req, 502, { error: "Booking is busy right now. Please try again in a minute." }); }
   const time = String(cls.start_time).slice(0, 5);
   const ts = await wix("POST", "/_api/service-availability/v2/time-slots/event", {
     fromLocalDate: `${date}T${time}:00`, toLocalDate: `${date}T${time}:59`, timeZone: "Europe/London",
     serviceIds: [serviceId], includeNonBookable: true, cursorPaging: { limit: 20 },
   });
-  if (!ts.ok) { await issue("time slots failed " + ts.status); return json(502, { error: "Booking is busy right now. Please try again in a minute." }); }
+  if (!ts.ok) { await issue("time slots failed " + ts.status); return json(req, 502, { error: "Booking is busy right now. Please try again in a minute." }); }
   const slot = findSlot(ts.data?.timeSlots ?? [], date, time);
-  if (!slot) return json(400, { error: "This session isn't open for booking yet. Please try again closer to the day." });
-  if (slot.remaining !== null && slot.remaining <= 0) return json(400, { error: "This class is full" });
+  if (!slot) return json(req, 400, { error: "This session isn't open for booking yet. Please try again closer to the day." });
+  if (slot.remaining !== null && slot.remaining <= 0) return json(req, 400, { error: "This class is full" });
 
   // 3. the Wix booking (confirmed, no payment, no Wix email)
   const { data: prof } = await db.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
@@ -192,7 +200,7 @@ async function handle(req: Request): Promise<Response> {
   const wixId: string | undefined = cr.data?.booking?.id;
   if (!cr.ok || !wixId) {
     await issue("create failed " + cr.status);
-    return json(cr.status === 400 || cr.status === 428 ? 400 : 502, { error: cr.status === 400 || cr.status === 428 ? "This class is full" : "Booking is busy right now. Please try again in a minute." });
+    return json(req, cr.status === 400 || cr.status === 428 ? 400 : 502, { error: cr.status === 400 || cr.status === 428 ? "This class is full" : "Booking is busy right now. Please try again in a minute." });
   }
 
   // 4. the app booking (member rules apply); roll Wix back if it fails
@@ -201,24 +209,24 @@ async function handle(req: Request): Promise<Response> {
     if (ie.code === "23505") {
       // the 5-minute sync may have mirrored this very booking a moment ago: that is fine, nothing to undo
       const { data: ex } = await db.from("class_bookings").select("wix_booking_id").eq("class_id", classId).eq("date", date).eq("user_id", user.id).maybeSingle();
-      if (ex?.wix_booking_id === wixId) return json(200, { ok: true, wix: true });
+      if (ex?.wix_booking_id === wixId) return json(req, 200, { ok: true, wix: true });
     }
     if (!(await wixCancel(wixId))) await issue("rollback failed: a Wix booking may be left without an app booking");
-    return json(400, { error: memberSafeError(ie.code, ie.message), code: ie.code });
+    return json(req, 400, { error: memberSafeError(ie.code, ie.message), code: ie.code });
   }
 
   // 5. remember the Wix booking id on the app row
   for (let i = 0; i < 2; i++) {
     const { error: ue } = await db.from("class_bookings").update({ wix_booking_id: wixId }).eq("class_id", classId).eq("date", date).eq("user_id", user.id);
-    if (!ue) return json(200, { ok: true, wix: true });
+    if (!ue) return json(req, 200, { ok: true, wix: true });
   }
   await db.from("class_bookings").delete().eq("class_id", classId).eq("date", date).eq("user_id", user.id);
   const undone = await wixCancel(wixId);
   await issue(undone ? "could not store the Wix booking id, rolled back" : "could not store the Wix booking id and the Wix rollback failed");
-  return json(502, { error: "Booking didn't go through. Please try again." });
+  return json(req, 502, { error: "Booking didn't go through. Please try again." });
 }
 
 Deno.serve(async (req) => {
   try { return await handle(req); }
-  catch (_e) { return json(500, { error: "Something went wrong. Please try again." }); }   // never leak internals
+  catch (_e) { return json(req, 500, { error: "Something went wrong. Please try again." }); }   // never leak internals
 });

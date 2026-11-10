@@ -281,7 +281,8 @@
       if (!LIVE) {
         const users = dGet('users', {});
         if (users[email]) throw new Error('An account with this email already exists');
-        users[email] = { id: uid(), password, full_name: fullName || '' };
+        const pwHash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password)))).map(b => b.toString(16).padStart(2, '0')).join('');
+        users[email] = { id: uid(), password: pwHash, full_name: fullName || '' };
         dSet('users', users);
         dSet('session', { email });
         dSet('profile_' + email, { full_name: fullName || '', phone: '', weight_kg: null, goal: '', is_admin: false });
@@ -302,7 +303,8 @@
     async signIn(email, password) {
       if (!LIVE) {
         const users = dGet('users', {});
-        if (!users[email] || users[email].password !== password) throw new Error('Wrong email or password');
+        const pwHash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password)))).map(b => b.toString(16).padStart(2, '0')).join('');
+        if (!users[email] || users[email].password !== pwHash) throw new Error('Wrong email or password');
         dSet('session', { email });
         return { email };
       }

@@ -309,7 +309,7 @@ const GLOBALS = {
   gym_address: "MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS",
   gym_email: "info@mygymlondon.co.uk",
   app_url: "https://app.mygymlondon.co.uk/",
-  admin_url: "https://app.mygymlondon.co.uk/",
+  admin_url: "https://app.mygymlondon.co.uk/admin-enquiries.html",
   site_url: "https://www.mygymlondon.co.uk/",
   assets_url: "https://app.mygymlondon.co.uk/",
   instagram_url: "https://www.instagram.com/mygym_london",

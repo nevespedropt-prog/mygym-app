@@ -1,0 +1,771 @@
+<title>MY GYM London — Design Critique</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: single-column editorial report, two-column score grid */
+  :root {
+    --bg: #f8f7f5;
+    --bg2: #ffffff;
+    --fg: #1a1a1e;
+    --fg2: #5a5962;
+    --line: #e4e3e6;
+    --acc: #e03939;
+    --acc-tint: #fdecec;
+    --warn: #c97a00;
+    --warn-tint: #fff8e6;
+    --ok: #2a8e52;
+    --ok-tint: #edf7f2;
+    --info: #1a6cb5;
+    --info-tint: #eaf2fc;
+    --score-high: #2a8e52;
+    --score-mid: #c97a00;
+    --score-low: #e03939;
+    --mono: "Space Mono", "Courier New", monospace;
+    --sans: "Inter", system-ui, -apple-system, sans-serif;
+    --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111113;
+      --bg2: #1c1c1f;
+      --fg: #f0eff2;
+      --fg2: #9998a2;
+      --line: #2e2d33;
+      --acc: #f04b4b;
+      --acc-tint: #2a1515;
+      --warn: #d98c20;
+      --warn-tint: #221900;
+      --ok: #3aad66;
+      --ok-tint: #0d2016;
+      --info: #4a90d9;
+      --info-tint: #0d1a28;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111113;
+    --bg2: #1c1c1f;
+    --fg: #f0eff2;
+    --fg2: #9998a2;
+    --line: #2e2d33;
+    --acc: #f04b4b;
+    --acc-tint: #2a1515;
+    --warn: #d98c20;
+    --warn-tint: #221900;
+    --ok: #3aad66;
+    --ok-tint: #0d2016;
+    --info: #4a90d9;
+    --info-tint: #0d1a28;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-family: var(--sans); color-scheme: light; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    padding-block: 0;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  a { color: var(--acc); }
+
+  /* Header */
+  .doc-header {
+    background: var(--fg);
+    color: var(--bg);
+    padding: 32px max(16px, env(safe-area-inset-left, 0px));
+    margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    margin-bottom: 32px;
+  }
+  .doc-header .eyebrow {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+  .doc-header h1 {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  .doc-header .meta {
+    font-size: 12px;
+    opacity: 0.55;
+    font-family: var(--mono);
+  }
+  .doc-header .meta span { margin-right: 16px; }
+  .doc-header .degraded-banner {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,200,0,0.15);
+    color: #d4a800;
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,200,0,0.25);
+  }
+
+  /* Sections */
+  .section {
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  .section-label {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg2);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  h2.section-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--fg);
+    margin-bottom: 12px;
+    text-wrap: balance;
+  }
+  p { margin-bottom: 12px; color: var(--fg); }
+  p:last-child { margin-bottom: 0; }
+
+  /* Score block */
+  .score-hero {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .score-number {
+    font-family: var(--mono);
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--warn);
+    flex-shrink: 0;
+  }
+  .score-number sup {
+    font-size: 22px;
+    vertical-align: super;
+    color: var(--fg2);
+    font-weight: 400;
+  }
+  .score-label {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--fg);
+    margin-bottom: 4px;
+  }
+  .score-desc { font-size: 13px; color: var(--fg2); }
+  .score-bar-wrap { flex: 1; min-width: 200px; }
+  .score-bar-track {
+    height: 6px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    width: 57.5%;
+    background: var(--warn);
+    border-radius: 999px;
+  }
+
+  /* Heuristics table */
+  .heuristics {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .heuristics table { width: 100%; border-collapse: collapse; }
+  .heuristics th {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg2);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .heuristics td {
+    padding: 11px 16px;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .heuristics tr:last-child td { border-bottom: none; }
+  .heuristics .hn { font-family: var(--mono); font-size: 11px; color: var(--fg2); width: 32px; }
+  .heuristics .hname { width: auto; }
+  .heuristics .hnote { color: var(--fg2); font-size: 12px; }
+  .heuristics .hscore {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+    width: 60px;
+  }
+  .s1 { color: var(--score-low); }
+  .s2 { color: var(--score-mid); }
+  .s3 { color: var(--score-high); }
+  .heuristics .total-row td { background: var(--bg); font-weight: 700; }
+  .heuristics .total-row .hscore { color: var(--warn); font-size: 17px; }
+
+  /* Verdict block */
+  .verdict-block {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--warn);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .verdict-block .vt {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--warn);
+    margin-bottom: 6px;
+  }
+
+  /* Working / strengths */
+  .strength-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .strength-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .strength-list li::before {
+    content: "✓";
+    color: var(--ok);
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 13px;
+  }
+
+  /* Priority issues */
+  .issue-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+  }
+  .issue-card.p0 { border-left: 4px solid var(--acc); }
+  .issue-card.p1 { border-left: 4px solid var(--acc); }
+  .issue-card.p2 { border-left: 4px solid var(--warn); }
+  .issue-card.p3 { border-left: 4px solid var(--info); }
+  .issue-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .issue-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg2);
+    flex-shrink: 0;
+  }
+  .issue-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fg);
+    flex: 1;
+  }
+  .pill {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .pill.p0, .pill.p1 { background: var(--acc-tint); color: var(--acc); }
+  .pill.p2 { background: var(--warn-tint); color: var(--warn); }
+  .pill.p3 { background: var(--info-tint); color: var(--info); }
+  .issue-body { font-size: 13.5px; color: var(--fg2); line-height: 1.55; margin-bottom: 8px; }
+  .issue-fix {
+    font-size: 12.5px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--fg);
+    border: 1px solid var(--line);
+  }
+  .issue-fix strong { color: var(--ok); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+  }
+
+  /* Persona flags */
+  .flag-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .flag-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .flag-body { flex: 1; }
+  .flag-label {
+    font-weight: 700;
+    color: var(--fg);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .flag-desc { color: var(--fg2); font-size: 13px; }
+
+  /* Minor observations */
+  .minor-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .minor-list li {
+    font-size: 13.5px;
+    color: var(--fg2);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .minor-list li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--line);
+  }
+
+  /* Questions */
+  .question-block {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: flex-start;
+  }
+  .question-block:last-child { border-bottom: none; }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg2);
+    flex-shrink: 0;
+    padding-top: 2px;
+    min-width: 28px;
+  }
+  .q-text { font-size: 14px; color: var(--fg); line-height: 1.5; }
+
+  /* Method declaration */
+  .method-block {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg2);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .method-block b { color: var(--fg); }
+
+  /* Footer */
+  .doc-footer {
+    max-width: 760px;
+    margin: 48px auto 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--fg2);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 540px) {
+    .doc-header h1 { font-size: 28px; }
+    .score-number { font-size: 42px; }
+    .score-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .heuristics td, .heuristics th { padding: 9px 12px; }
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Barlow+Condensed:wght@700;800&family=Space+Mono&display=swap">
+
+<div class="doc-header">
+  <div class="eyebrow">Impeccable Critique · MY GYM London</div>
+  <h1>Design Review</h1>
+  <div class="meta">
+    <span>Target: index.html</span>
+    <span>Surface: Operate</span>
+    <span>2026-11-10</span>
+  </div>
+  <div class="degraded-banner">⚠ Assessment B ran degraded — file read incomplete; detector findings are partial</div>
+</div>
+
+<div class="section">
+  <div class="section-label">Provenance</div>
+  <div class="method-block">
+    <b>Method:</b> Dual-agent critique (Assessment A: LLM design review; Assessment B: automated detector scan)<br>
+    <b>Assessment A:</b> Completed — full heuristic review and priority issue identification<br>
+    <b>Assessment B:</b> Degraded — timed out during file read at line 649 of 669; detector output incomplete<br>
+    <b>Synthesis:</b> Report draws on Assessment A findings + direct codebase analysis; detector findings are partial<br>
+    <b>DESIGN.md:</b> Present — schemaVersion 2 with sidecar (.impeccable/design.json)
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Design Health Score</div>
+  <div class="score-hero">
+    <div class="score-number">23<sup>/40</sup></div>
+    <div>
+      <div class="score-label">Acceptable</div>
+      <div class="score-desc">System is functional and on-brand in key areas, but three P1 violations<br>break core design system invariants and need resolution before next release.</div>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-track"><div class="score-bar-fill"></div></div>
+      <div style="font-size:11px;color:var(--fg2);margin-top:5px;font-family:var(--mono)">57.5% — threshold for Acceptable is 50%</div>
+    </div>
+  </div>
+
+  <div class="heuristics">
+    <table>
+      <thead>
+        <tr>
+          <th class="hn">#</th>
+          <th class="hname">Nielsen Heuristic</th>
+          <th class="hn" style="display:none"></th>
+          <th class="hscore">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hn">H1</td>
+          <td><div>Visibility of system status</div><div class="hnote">Bookings confirm, but no inline loading state; timetable populates silently</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H2</td>
+          <td><div>Match between system and real world</div><div class="hnote">Gym language is authentic; real prices and address used throughout</div></td>
+          <td class="hscore s3">3/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H3</td>
+          <td><div>User control and freedom</div><div class="hnote">Health form "Do it later" creates a hidden gate; no undo on booking cancellation</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H4</td>
+          <td><div>Consistency and standards</div><div class="hnote">6 nav tabs vs spec's 4; both header buttons ghost rather than one red/one ghost</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H5</td>
+          <td><div>Error prevention</div><div class="hnote">Form validation is present; auth form uses novalidate + inline errors correctly</div></td>
+          <td class="hscore s3">3/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H6</td>
+          <td><div>Recognition rather than recall</div><div class="hnote">Nav icons are clear; slot times are prominent; class types are labelled</div></td>
+          <td class="hscore s3">3/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H7</td>
+          <td><div>Flexibility and efficiency of use</div><div class="hnote">Optimistic UI for bookings is good; no shortcuts or power-user paths</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H8</td>
+          <td><div>Aesthetic and minimalist design</div><div class="hnote">One Signal Rule broken in 5+ places; inline style overrides create undocumented sizes</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H9</td>
+          <td><div>Help users recognise and recover from errors</div><div class="hnote">Error text uses <code>var(--acc)</code> — indistinguishable from action/brand signals</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr>
+          <td class="hn">H10</td>
+          <td><div>Help and documentation</div><div class="hnote">Contact info on profile screen; no inline help or contextual guidance</div></td>
+          <td class="hscore s2">2/4</td>
+        </tr>
+        <tr class="total-row">
+          <td></td>
+          <td><strong>Total</strong></td>
+          <td class="hscore">23/40</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Design Specificity Verdict</div>
+  <div class="verdict-block">
+    <div class="vt">Implementation drifts from system in critical ways</div>
+    <p>The design system in DESIGN.md is well-specified. Its most load-bearing constraint — the One Signal Rule — is violated in at least five places in the live implementation. The nav structure directly contradicts the spec's four-tab requirement. These are not minor inconsistencies; they erode the system's primary mechanisms for signalling action and structuring orientation.</p>
+    <p>Positively: Barlow Condensed uppercase is applied consistently to all headings and CTA labels. The 20px card radius and pill-shaped interactive elements are uniform. The hero gradient is used only in the hero. The token system is structurally sound — drift is at the usage level, not the definition level.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">What's Working</div>
+  <ul class="strength-list">
+    <li>Barlow Condensed uppercase applied consistently across all headings, section titles, and CTA labels — the Uppercase Display Rule holds throughout</li>
+    <li>Primary CTA (<code>.cta</code>) correctly uses red fill with white Barlow text; full-width treatment is consistent</li>
+    <li>20px card radius and 999px pill radius distinction is maintained for all cards vs interactive buttons</li>
+    <li>Hero gradient (<code>linear-gradient(160deg, #e03939, #a03535)</code>) used only on the hero card — no violations of the Don't rule</li>
+    <li>All form inputs meet the 16px minimum font-size; iOS auto-zoom prevention holds</li>
+    <li>Password toggle has correct <code>aria-label</code> and <code>aria-pressed</code>; password-manager-compatible form attributes (<code>autocomplete</code>, <code>name</code>)</li>
+    <li>Input focus ring uses <code>2px solid var(--acc)</code> exactly per spec; border becomes transparent on focus</li>
+    <li>Real pricing and real member quotes used throughout — no fabricated content</li>
+    <li>Self-hosted fonts; no external font CDN dependency; CSP clean</li>
+    <li>Supabase auth form uses real <code>&lt;form&gt;</code> elements with Enter/submit compatibility</li>
+    <li>Slot row time label uses Barlow Condensed at correct weight; status/action block correctly positioned</li>
+    <li>Footer carries real address, email, and legal links</li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-label">Priority Issues</div>
+
+  <div class="issue-card p1">
+    <div class="issue-header">
+      <span class="issue-id">PI-1</span>
+      <span class="pill p1">P1 — Critical</span>
+      <span class="issue-title">One Signal Rule broken in 5+ places</span>
+    </div>
+    <div class="issue-body">
+      <code>#e03939</code> (via <code>var(--acc)</code>) is used on elements that are not action signals or status indicators: <code>.err</code> error message text, <code>.stat b</code> stat numbers on the home view, <code>.pbar i</code> progress bar fill, <code>.price-row .p</code> price labels, and exercise error states (<code>.exerr</code>, <code>.exmsg.bad</code>). The rule's authority comes from rarity. Five non-action uses make the red signal ambiguous and weaken every actual CTA on screen.
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Replace <code>color:var(--acc)</code> on <code>.err</code> with a dedicated error token (e.g. <code>--err: #c0392b</code> or simply <code>var(--txt)</code> in bold). Set <code>.stat b</code>, <code>.pbar i</code>, and <code>.price-row .p</code> to <code>var(--txt)</code>. Keep red only on <code>.cta</code>, <code>.hbtn</code>, <code>.btn-small</code>, chip backgrounds, active nav, and hero.
+    </div>
+  </div>
+
+  <div class="issue-card p1">
+    <div class="issue-header">
+      <span class="issue-id">PI-2</span>
+      <span class="pill p1">P1 — Critical</span>
+      <span class="issue-title">6 nav tabs — no Profile, two extras not in spec</span>
+    </div>
+    <div class="issue-body">
+      The implemented nav has: Home, Timetable, Bookings, Log, Progress, Library. The spec calls for 4 tabs: Home, Bookings, Log/Progress, Profile. There is no Profile tab in the nav; the Profile section is accessible only via a header button. Library is not in the spec at all. Six tabs at phone width make each label and icon smaller and harder to tap for the over-50s audience.
+    </div>
+    <div class="issue-fix">
+      <strong>Fix options</strong>
+      Merge Log and Progress into one tab (Log/Progress). Move Library into the Log/Progress view as a secondary segment or tab. Add a Profile tab to the nav (removes the need for a separate header button). This brings the nav to 4 tabs matching the spec and restores minimum tap-target size.
+    </div>
+  </div>
+
+  <div class="issue-card p1">
+    <div class="issue-header">
+      <span class="issue-id">PI-3</span>
+      <span class="pill p1">P1 — Critical</span>
+      <span class="issue-title">Both header buttons are ghost — log-in CTA should be red</span>
+    </div>
+    <div class="issue-body">
+      The header has two buttons in guest mode: a ghost "Log in" (<code>#authBtn</code>) and a ghost "Join" (or similar secondary). The spec defines <code>.button-header</code> as red fill for the primary action and <code>.button-ghost</code> for the secondary. When both are ghost, there is no visual hierarchy and no clear primary action for first-time visitors.
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Remove the <code>ghost</code> class from <code>#authBtn</code>. The log-in button takes the red fill variant. The secondary action (enquiry, join) stays ghost. This matches the spec and restores the entry-point hierarchy.
+    </div>
+  </div>
+
+  <div class="issue-card p2">
+    <div class="issue-header">
+      <span class="issue-id">PI-4</span>
+      <span class="pill p2">P2 — High</span>
+      <span class="issue-title">"Do it later" on health form is a false exit</span>
+    </div>
+    <div class="issue-body">
+      Members who skip the health and safety form via "Do it later" are silently gated — they cannot book a class until the form is completed. The button implies the form is optional; the blocked booking journey reveals it is not. This is a dark pattern and directly conflicts with Product Principle 1 (personal, not anonymous — no dark patterns).
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Either: (a) rename the button to "Remind me later" and show an inline banner on the booking flow explaining the requirement before the member reaches the gate, or (b) block access to the timetable immediately after sign-up with a clear one-screen explanation, so the gate is upfront rather than hidden. Option (b) aligns with the Product spec's "complete health form before booking" intent.
+    </div>
+  </div>
+
+  <div class="issue-card p2">
+    <div class="issue-header">
+      <span class="issue-id">PI-5</span>
+      <span class="pill p2">P2 — High</span>
+      <span class="issue-title">Inline <code>style="font-size:17px"</code> on h2 creates undocumented type size</span>
+    </div>
+    <div class="issue-body">
+      At least one <code>&lt;h2&gt;</code> carries an inline style override setting font-size to 17px, outside the token system. The spec defines five type roles; 17px is not one of them. It sits between Body (16px) and CTA (20px) and is unreadable as a Barlow Condensed heading at that size.
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Remove the inline style. If the h2 genuinely needs a smaller variant, add a <code>.h2-sm</code> modifier to the token system at the correct size (closest spec value is CTA at 20px, or Body at 16px bold). Inline style overrides defeat the token system and are invisible to the design spec.
+    </div>
+  </div>
+
+  <div class="issue-card p2">
+    <div class="issue-header">
+      <span class="issue-id">PI-6</span>
+      <span class="pill p2">P2 — Medium</span>
+      <span class="issue-title">Member review quotes lack individual attribution</span>
+    </div>
+    <div class="issue-body">
+      The three real member testimonials on the home view use the quote pattern correctly (red left border, no container) but do not name the member. The PRODUCT.md explicitly notes these are real, owner-verified quotes. Without a name, they read as generic filler even though they are genuine. This undermines Product Principle 1 (personal, not anonymous) and Product Principle 5 (true content only).
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Add a first name or first name + initial after each quote (e.g. "— Sarah M.") with owner approval. This is a content task, not a code task. Mark it as an owner to-do if names are not yet confirmed.
+    </div>
+  </div>
+
+  <div class="issue-card p3">
+    <div class="issue-header">
+      <span class="issue-id">PI-7</span>
+      <span class="pill p3">P3 — Low</span>
+      <span class="issue-title">No <code>:focus-visible</code> rule on <code>.hbtn</code></span>
+    </div>
+    <div class="issue-body">
+      The header button (<code>.hbtn</code>) does not have a <code>:focus-visible</code> style. The password eye toggle (<code>.pw .eye:focus-visible</code>) does. Keyboard-navigating users who reach the header buttons get no visible focus indicator, which fails WCAG 2.4.7 (Focus Visible) at AA level.
+    </div>
+    <div class="issue-fix">
+      <strong>Fix</strong>
+      Add <code>.hbtn:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }</code> to match the existing pattern on <code>.pw .eye</code>.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Persona Red Flags</div>
+  <p style="font-size:13px;color:var(--fg2);margin-bottom:14px">Over-50s and fitness beginners are a named, intended audience. Issues that disproportionately affect this group.</p>
+
+  <div class="flag-card">
+    <div class="flag-icon">🧭</div>
+    <div class="flag-body">
+      <span class="flag-label">6-tab nav increases cognitive load for less-frequent app users</span>
+      <span class="flag-desc">Members in their 50s and 60s who open the app once a week face a wider, denser nav than the spec intended. Merging Log+Progress and adding Profile as a tab (PI-2) brings this to a manageable four.</span>
+    </div>
+  </div>
+
+  <div class="flag-card">
+    <div class="flag-icon">🚧</div>
+    <div class="flag-body">
+      <span class="flag-label">Hidden booking gate will cause confusion and loss of trust</span>
+      <span class="flag-desc">A member who defers the health form, then tries to book a class and gets blocked, is left without a clear explanation. For a user less familiar with app conventions, this reads as a system error. The fix in PI-4 must make the gate visible at sign-up, not at booking time.</span>
+    </div>
+  </div>
+
+  <div class="flag-card">
+    <div class="flag-icon">🔴</div>
+    <div class="flag-body">
+      <span class="flag-label">Red used on error messages is ambiguous for colour-sensitive users</span>
+      <span class="flag-desc">Using <code>var(--acc)</code> on error text makes errors visually identical to action signals. For users who rely on colour to distinguish errors from actions (or who have red-green colour deficiency), the distinction is lost. A dedicated error token with a distinct hue or weight difference (PI-1) addresses this.</span>
+    </div>
+  </div>
+
+  <div class="flag-card">
+    <div class="flag-icon">👁</div>
+    <div class="flag-body">
+      <span class="flag-label">Keyboard focus gap on header buttons (PI-7)</span>
+      <span class="flag-desc">Members who use a keyboard or switch access — more common in the over-50s demographic — will find the header buttons invisible when focused. This is a WCAG AA failure that must be fixed before claiming accessibility compliance.</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Minor Observations</div>
+  <ul class="minor-list">
+    <li><code>.spots.full</code> uses <code>var(--acc)</code> for the "FULL" state — this is a status signal and arguably within the One Signal Rule, but the red competes with the red "FULL" chip. Consider using the muted token (<code>var(--mut)</code>) for the spots count text when status is communicated by the chip above it.</li>
+    <li>The switch component (<code>.switch</code>) for push reminders and measurement tracking uses <code>accent-color</code>-style styling but is a custom element; the focus ring on the switch thumb is not explicitly defined.</li>
+    <li><code>.btn-small.ghost</code> variant appears on the profile screen (logout, contact links) but is not in DESIGN.md's component inventory. If it's a confirmed component, add it to the sidecar.</li>
+    <li>The segmented control (<code>.seg</code>) is a recurring pattern (auth, meal plan, booking) with no DESIGN.md entry. It should be documented as a component.</li>
+    <li>Footer separator character (the interpunct between address fragments) may render inconsistently across OS/font combinations; use a CSS pseudo-element or explicit <code>&amp;middot;</code> rather than a Unicode literal.</li>
+    <li>The <code>.gymlock</code> (access-locked) component is documented in DESIGN.md but not confirmed in the live file; if it is unused, note it as speculative in DESIGN.md.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-label">Questions to Consider</div>
+
+  <div class="question-block">
+    <span class="q-num">Q1</span>
+    <span class="q-text">Is Library a core daily-use feature, or is it supplementary content (exercise guides, tutorials) that members look up occasionally? If the latter, it could move into the Log/Progress view as a contextual drawer or sub-tab rather than occupying a permanent nav slot.</span>
+  </div>
+
+  <div class="question-block">
+    <span class="q-num">Q2</span>
+    <span class="q-text">The health form is currently a post-sign-up deferred gate. Should it instead be a mandatory step in the sign-up flow — framed as "one quick thing before you book" — so the gate is never encountered mid-journey? The Product spec implies this intent; the implementation defers it.</span>
+  </div>
+
+  <div class="question-block">
+    <span class="q-num">Q3</span>
+    <span class="q-text">The stat tiles on the home view (personal bests, session counts) use <code>var(--acc)</code> for the numeric values. Is this intentional — using red to signal "look at this achievement" — or is it colour bleed from the signal rule? If the former, add a named exception to DESIGN.md. If the latter, switch to <code>var(--txt)</code>.</span>
+  </div>
+
+  <div class="question-block">
+    <span class="q-num">Q4</span>
+    <span class="q-text">The profile section is currently accessed via a header button, not the nav. Assuming the nav moves to four tabs (PI-2 fix), does Profile become the fourth tab, or does the header button remain? The spec lists Profile as a nav tab; a header-button Profile creates a navigation pattern members won't expect.</span>
+  </div>
+
+  <div class="question-block">
+    <span class="q-num">Q5</span>
+    <span class="q-text">The three member testimonials are labelled as real in PRODUCT.md. What is the owner's preference for attribution — first name only, first name and initial, or no attribution? This is a content decision that unblocks PI-6 and should be confirmed before the next release.</span>
+  </div>
+</div>
+
+<div class="doc-footer">
+  <span>impeccable critique · MY GYM London · 2026-11-10</span>
+  <span>Saved to .impeccable/critique/</span>
+</div>

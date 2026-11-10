@@ -1,0 +1,231 @@
+{
+  "schema": "impeccable-critique-snapshot-1",
+  "target": "index.html",
+  "slug": "index-html",
+  "date": "2026-11-10",
+  "run_mode": "degraded",
+  "degraded_reason": "Sub-agent nesting limit reached (depth 1 of 1). Assessment A ran inline after Assessment B findings were already in context. Findings are correct; isolation between assessments was not possible.",
+
+  "scores": {
+    "heuristics_aggregate": { "total": 23, "max": 40, "percent": 57.5 },
+    "craft_floor": "FAIL",
+    "craft_floor_reason": "Hard ban: kicker/eyebrow above heading (line 366). One violation of an absolute ban fails craft-floor regardless of other scores.",
+    "wcag_status": "FAIL",
+    "wcag_failures": [
+      "#e03939 on #fdecec at ~3.6:1 — 11px chip text needs 4.5:1",
+      "White paragraph text in hero at ~3.4–4.1:1 — 14.5px needs 4.5:1",
+      "10px price labels (sub-minimum size regardless of contrast)"
+    ]
+  },
+
+  "heuristics": [
+    { "id": "H1", "name": "Visibility of system status",           "score": 3, "max": 4 },
+    { "id": "H2", "name": "Match between system and real world",   "score": 3, "max": 4 },
+    { "id": "H3", "name": "User control and freedom",              "score": 2, "max": 4 },
+    { "id": "H4", "name": "Consistency and standards",             "score": 2, "max": 4 },
+    { "id": "H5", "name": "Error prevention",                      "score": 2, "max": 4 },
+    { "id": "H6", "name": "Recognition rather than recall",        "score": 3, "max": 4 },
+    { "id": "H7", "name": "Flexibility and efficiency of use",     "score": 2, "max": 4 },
+    { "id": "H8", "name": "Aesthetic and minimalist design",       "score": 2, "max": 4 },
+    { "id": "H9", "name": "Help users recover from errors",        "score": 2, "max": 4 },
+    { "id": "H10","name": "Help and documentation",                "score": 2, "max": 4 }
+  ],
+
+  "findings": [
+    {
+      "id": "F-01", "source": "B", "severity": "P0", "category": "wcag-contrast",
+      "location": "lines 63–65 (.chip), all views",
+      "finding": "#e03939 on #fdecec chip text at ~3.6:1 — 11px uppercase requires 4.5:1 (WCAG AA)",
+      "impact": "Chips are used for category labels, status tags, and location tags throughout. They are unreadable at sufficient contrast for the named over-50s audience.",
+      "fix": "Either darken the chip text to #c0282a (approx 4.6:1 on #fdecec) or darken the chip background. Alternatively use the on-hero chip pattern (white on red) as the default, which does pass."
+    },
+    {
+      "id": "F-02", "source": "B", "severity": "P0", "category": "wcag-contrast",
+      "location": "lines 83–84 (.hero p), home and mhome views",
+      "finding": "White paragraph text in hero at ~3.4–4.1:1 on gradient — 14.5px opacity .94 requires 4.5:1",
+      "impact": "Hero paragraph copy ('No queues. No intimidation…', 'Your day at MY GYM at a glance.') fails WCAG AA for normal text. The named audience (over-50s) is disproportionately affected.",
+      "fix": "Increase hero p text to 16px minimum and remove the opacity reduction (.94), or switch to opacity:1. Alternatively increase font-weight to 600 — 14pt+ bold qualifies as large text requiring only 3:1."
+    },
+    {
+      "id": "F-03", "source": "B", "severity": "P0", "category": "wcag-text-size",
+      "location": "lines 109, 113 (.pcard .pr span), home view",
+      "finding": "10px 'from' labels on pricing cards — well below any accessible minimum",
+      "impact": "Completely unreadable for the named over-50s audience. WCAG 2.1 recommends no smaller than 10px for any visible text; 10px uppercase with tight tracking at screen resolution is effectively invisible on older phones.",
+      "fix": "Replace with 11px (the Label typography role from DESIGN.md) or convert to a visually lighter but larger treatment. The Label role (11px, 700 weight, 0.12em tracking, uppercase) is exactly designed for metadata like this."
+    },
+    {
+      "id": "F-04", "source": "B", "severity": "P0", "category": "wcag-text-size",
+      "location": "lines 303–305 (.nwrap button), all authenticated views",
+      "finding": "10.5px bottom nav labels — below minimum for the named audience",
+      "impact": "The nav is the primary wayfinding element, visible on every screen. 10.5px labels are straining for over-50s, especially on older phones with lower pixel density.",
+      "fix": "Increase to 11px (the Label role). If 11px causes tab overflow, reduce padding before reducing type. The Label role is designed for exactly this use case."
+    },
+    {
+      "id": "F-05", "source": "A+B", "severity": "P1", "category": "craft-floor",
+      "location": "line 366 (#mhome .hero .chip before h1)",
+      "finding": "HARD BAN: 'Your dashboard' chip immediately precedes the member dashboard h1 — kicker/eyebrow above heading",
+      "impact": "The craft-floor names this an absolute ban with no brief exemption. Kickers above headings introduce a layering pattern the system does not use. The chip also bleeds the brand red into a non-action context (the heading is not a CTA).",
+      "fix": "Remove the chip entirely. The member dashboard heading does not need a label; the context is clear from the view. If a status indicator is needed (e.g. showing membership tier), place it below the h1 or inside a stat tile."
+    },
+    {
+      "id": "F-06", "source": "A", "severity": "P1", "category": "design-system",
+      "location": "line 316 (header, guest state)",
+      "finding": "Both 'Log in' and 'Install' use .hbtn ghost — the primary conversion action has no visual priority",
+      "impact": "The design system documents: .hbtn primary fill is red; ghost is for the secondary action. Log in is the only conversion action on the guest home. Without visual priority, users on a quick scan may not identify it as the primary action.",
+      "fix": "Change Log in to .hbtn (remove ghost class). Keep Install as .hbtn ghost. This matches the two-header-button pattern exactly as documented."
+    },
+    {
+      "id": "F-07", "source": "B", "severity": "P1", "category": "wcag-contrast",
+      "location": "lines 50–53 (.hbtn), header",
+      "finding": "White text on #e03939 at ~4.1:1 for 13px .hbtn — borderline WCAG AA fail (needs 4.5:1 for normal text)",
+      "impact": "The header button is a primary interactive element and the WCAG threshold is 4.5:1 for 13px. Borderline but fails. Combined with F-06 (wrong variant), fixing F-06 also fixes F-07 — the 'Log in' button would switch to ghost (black text on white) which comfortably passes. Install would remain ghost. If red-fill .hbtn is kept anywhere, the text must meet 4.5:1.",
+      "fix": "Either increase button text to 14px (still below the 'large text' 18.67px bold threshold) or darken the red to approx #c72d2d to achieve 5:1 on white text. The simplest fix is resolving F-06 first."
+    },
+    {
+      "id": "F-08", "source": "A", "severity": "P1", "category": "one-signal-rule",
+      "location": "lines 167, 182, 186, 289, 258–259 (multiple)",
+      "finding": "Brand red (#e03939) used in 5+ non-action, non-status contexts: .err error text, .stat b stat numbers, .pbar progress fill, .price-row .p prices, .exmsg.bad exercise errors",
+      "impact": "The One Signal Rule is explicit: red appears only where action is required or status demands attention. With red on prices, stat numbers, and progress bars, it loses its ability to signal action. Users habituate to it and stop noticing CTAs.",
+      "fix": "Prices (.price-row .p, .pcard .pr): switch to var(--txt) — a price is information, not an action signal. Stats (.stat b): use var(--txt) or a larger font size to create hierarchy without colour. Progress bar: use a mid-grey or --txt with reduced opacity. Error text (.err): consider var(--txt) with an inline red icon or left-border, to distinguish 'error' (structural) from 'action' (button red) semantically."
+    },
+    {
+      "id": "F-09", "source": "B", "severity": "P1", "category": "design-system-color",
+      "location": "line 112 (.pcard.big .pr)",
+      "finding": "#ff6b6b lighter red on the featured pricing card — undocumented colour",
+      "impact": "The featured card (Gym + Classes Membership) uses a lighter, warmer red for its price that is not in the design system. It is visually indistinct from the error state. Pricing is a trust signal; off-brand colour on the most prominent price creates subtle friction.",
+      "fix": "Replace with #fff (white on the dark --txt background of .pcard.big) — consistent with the chip on that card which already uses rgba(255,255,255,.14)."
+    },
+    {
+      "id": "F-10", "source": "B", "severity": "P1", "category": "design-system-color",
+      "location": "line 258 (.exmsg)",
+      "finding": "#2b8a3e success message colour vs --ok:#2e9e5b in design system — 2.3% darker, an undocumented variant",
+      "impact": "Minor visually but a token drift. If the system ever adds a dark-mode or theming pass, --ok and the hardcoded #2b8a3e diverge. Also reduces confidence that the token system is complete.",
+      "fix": "Replace hardcoded #2b8a3e with var(--ok)."
+    },
+    {
+      "id": "F-11", "source": "A", "severity": "P1", "category": "nav",
+      "location": "lines 652–659 (nav), all views",
+      "finding": "Nav has 6 tabs (Home, Timetable, Bookings, Log, Progress, Library); DESIGN.md documents 4 (Home, Bookings, Log/Progress, Profile)",
+      "impact": "6 tabs is above the mobile-pattern 5-item max and well above the documented spec. It adds persistent cognitive load, especially for the over-50s audience (H8 deduction). Profile has no nav tab — it is accessible only via the header button, which may not be obvious. DESIGN.md diverges from implementation.",
+      "fix": "Either update DESIGN.md to reflect the confirmed 6-tab structure (requires owner approval), or reduce. Suggested merge: combine Log + Progress into 'My Log' (they are the same conceptual journey — workout/body tracking and trend charts). Consider moving Library into an in-context access point within the Log view. Add Profile to the nav at a later date when a 5-tab model is confirmed."
+    },
+    {
+      "id": "F-12", "source": "A", "severity": "P1", "category": "ux-flow",
+      "location": "lines 573–374 (profile view, health form)",
+      "finding": "'Do it later (you can't book until it's done)' creates a false exit — the button's label contradicts its function",
+      "impact": "Users who click 'Do it later' and return to the dashboard will attempt to book a class and find themselves blocked with no clear recovery path visible. The healthBanner re-entry exists but requires the user to scroll back.",
+      "fix": "Remove 'Do it later'. The 'Fill it in' button (hEdit) on the locked state already serves re-entry. If deferral must remain, rename to 'Skip for now' and ensure the health form banner is immediately visible on the dashboard without scrolling."
+    },
+    {
+      "id": "F-13", "source": "A+B", "severity": "P2", "category": "design-system-font",
+      "location": "line 59 (h2[style] selector)",
+      "finding": "h2[style]{font-size:22px !important} CSS architectural hack — overrides all h2 inline styles to 22px",
+      "impact": "h2 headings with inline style attributes (font-size:17px on 'Recent history', 'History') get cascaded to 22px by this rule, never 17px. The intent was 17px; the result is 22px via double override. Neither 17px nor 22px is in the DESIGN.md headline scale (28px). This is fragile CSS — any future h2 with an inline style gets unexpectedly resized.",
+      "fix": "Remove the h2[style] rule. Create a named class (.sub-heading or .h3) for the smaller sub-section headings, set to a size that fits: 17–18px is reasonable for a secondary heading within a view."
+    },
+    {
+      "id": "F-14", "source": "B", "severity": "P2", "category": "design-system-font",
+      "location": "lines 83, 97, 100, 106, 119–120, 136–137, 142, 146, 163–164, 184, 190, 200, 211, 234, 245, 254–255, 261, 288 (many)",
+      "finding": "Widespread off-system font sizes: 15px, 14.5px, 14px, 13.5px, 12.5px, 12px, 11.5px. None map to DESIGN.md's 5-level scale (44px display / 28px headline / 20px CTA / 16px body / 11px label).",
+      "impact": "The type scale exists as a spectrum of ad-hoc sizes rather than a system. Each size is a one-off decision with no documented role. This makes visual consistency impossible to maintain and signals design system immaturity to developers.",
+      "fix": "Map each off-system size to the nearest role or add a documented intermediate role. Recommended: 15px and 14.5px → 16px body; 12.5px and 12px → 11px label; 13.5px → 14px or label; 14px (.sub) → 14px can be documented as a named 'subtext' role (small, slightly below body). Note: 13px on .hbtn and 34px on the narrow hero h1 are DOCUMENTED — do not change."
+    },
+    {
+      "id": "F-15", "source": "B", "severity": "P2", "category": "design-system-radius",
+      "location": "lines 49, 194",
+      "finding": "Off-system border-radius values: 8px on logo img (line 49), 10px on .lockline (line 194)",
+      "impact": "The graduated radius scale (24/22/20/16/14/12/999px) does not include 8px or 10px. These create unexpected shapes. The logo image with 8px rounding looks like a custom crop that wasn't approved. .lockline at 10px sits between input (12px) and CTA (14px) with no documented function.",
+      "fix": "Logo img: remove border-radius or use the documented input radius (12px). The logo is a container, not a UI element, so no radius may be most appropriate. .lockline: use 12px (input radius, the most compact documented value) or 14px (CTA). Note: 11px on .btn .ic icon containers IS documented (icon container: 10–12px range)."
+    },
+    {
+      "id": "F-16", "source": "B", "severity": "P2", "category": "design-system-color",
+      "location": "lines 177, 205",
+      "finding": "Undocumented colours: rgba(0,0,0,.1) box-shadow on .seg button.sel (Structural Float Rule violation); #cfcdcd on .switch background (undocumented grey)",
+      "impact": "The shadow on the selected segmented tab is an interactive state shadow — the Structural Float Rule explicitly bans this. #cfcdcd is a custom grey not in the token set, making it unmaintainable.",
+      "fix": "Remove box-shadow from .seg button.sel. Use border or background change to indicate selection instead. Replace #cfcdcd on .switch with a documented colour: var(--line) (#ececee) would work for the inactive state."
+    },
+    {
+      "id": "F-17", "source": "A", "severity": "P2", "category": "design-system",
+      "location": "line 148 (.field input, .field select, .field textarea)",
+      "finding": "Input background uses var(--bg) (#f6f5f4 Warm Plaster) instead of documented var(--card2) (#f6f6f7 Ghost White)",
+      "impact": "DESIGN.md specifies Ghost White for input backgrounds. Warm Plaster is the page background — using it for inputs makes inputs visually merge with the page background rather than lifting slightly. The difference is subtle (~1 unit of lightness) but detectable.",
+      "fix": "Change to background:var(--card2). The focus state correctly switches to #fff — this remains correct."
+    },
+    {
+      "id": "F-18", "source": "A", "severity": "P2", "category": "craft-floor",
+      "location": "line 367 (#mhome .hero h1)",
+      "finding": "👋 emoji in member dashboard h1 heading",
+      "impact": "Craft-floor discourages emoji in body text and headings by convention. The direct, personal voice of the brand is better served by concrete copy than emoji punctuation. The emoji also renders inconsistently across OS versions, particularly older Android phones (the named audience's device type).",
+      "fix": "Remove the emoji. The h1 copy 'Hi! Let's check your activity' is warm enough without it. The JS that replaces this with the member's name should include the name in the heading ('Hi Sam!')."
+    },
+    {
+      "id": "F-19", "source": "A", "severity": "P2", "category": "ux-copy",
+      "location": "lines 422–423 (.seg button in #log view)",
+      "finding": "Emoji in segmented control tabs: '🏋️ Workouts' and '📏 Weight & body fat'",
+      "impact": "Segmented controls use Barlow Condensed uppercase (font: 700 16px/1 var(--disp)). Emoji within Barlow Condensed uppercase is visually incoherent — Barlow is an assertive display face, emoji are casual glyphs. They also do not uppercase with text-transform:uppercase, creating a size and baseline mismatch.",
+      "fix": "Remove emoji from these labels. 'Workouts' and 'Body fat' are clear without them."
+    },
+    {
+      "id": "F-20", "source": "A", "severity": "P3", "category": "accessibility",
+      "location": "lines 50–53 (.hbtn in CSS)",
+      "finding": "Missing :focus-visible rule on .hbtn",
+      "impact": "Header buttons have no explicit focus-visible outline. Keyboard and switch-access users navigating to 'Log in' will see no focus indicator.",
+      "fix": "Add: .hbtn:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }"
+    },
+    {
+      "id": "F-21", "source": "A", "severity": "P3", "category": "content",
+      "location": "lines 357–360 (.quote elements, home view)",
+      "finding": "Review quotes lack individual attribution — labelled collectively '— real member reviews'",
+      "impact": "Named attribution (first name) would significantly strengthen social proof without privacy risk. The collective label is better than fabricated names but weaker than 'Sarah, member since 2022'.",
+      "fix": "Owner action: request consent from the three quote contributors for first-name attribution. Update with names once confirmed."
+    }
+  ],
+
+  "false_positives_from_B": [
+    { "id": "FP-1", "finding": "13px on .hbtn", "reason": "Documented in DESIGN.md: 'header buttons use 13px system-weight'" },
+    { "id": "FP-2", "finding": "34px on #mhome .hero h1", "reason": "Documented in DESIGN.md: 'Display scales to 34px on narrower hero variants'" },
+    { "id": "FP-3", "finding": "11px on .btn .ic", "reason": "Documented in DESIGN.md: 'Icon container: 10-12px' — 11px is within range" }
+  ],
+
+  "strengths": [
+    "Token discipline: all 10 :root custom properties used consistently throughout; no hardcoded colour values on major structural elements (documented exceptions noted as findings)",
+    "Hero gradient correctly limited to .hero only — The One Signal Rule respected at the macro level",
+    "Barlow Condensed uppercase-only throughout all display headings, CTAs, and button labels — Uppercase Display Rule strictly followed",
+    "Card/CTA/pill radii correct: var(--rad) 20px on cards, 14px on .cta, 999px on chips and inline buttons",
+    "Input minimum 16px font-size honoured on all .field inputs — mandatory iOS zoom rule correctly implemented",
+    "Floating nav shadow and hero shadow match the documented vocabulary exactly",
+    "Input focus ring: outline:2px solid var(--acc) — correct system behaviour",
+    "Password visibility toggle has correct ARIA attributes (aria-pressed, aria-label) on both instances",
+    "Toggle switches use correct role='switch' and aria-checked semantics",
+    "GDPR/health consent handling is thorough: explicit checkboxes, collapsible privacy details, withdrawal toggle, transparent data use",
+    "Auth form best practices: correct autocomplete attributes, novalidate with custom validation, password manager compatible",
+    "Hero copy is excellent: 'The private gym where everybody knows your name' is a precise positioning statement matching the Creative North Star",
+    "Real content only: real prices, real addresses, real reviews labelled as real — no fabricated content anywhere",
+    "CSP is strict: no inline scripts, no external CDNs (Supabase only), no object-src",
+    "Self-hosted Barlow Condensed with font-display:swap — correct performance approach"
+  ],
+
+  "persona_flags": {
+    "Sam_over50_new": [
+      "10px price labels and 10.5px nav labels are unreadable at typical over-50s viewing distance",
+      "6-tab nav (Log, Progress, Library) will likely confuse — these abstract names require familiarity",
+      "Library section has two levels of segmented controls — high cognitive cost for first-time users",
+      "No onboarding flow visible — users are dropped into the full app immediately after the health form"
+    ],
+    "Casey_time_pressed": [
+      "'Do it later' on health form causes deferral, then blocks booking with no clear recovery path",
+      "No quick-rebook shortcut for returning members"
+    ],
+    "Jordan_frequent_logger": [
+      "Workout log requires building from scratch each time — no quick-repeat of last session visible in markup",
+      "Library depth (Exercises > Workouts > Meals with sub-tabs each) serves this persona well"
+    ]
+  },
+
+  "open_questions": [
+    { "id": "Q1", "priority": "high",   "question": "Is the 6-tab nav a confirmed product decision? If yes, DESIGN.md must be updated. If no, which tabs should merge or move?" },
+    { "id": "Q2", "priority": "high",   "question": "Should error text (.err, .exerr) use the same red as the action signal? Options: (a) accept it as valid, (b) add a distinct error semantic, (c) use --txt with a red icon." },
+    { "id": "Q3", "priority": "medium", "question": "Do the three review quote contributors consent to first-name attribution? Owner action required." },
+    { "id": "Q4", "priority": "medium", "question": "Is the Library meals/recipe section within confirmed product scope? PRODUCT.md does not list it." }
+  ]
+}

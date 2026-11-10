@@ -47,7 +47,7 @@ const makeToken = m_tokens.makeToken;
 
 
 
-const ALLOWED_ORIGINS = ["https://app.mygymlondon.co.uk", "https://nevespedropt-prog.github.io", "http://localhost:8137"];
+const ALLOWED_ORIGINS = ["https://app.mygymlondon.co.uk", "https://nevespedropt-prog.github.io"];
 const cors = (req: Request) => ({
   "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(req.headers.get("origin") ?? "") ? req.headers.get("origin")! : ALLOWED_ORIGINS[0],
   "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Vary": "Origin",

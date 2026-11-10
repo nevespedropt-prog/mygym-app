@@ -8,7 +8,6 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://app.mygymlondon.co.uk",
   "https://nevespedropt-prog.github.io",
-  "http://localhost:8137",
 ];
 
 function cors(req: Request) {

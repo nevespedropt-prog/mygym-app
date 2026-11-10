@@ -1,14 +1,15 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 // ---- logic ----
 // MY GYM London: "the gym is cancelling this class": emails everyone booked on it. Admin only (checked in index.ts).
-// It does NOT delete bookings or touch Wix: while the timetable lives in Wix, the class is cancelled there (Wix then removes the bookings and the app sync follows).
-// Order for the owner: press "Send" here FIRST (bookings still exist), then cancel the session in Wix.
+// Emails everyone booked on it, then cancels their individual Wix bookings in one step so the admin does not need to cancel in Wix separately.
+// The Wix schedule occurrence itself is not cancelled here; archive it in Wix to prevent new bookings appearing on the timetable.
 // No network in here: the database and the mailer are passed in so tests can fake them.
 interface Deps {
   getClass(id: number): Promise<{ id: number; name: string; day_name: string; start_time: string; kind: string } | null>;
-  listBookings(classId: number, date: string): Promise<{ id: string; user_id: string }[]>;
+  listBookings(classId: number, date: string): Promise<{ id: string; user_id: string; wix_booking_id: string | null }[]>;
   firstName(userId: string): Promise<string>;
   send(m: { user_id: string; vars: Record<string, string>; key: string }): Promise<"sent" | "skipped" | "failed">;
+  cancelWixBooking(wixBookingId: string): Promise<boolean>;
   today: string;   // 'YYYY-MM-DD' in London
 }
 interface Input { action?: string; class_id?: unknown; date?: unknown; reason?: unknown }
@@ -39,12 +40,13 @@ async function classCancelled(i: Input, d: Deps): Promise<Out> {
     return { status: 200, body: { ok: true, class_name: className, when, count: bookings.length, first_names: names } };
   }
 
-  let sent = 0, skipped = 0, failed = 0;
+  let sent = 0, skipped = 0, failed = 0, wixCancelled = 0;
   for (const b of bookings) {
     const r = await d.send({ user_id: b.user_id, key: "gymcancel-" + b.id, vars: { first_name: await d.firstName(b.user_id), class_name: className, when, reason } });
     if (r === "sent") sent++; else if (r === "skipped") skipped++; else failed++;
+    if (b.wix_booking_id) { const ok = await d.cancelWixBooking(b.wix_booking_id); if (ok) wixCancelled++; }
   }
-  return { status: 200, body: { ok: true, class_name: className, when, count: bookings.length, sent, skipped, failed } };
+  return { status: 200, body: { ok: true, class_name: className, when, count: bookings.length, sent, skipped, failed, wix_cancelled: wixCancelled } };
 }
 
 // ---- function ----
@@ -60,6 +62,24 @@ const cors = (req: Request) => ({
 });
 const json = (req: Request, status: number, body: Record<string, unknown>) => new Response(JSON.stringify(body), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
 const londonDate = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+
+async function wixCancelBooking(bookingId: string): Promise<boolean> {
+  const headers = { "Content-Type": "application/json", "Authorization": Deno.env.get("WIX_API_KEY")!, "wix-site-id": Deno.env.get("WIX_SITE_ID")! };
+  const base = "https://www.wixapis.com";
+  for (let i = 0; i < 2; i++) {
+    const g = await fetch(base + "/_api/bookings-reader/v2/extended-bookings/query", { method: "POST", headers, body: JSON.stringify({ query: { filter: { id: { $eq: bookingId } }, cursorPaging: { limit: 1 } } }), signal: AbortSignal.timeout(8000) }).then(r => r.json()).catch(() => null);
+    if (!g) continue;
+    const bs = g.extendedBookings ?? [];
+    if (bs.length === 0) return true;
+    const b = bs[0]?.booking;
+    if (b?.status === "CANCELED") return true;
+    const revision = b?.revision;
+    if (revision === undefined) continue;
+    const c = await fetch(base + `/bookings/v2/bookings/${encodeURIComponent(bookingId)}/cancel`, { method: "POST", headers, body: JSON.stringify({ revision, participantNotification: { notifyParticipants: false }, flowControlSettings: { ignoreCancellationPolicy: true } }), signal: AbortSignal.timeout(8000) }).catch(() => null);
+    if (c?.ok) return true;
+  }
+  return false;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
@@ -77,7 +97,7 @@ Deno.serve(async (req) => {
   const deps: Deps = {
     today: londonDate(new Date()),
     getClass: async (id) => (await admin.from("classes").select("id, name, day_name, start_time, kind").eq("id", id).maybeSingle()).data ?? null,
-    listBookings: async (classId, date) => (await admin.from("class_bookings").select("id, user_id").eq("class_id", classId).eq("date", date)).data ?? [],
+    listBookings: async (classId, date) => (await admin.from("class_bookings").select("id, user_id, wix_booking_id").eq("class_id", classId).eq("date", date)).data ?? [],
     firstName: async (uid) => (((await admin.from("profiles").select("full_name").eq("id", uid).maybeSingle()).data?.full_name as string) ?? "").trim().split(/\s+/)[0] || "there",
     send: async ({ user_id, vars, key }) => {
       try {
@@ -92,6 +112,7 @@ Deno.serve(async (req) => {
         return out.skipped ? "skipped" : "sent";
       } catch { return "failed"; }
     },
+    cancelWixBooking: wixCancelBooking,
   };
   try {
     const out = await classCancelled(body, deps);

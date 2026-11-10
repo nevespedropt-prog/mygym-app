@@ -33,7 +33,7 @@ No joining fee. No contract required for most plans. This is a material differen
 - Members primarily access the app on a phone; the PWA is designed to be installed to the home screen.
 - The app must work offline for read operations (saved session, cached timetable); booking requires a live connection.
 - Classes and gym slots that have already started (London time) are hidden from booking across the app, the booking function, and the database — all three must stay in sync.
-- Every push to `main` goes live on Netlify. The owner's approval is required before any push to `main`.
+- Every push to `main` goes live automatically. The owner's approval is required before any push to `main`. [Deployment platform to confirm — was Netlify; may have changed.]
 - Admin screens (campaign, enquiries, notify) are for owner/coach use, not members.
 - Supabase provides auth, database, row-level security, and push subscriptions. No secrets go in the repo.
 
@@ -58,7 +58,7 @@ No joining fee. No contract required for most plans. This is a material differen
 - Vanilla HTML/CSS/JS — no build step, no npm, no framework
 - Fonts self-hosted (Barlow Condensed 700 and 800, system sans for body); no external font CDN
 - Strict CSP in `_headers` (no inline scripts, no external scripts except Supabase)
-- Jekyll/GitHub Pages for the repo; `supabase/` and `netlify.toml` excluded from the published site
+- Jekyll/GitHub Pages config present in repo; `supabase/` and `netlify.toml` excluded from the published site. `netlify.toml` also present — deployment platform to confirm.
 - SQL schema changes must be written as numbered scripts, reviewed by the owner, and never run `schema.sql` against the live project
 
 ## Brand Commitments

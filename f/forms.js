@@ -48,7 +48,7 @@
   }
   function status(form, msg, ok) { var s = $(".status", form); s.textContent = msg; s.className = "status " + (ok ? "ok" : "err"); }
 
-  function tellParent() { if (window.parent !== window) { try { window.parent.postMessage({ mglFormHeight: document.documentElement.scrollHeight }, "*"); } catch (e) { /* not embedded */ } } }
+  function tellParent() { if (window.parent !== window) { try { window.parent.postMessage({ mglFormHeight: document.documentElement.scrollHeight }, "https://www.mygymlondon.co.uk"); } catch (e) { /* not embedded */ } } }
   window.addEventListener("load", tellParent); window.addEventListener("resize", tellParent);
   if (window.ResizeObserver) new ResizeObserver(tellParent).observe(document.body);
 

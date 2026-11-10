@@ -89,17 +89,16 @@ Details: PROJECT-NOTES.md (dated entries), the app-builder skill, MASTER-PROMPT.
 - Left for next time: form links/embeds on the Wix pages (contact-8 is not the contact page), check Wix duplicate booking reminders/cancellations, payment emails, enquiry status controls (back end), real run of the 2-hour reminder and engagement emails, admin-notify send with a real booking, solicitor review of privacy/terms wording.
 
 
-## NETLIFY DEPLOYS ARE PAUSED until 2026-11-19 (credits used up on 2026-10-26)
-The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only by default) is skipped and will deploy when credits return. Do NOT push app/website changes before the 19th unless urgent; batch into one push after. Back-end work (Supabase functions, SQL, emails, schedules) needs no Netlify deploy and still works.
+## NETLIFY PAUSED — NOW ON CLOUDFLARE PAGES (moved 2026-10-30)
+All app pushes to main deploy automatically via Cloudflare Pages. Netlify is inactive. Netlify bills again on 2026-11-19 — cancel or pause the Netlify project before then to avoid being charged.
 - 2026-10-26 late: checked Wix automations (130). Active client emails in Wix: booking confirmation, cancelled (+SMS), changes, session reminder, referral. The owner booked a class in the app and got ONLY our email (no Wix duplicate). Reminder duplicate still unchecked (needs a real booking 2 hours before a class). Nothing in Wix was changed. Weekly purge of expired form submissions is now scheduled (Sunday 03:30 UTC).
 - 2026-10-27: tried to put our PT form into the Wix Personal Training page; abandoned (Wix editor too fiddly). The Wix editor DRAFT of that page kept my edits (our form box added, old Wix form removed) through autosave; the LIVE page is unchanged. Do NOT press Publish in the Wix editor. Owner tried Site History restore; the draft still showed my box when rechecked, so confirm or ignore (Wix is being replaced). New plan: forms on the new website code, see ..\website-redesign\FORMS-ON-NEW-SITE.md.
 - 2026-10-27 NEW WEBSITE FORMS BUILT (website-code, not deployed): PT quiz posts to submit-form (tested live from a local copy, data deleted), trial class form on classes, contact on FAQ, Kids registration on kids-gym, newsletter in every footer, .htaccess for Hostinger, join links to join.mygymlondon.co.uk, map iframe replaced by a static map. Rebuild with website-redesign\build_site.py. Owner decisions: Hostinger for website hosting AND email campaigns (so our admin-campaign sender is the alternative; clarify), quiz stays, Wix checkout on join.mygymlondon.co.uk. Next: upload to Hostinger, DNS, privacy/cookie text, real-address checks.
 
 
-## Enquiry status page (built 2026-10-27, waits for the Netlify deploy on or after 2026-11-19)
+## Enquiry status page (built 2026-10-27, NOW LIVE via Cloudflare)
 - `admin-enquiries.html` / `admin-enquiries.js`: lists website form enquiries (newest first, last 300). Buttons set Contacted / Trial booked / Joined / Not now / Spam and there is a private note. "Joined", "Not now" and "Spam" stop the 2-day and 7-day lead follow-up emails (the daily job only emails new, contacted and trial). Admin sign-in is shared with the app (open the app as admin first), row security allows admins only, no database change was needed (the grants and policy already existed).
-- Tested locally with fake data (rendering, HTML escaped, status update sent). Not tested against the real database because it is not deployed yet. After deploy: open https://app.mygymlondon.co.uk/admin-enquiries.html as admin, mark one test enquiry and check the status changes.
-- Added to the build copy list in `netlify.toml`.
+- Tested locally with fake data only. First use: open https://app.mygymlondon.co.uk/admin-enquiries.html as admin, mark one test enquiry and check the status changes.
 
 ## Reminder and engagement email checks (2026-10-27)
 - Rolled-back dry runs on the live database: 2-hour reminder picks the booking (once per booking), review request after the 5th class, milestone after the 10th, we-miss-you at 30 days (not at 29 or 34, not when something is booked ahead), nobody emailed after consent was withdrawn. The booking trigger blocks past dates, so the dry run used `set local session_replication_role = replica`.
@@ -110,12 +109,12 @@ The live app stays on main@96af5ec. Commit 38fa710 (admin-notify: classes only b
 - Done today: privacy/cookie wording synced; SEO/AI-search/schema/llms.txt on the new site; map coordinates; real Google reviews added; legal draft banner hidden; cancellation rule = 10 minutes before (code enforces it); enquiries admin page (waits for Netlify deploy on or after 2026-11-19); real 2-hour reminder run PASSED; engagement emails dry-run only; skill, MASTER-PROMPT, memory synced.
 - Next: Hostinger. Owner has not yet said which plan is bought. Recommendation given: shared web hosting (not builder), Wix stays nameserver/DNS holder, only root + www A records change, Google Workspace email (MX at Google, billed via Wix) untouched, join.mygymlondon.co.uk still to be created in Wix. Upload `website-code` (includes .htaccess) to public_html, then test redirects (/privacy, old Wix addresses), headers, each form, checkout.
 - Kids Gym age DECIDED 2026-10-27: 8 and over everywhere (form check 8 to 17, pages, terms, db text). submit-form redeployed live the same day; tested: a 7-year-old is rejected, a 12-year-old passes the age check.
-- Unpushed local commits in the app repo (do not push before 2026-11-19 unless urgent, and ask first).
+- NOTE 2026-11-10: moved to Cloudflare Pages; all previously blocked commits are now live. Push to main freely.
 
 ## Email link check (2026-10-28)
 - Found: footer "Timetable" linked to www.../timetable (404 on Wix) in all 53 emails; "Book a free trial" -> /trial (404); admin alert links -> admin.mygymlondon.co.uk (does not exist); "Invite a friend" -> app #refer and health form -> #health (app has no such screens, opened home).
 - Fixed in `render.mjs`/`templates.mjs`/`submit-form/logic.ts`: Timetable -> /our-classes, Memberships -> /services-4, free trial -> /book-a-free-class, refer -> /refer-friends, health -> app #profile, admin -> app root. Old paths /timetable, /trial, /memberships also redirect in `website-code/.htaccess` (for emails already sent). submit-form and send-email redeployed live 2026-10-28; a real welcome email was sent to the owner to click through.
-- Still open: payment emails link to app `#billing` (no such screen; emails not wired yet, payments come from Wix). Admin alerts open the app root; change to `admin-enquiries.html` after the Netlify deploy on/after 2026-11-19.
+- Still open: payment emails link to app `#billing` (no such screen; emails not wired yet, payments come from Wix). Admin alerts: FIXED 2026-11-10 — `admin_url` changed from app root to `admin-enquiries.html` in render.mjs, submit-form/lib.js, submit-form/deploy.ts, send-email/lib.js, send-email/deploy.ts. Owner must redeploy `submit-form` and `send-email` functions in Supabase for the change to go live.
 
 ## Wix footer hours and Google Business Profile (2026-10-28, paused by the owner)
 - Live Wix footer (every page) still says Mon-Fri 7am-9pm, Sat 7am-5pm, Sun 7am-4pm. Correct text: "Every day, 5am to midnight". The Wix home page body already says 5am to midnight. The new Hostinger site has the right hours.

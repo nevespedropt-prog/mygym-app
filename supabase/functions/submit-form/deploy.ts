@@ -295,7 +295,7 @@ const GLOBALS = {
   gym_address: "MY GYM London, Main Avenue, Bush Hill Park, Enfield EN1 1DS",
   gym_email: "info@mygymlondon.co.uk",
   app_url: "https://app.mygymlondon.co.uk/",
-  admin_url: "https://app.mygymlondon.co.uk/",
+  admin_url: "https://app.mygymlondon.co.uk/admin-enquiries.html",
   site_url: "https://www.mygymlondon.co.uk/",
   assets_url: "https://app.mygymlondon.co.uk/",
   instagram_url: "https://www.instagram.com/mygym_london",
@@ -686,7 +686,7 @@ interface Ctx { ipHash: string; user: { id: string; email: string } | null; func
 interface Result { status: number; body: Record<string, unknown>; }
 
 const ADMIN_EMAIL = "info@mygymlondon.co.uk";
-const ADMIN_URL = "https://app.mygymlondon.co.uk/";
+const ADMIN_URL = "https://app.mygymlondon.co.uk/admin-enquiries.html";
 const londonDate = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 const niceDate = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(new Date(iso + "T12:00:00Z"));
 const firstWord = (s: string) => (String(s).trim().split(/\s+/)[0] || "there");

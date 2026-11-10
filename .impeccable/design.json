@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T00:00:00Z",
+  "title": "Design System: MY GYM London",
+  "extensions": {
+    "colorMeta": {
+      "acc": {
+        "role": "primary",
+        "displayName": "Gym Red",
+        "canonical": "#e03939",
+        "tonalRamp": ["#2a0a0a", "#500f0f", "#7a1a1a", "#a03535", "#c43636", "#e03939", "#e86060", "#f0908f", "#f7c0bf", "#fde8e8"]
+      },
+      "accd": {
+        "role": "primary",
+        "displayName": "Deep Gym Red",
+        "canonical": "#a03535",
+        "tonalRamp": ["#200a0a", "#3d1010", "#601a1a", "#7f2626", "#a03535", "#b84040", "#c96060", "#da8e8e", "#edbfbf", "#f9e8e8"]
+      },
+      "accs": {
+        "role": "primary",
+        "displayName": "Red Tint",
+        "canonical": "#fdecec",
+        "tonalRamp": ["#4a1515", "#7a2020", "#a03030", "#c44040", "#d85f5f", "#f09090", "#f7bebe", "#fdecec", "#fff4f4", "#fffafa"]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "Confirmation Green",
+        "canonical": "#2e9e5b",
+        "tonalRamp": ["#0a1f13", "#123520", "#1a5030", "#226840", "#2e9e5b", "#3db870", "#68cc93", "#9dddb6", "#c6edd6", "#eaf7f0"]
+      },
+      "txt": {
+        "role": "neutral",
+        "displayName": "Off-Black",
+        "canonical": "#1d1d20",
+        "tonalRamp": ["#0a0a0c", "#111113", "#1d1d20", "#2e2e32", "#424248", "#66656d", "#9a9aa0", "#c4c4c8", "#e0e0e3", "#f4f4f6"]
+      },
+      "mut": {
+        "role": "neutral",
+        "displayName": "Stone Muted",
+        "canonical": "#66656d",
+        "tonalRamp": ["#15141a", "#252430", "#363545", "#484759", "#58576a", "#66656d", "#898890", "#b2b1b8", "#d4d3d8", "#f0eff3"]
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "Warm Plaster",
+        "canonical": "#f6f5f4",
+        "tonalRamp": ["#2a2926", "#42403c", "#5c5a55", "#7a7873", "#a0a09a", "#c4c3be", "#dddbd8", "#edecea", "#f6f5f4", "#fdfcfc"]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Surface White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#2a2a2a", "#444444", "#5e5e5e", "#808080", "#a0a0a0", "#c0c0c0", "#d8d8d8", "#ebebeb", "#f6f6f6", "#ffffff"]
+      },
+      "card2": {
+        "role": "neutral",
+        "displayName": "Ghost White",
+        "canonical": "#f6f6f7",
+        "tonalRamp": ["#282830", "#3a3a44", "#505060", "#6a6a78", "#8a8a98", "#b0b0bc", "#ccccda", "#e0e0ea", "#f6f6f7", "#fdfdff"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#ececee",
+        "tonalRamp": ["#2a2a2e", "#3e3e44", "#545458", "#6a6a70", "#8c8c94", "#b8b8c0", "#d4d4da", "#ececee", "#f4f4f8", "#fafafc"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headings only. At 44px the condensed weight is at its most authoritative." },
+      "headline": { "displayName": "Headline", "purpose": "Section h2 dividers. Tight leading and slight tracking makes them scan instantly in a dense mobile layout." },
+      "cta": { "displayName": "CTA", "purpose": "Full-width action labels, large button text, slot time display." },
+      "body": { "displayName": "Body", "purpose": "All running text, form labels, card body copy. 16px is the iOS tap-to-zoom threshold." },
+      "label": { "displayName": "Label", "purpose": "Chip tags, bottom-nav labels, metadata. Heavy tracking at this size makes it feel set rather than small." }
+    },
+    "shadows": [
+      {
+        "name": "card-lift",
+        "value": "0 1px 3px rgba(20,20,25,.05)",
+        "purpose": "Applied to cards, stat tiles, slot rows, and why-cards. Functions as a separator from the page background."
+      },
+      {
+        "name": "hero-lift",
+        "value": "0 10px 28px rgba(160,53,53,.28)",
+        "purpose": "Applied to the hero card only. Red-tinted — marks the hero as the primary surface and reinforces the brand's red identity in the shadow itself."
+      },
+      {
+        "name": "floating-nav",
+        "value": "0 6px 24px rgba(0,0,0,.16)",
+        "purpose": "The nav genuinely floats above scrolling content. This shadow is load-bearing: it must visually separate the nav from whatever colour lands behind it during scroll."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-micro",
+        "value": "0.15s ease",
+        "purpose": "Button state changes: background-color, opacity."
+      },
+      {
+        "name": "ease-press",
+        "value": "transform 0.1s ease",
+        "purpose": "Active/pressed state: scale(0.98) on btn-small."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "CTA Primary",
+      "kind": "button",
+      "refersTo": "cta-primary",
+      "description": "Full-width primary action. Red fill, white Barlow Condensed uppercase. The main action signal on every screen.",
+      "html": "<button class=\"ds-cta\">BOOK THIS CLASS</button>",
+      "css": ".ds-cta { display: block; width: 100%; background: #e03939; color: #fff; font-family: \"Barlow Condensed\", \"Arial Narrow\", Impact, sans-serif; font-size: 20px; font-weight: 700; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; padding: 15px; border: none; border-radius: 14px; cursor: pointer; transition: background 0.15s ease; } .ds-cta:hover { background: #a03535; } .ds-cta:focus-visible { outline: 2px solid #e03939; outline-offset: 2px; } .ds-cta:disabled { opacity: 0.45; cursor: default; }"
+    },
+    {
+      "name": "CTA Alt",
+      "kind": "button",
+      "refersTo": "cta-alt",
+      "description": "Secondary full-width action. White fill with red border and red text. Used when two actions share equal prominence.",
+      "html": "<button class=\"ds-cta-alt\">FIND OUT MORE</button>",
+      "css": ".ds-cta-alt { display: block; width: 100%; background: #ffffff; color: #e03939; font-family: \"Barlow Condensed\", \"Arial Narrow\", Impact, sans-serif; font-size: 20px; font-weight: 700; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; padding: 15px; border: 2px solid #e03939; border-radius: 14px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; } .ds-cta-alt:hover { background: #fdecec; } .ds-cta-alt:focus-visible { outline: 2px solid #e03939; outline-offset: 2px; }"
+    },
+    {
+      "name": "Header Button",
+      "kind": "button",
+      "refersTo": "button-header",
+      "description": "Compact top-bar action. Pill shape, red fill, system font.",
+      "html": "<button class=\"ds-hbtn\">LOG IN</button>",
+      "css": ".ds-hbtn { background: #e03939; color: #fff; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; padding: 10px 16px; border: none; border-radius: 999px; cursor: pointer; transition: background 0.15s ease; white-space: nowrap; } .ds-hbtn:hover { background: #a03535; } .ds-hbtn:focus-visible { outline: 2px solid #e03939; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Compact secondary top-bar action. Pill, white fill with hairline border.",
+      "html": "<button class=\"ds-hbtn-ghost\">BACK</button>",
+      "css": ".ds-hbtn-ghost { background: #ffffff; color: #1d1d20; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; padding: 10px 16px; border: 1px solid #ececee; border-radius: 999px; cursor: pointer; transition: background 0.15s ease; white-space: nowrap; } .ds-hbtn-ghost:hover { background: #f6f5f4; } .ds-hbtn-ghost:focus-visible { outline: 2px solid #e03939; outline-offset: 2px; }"
+    },
+    {
+      "name": "Small Button",
+      "kind": "button",
+      "refersTo": "button-small",
+      "description": "Inline card-level action. Pill, red, Barlow Condensed uppercase. Used in slot rows and class cards.",
+      "html": "<button class=\"ds-btn-small\">BOOK</button>",
+      "css": ".ds-btn-small { background: #e03939; color: #fff; font-family: \"Barlow Condensed\", \"Arial Narrow\", Impact, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 17px; border: none; border-radius: 999px; cursor: pointer; transition: background 0.15s ease; } .ds-btn-small:hover { background: #a03535; } .ds-btn-small:focus-visible { outline: 2px solid #e03939; outline-offset: 2px; } .ds-btn-small:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Standard white container. The base surface for all content blocks.",
+      "html": "<div class=\"ds-card\"><p style=\"margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:16px;color:#1d1d20\">Card content goes here.</p></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #ececee; border-radius: 20px; padding: 16px; box-shadow: 0 1px 3px rgba(20,20,25,.05); }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill tag for category labels, status tags, and location tags. Red-tint background, red text. Informational only.",
+      "html": "<span class=\"ds-chip\">CLASSES</span>",
+      "css": ".ds-chip { display: inline-block; background: #fdecec; color: #e03939; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text input. Ghost-white background, hairline border, 12px radius. Focus shifts to red outline. Never below 16px font-size.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Your name\">",
+      "css": ".ds-input { display: block; width: 100%; background: #f6f6f7; color: #1d1d20; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; padding: 12px 14px; border: 1px solid #ececee; border-radius: 12px; box-sizing: border-box; outline: none; transition: border 0.15s ease, background 0.15s ease, outline 0.15s ease; } .ds-input::placeholder { color: #66656d; } .ds-input:focus { background: #ffffff; border-color: transparent; outline: 2px solid #e03939; outline-offset: 0; }"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Floating white pill fixed to the bottom viewport. 4 tabs: Home, Bookings, Log, Profile. Active tab in red, inactive in stone muted.",
+      "html": "<nav class=\"ds-nav\"><button class=\"ds-nav-tab ds-nav-tab--active\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path d=\"M10 2L2 9h2v9h4v-5h4v5h4V9h2L10 2z\"/></svg><span class=\"ds-nav-label\">HOME</span></button><button class=\"ds-nav-tab\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><rect x=\"3\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" ry=\"2\"/><line x1=\"3\" y1=\"8\" x2=\"17\" y2=\"8\" stroke=\"white\" stroke-width=\"1.5\"/><line x1=\"8\" y1=\"3\" x2=\"8\" y2=\"8\" stroke=\"white\" stroke-width=\"1.5\"/><line x1=\"14\" y1=\"3\" x2=\"14\" y2=\"8\" stroke=\"white\" stroke-width=\"1.5\"/></svg><span class=\"ds-nav-label\">BOOKINGS</span></button><button class=\"ds-nav-tab\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path d=\"M4 14l4-4 3 3 5-6\"/></svg><span class=\"ds-nav-label\">LOG</span></button><button class=\"ds-nav-tab\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><circle cx=\"10\" cy=\"7\" r=\"3\"/><path d=\"M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6\"/></svg><span class=\"ds-nav-label\">PROFILE</span></button></nav>",
+      "css": ".ds-nav { position: fixed; bottom: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-around; background: #ffffff; border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,.16); padding: 10px 4px; z-index: 100; } .ds-nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; color: #66656d; padding: 4px 0; } .ds-nav-tab--active { color: #e03939; } .ds-nav-icon { width: 22px; height: 22px; } .ds-nav-label { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Neighbourhood Coach",
+    "overview": "This is a gym where the coach knows your name, your goals, and your dodgy knee. The design reflects that: direct, warm, and confident without being loud. Everything earns its place. The red is a signal, not a decoration. The type is bold and compressed because a wall-mounted class board doesn't have room for small gestures — and neither does a phone screen you're checking between sets.\n\nThe system is mobile-native and action-first. Density is generous: 16px body type, 14-20px tap targets, comfortable card padding. There's no visual layering of modals inside modals, no sidebar navigation to learn. One column, one action per screen, one colour that means \"do something now.\" The result feels less like a fitness app and more like a noticeboard at the front desk of a gym that's been running for fifteen years.\n\nAesthetic rejections are few but firm: no gradients beyond the hero card, no secondary accent colours competing with the red, no Barlow Condensed used in lowercase.",
+    "keyCharacteristics": [
+      "Condensed uppercase Barlow for all headings and action labels — assertive at any size",
+      "Generously rounded cards (20px) with pill-shaped interactive elements — friendly and thumb-friendly",
+      "One signal colour (#e03939) used only for action and status, never decoration",
+      "Mobile-first single-column layout with a floating bottom nav",
+      "Flat surfaces with structural lifts at the hero and navigation level"
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "#e03939 appears only where action is required or status demands attention. It never decorates a heading, illustrates a section, or fills a background that isn't a hero or alert. Its rarity is the point.",
+        "section": "colors"
+      },
+      {
+        "name": "The Uppercase Display Rule",
+        "body": "Barlow Condensed appears only in uppercase. Its compressed letterforms were designed for signage and sport; mixed-case use weakens both the font and the hierarchy. Use body weight for any text that needs mixed case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Structural Float Rule",
+        "body": "Shadows live at the composition level — hero, nav, eventually modals. They are not applied as interaction feedback. A card that gains a shadow on hover imports a layering metaphor this system does not use, and it creates false affordance on touch devices where hover states are invisible.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Graduated Radius Rule",
+        "body": "Radius decreases as an element becomes more structured: hero (24px) > card/row (20px) > CTA button (14px) > input (12px). The pill (999px) lives outside this gradient as a pure interaction signal — it means \"this is a button\" and nothing else.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do use Barlow Condensed only in uppercase and only for headings, CTAs, and button labels. It is a display face, not a body face.",
+      "Do keep red at a maximum of roughly 10% of any screen's visual area. Every red element costs attention; spend it only on actions and status.",
+      "Do use the pill radius (999px) for all chips and all inline buttons. Use --rad (20px) for all card-shaped containers. The distinction is not arbitrary — it is the system's primary interactive affordance signal.",
+      "Do set input font-size to at least 16px. iOS zooms into inputs at smaller sizes; this is a hard requirement for the target audience (members aged 30s–60s, often on older phones).",
+      "Do pair a full-width primary CTA with its .cta.alt variant when two actions share the same decision weight.",
+      "Do use the quote pattern (left red border, no background) for member testimonials and inline notes; use the alert pattern (left border + red-tint background) only for notices that require the member to act."
+    ],
+    "donts": [
+      "Don't use Barlow Condensed in mixed case or for body copy. Its compression reads as shouting at running-text weight.",
+      "Don't introduce a second accent colour without replacing the existing system through /impeccable new-work. One signal colour is load-bearing; two signals create ambiguity about what requires attention.",
+      "Don't add hover or focus shadows to cards or list rows. The system's depth model is structural, not interactive. Hover shadows on touch-primary surfaces create a state that most users will never see.",
+      "Don't use the hero's red gradient (linear-gradient(160deg, #e03939, #a03535)) on any surface other than the top-of-screen hero card. It is a compositional anchor, not a texture.",
+      "Don't fabricate prices, plan names, reviews, photos, or booking counts. All content in the app is owner-verified and real. Mark any placeholder content explicitly with square brackets and list it as an owner to-do."
+    ]
+  }
+}

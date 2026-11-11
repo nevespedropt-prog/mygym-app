@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_migration_hardening_privileges_sql", "label": "migration-hardening-privileges.sql", "file_type": "code", "source_file": "supabase/migration-hardening-privileges.sql", "source_location": null}], "edges": []}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_schedule_timetable_sync_sql", "label": "schedule-timetable-sync.sql", "file_type": "code", "source_file": "supabase/schedule-timetable-sync.sql", "source_location": null}], "edges": []}

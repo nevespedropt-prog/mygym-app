@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_schedule_wix_bookings_sync_sql", "label": "schedule-wix-bookings-sync.sql", "file_type": "code", "source_file": "supabase/schedule-wix-bookings-sync.sql", "source_location": null}], "edges": []}

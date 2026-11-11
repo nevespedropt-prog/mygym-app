@@ -6,58 +6,82 @@
 - Unclassified: 9 file(s) not represented in the graph (top: (none) 4, .woff2 2, .ico 1)
 
 ## Summary
-- 706 nodes · 1101 edges · 37 communities (31 shown, 6 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.84)
+- 900 nodes · 1445 edges · 86 communities (48 shown, 38 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
 - app.js (0)
 - fn/submit-form/logic.ts (1)
-- MASTER-PROMPT.md rules (2)
-- fn/check-gym-access (3)
-- db.js (4)
-- email-templates/render.mjs (5)
-- fn/send-email/lib.js (6)
-- fn/submit-form/deploy.ts (7)
+- db.js (2)
+- fn/send-email/lib.js (3)
+- email-templates/render.mjs (4)
+- migration-admin-backend-4.sql (5)
+- fn/submit-form/deploy.ts (6)
+- schema.sql (7)
 - fn/admin-campaign/logic.ts (8)
 - fn/book-class/logic.ts (9)
-- DESIGN.md design system (10)
+- migration-forms-and-consent.sql (10)
 - fn/admin-class-cancelled/logic.ts (11)
 - fn/send-email/deploy.ts (12)
-- forms/build.mjs (13)
+- DESIGN.md design system (13)
 - fn/sync-wix-bookings/logic.ts (14)
 - fn/admin-campaign/deploy.ts (15)
-- fn/admin-class-cancelled/deploy.ts (16)
-- fn/send-booking-email/email.ts (17)
-- fn/sync-timetable (18)
-- manifest.json (19)
-- gen-client-exercises.js (20)
-- fn/sync-wix-payments (21)
-- forms/build-pages.mjs (22)
-- fn/book-class/cancel-email.test.mjs (23)
-- admin-notify.js (24)
-- shared/bundle.mjs (25)
-- forms/forms.mjs (26)
-- forms/forms.js (27)
-- shared/validate.test.mjs (28)
-- shared/tokens.mjs (29)
-- shared/validate.mjs (30)
-- admin-campaign.js (31)
-- sw.js (33)
-- _config.yml (34)
-- timetable.js (35)
+- shared/bundle.mjs (16)
+- fn/admin-class-cancelled/deploy.ts (17)
+- NEXT-SESSION.md (18)
+- fn/send-booking-email/email.ts (19)
+- fn/sync-timetable (20)
+- migration-admin-backend.sql (21)
+- migration-admin-backend-3.sql (22)
+- manifest.json (23)
+- forms/README.md (24)
+- gen-client-exercises.js (25)
+- migration-security-hardening.sql (26)
+- forms/test.mjs (27)
+- fn/sync-wix-payments (28)
+- fn/marketing-consent/deploy.ts (29)
+- forms/build.mjs (30)
+- fn/book-class/cancel-email.test.mjs (31)
+- admin-notify.js (32)
+- MASTER-PROMPT.md (33)
+- migration-booking-emails.sql (34)
+- forms/forms.mjs (35)
+- forms/forms.js (36)
+- shared/validate.test.mjs (37)
+- fn/marketing-consent (38)
+- shared/tokens.mjs (39)
+- shared/validate.mjs (40)
+- MASTER-PROMPT.md (41)
+- fn/check-gym-access (42)
+- fn/member-signup (43)
+- migration-meals.sql (44)
+- admin-campaign.js (45)
+- fn/weekly-report (46)
+- migration-exercise-suggestions.sql (47)
+- email-templates/README.md (49)
+- migration-cancel-limit.sql (51)
+- migration-email-redesign.sql (52)
+- migration-push-reminders.sql (53)
+- migration-instagram.sql (54)
+- WEEKLY-EXERCISE-REVIEW.md (55)
+- sw.js (56)
+- _config.yml (57)
+- migration-class-access-plans.sql (58)
+- migration-exercise-library.sql (59)
+- timetable.js (60)
 
 ## God Nodes (most connected - your core abstractions)
-1. `el()` - 21 edges
-2. `processSubmission()` - 17 edges
-3. `NEXT-SESSION.md handoff notes` - 17 edges
-4. `renderWorkouts()` - 14 edges
-5. `processSubmission()` - 14 edges
-6. `go()` - 13 edges
-7. `handle()` - 13 edges
-8. `render()` - 12 edges
-9. `sendEmail()` - 12 edges
-10. `renderTimetable()` - 11 edges
+1. `public.class_bookings` - 38 edges
+2. `public.classes` - 26 edges
+3. `el()` - 21 edges
+4. `public.wix_other_bookings` - 20 edges
+5. `public.profiles` - 19 edges
+6. `processSubmission()` - 17 edges
+7. `NEXT-SESSION.md handoff notes` - 17 edges
+8. `renderWorkouts()` - 14 edges
+9. `processSubmission()` - 14 edges
+10. `go()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Email library (56 emails, templates.mjs, render.mjs)` --shares_data_with--> `Typography (Barlow Condensed + system sans)`  [INFERRED]
@@ -66,10 +90,10 @@
   MASTER-PROMPT.md → PRODUCT.md
 - `Move deploy from Netlify to Cloudflare Pages (2026-10-30)` --conceptually_related_to--> `Release process and started-classes rule`  [AMBIGUOUS]
   NEXT-SESSION.md → MASTER-PROMPT.md
+- `Emails and forms back end (submit-form, send-email, marketing-consent)` --references--> `Action to email status matrix`  [EXTRACTED]
+  NEXT-SESSION.md → supabase/email-templates/WIRING.md
 - `Embedding forms on Wix / Hostinger via /f/ pages` --conceptually_related_to--> `Wix to Hostinger migration plan and launch checklist`  [INFERRED]
   supabase/forms/README.md → NEXT-SESSION.md
-- `Design Do's and Don'ts` --implements--> `Product principles (personal, clear, fast, owner control, true content)`  [INFERRED]
-  DESIGN.md → PRODUCT.md
 
 ## Import Cycles
 - None detected.
@@ -79,7 +103,7 @@
 - **Brand identity shared across design, product and master prompt** — design_palette, design_typography, product_brand_commitments [INFERRED 0.85]
 - **Wix replacement: hostinger site, emails, forms, payments** — next_session_wix_to_hostinger, supabase_email_templates_readme_wix_replacement, next_session_payment_emails [INFERRED 0.85]
 
-## Communities (37 total, 6 thin omitted)
+## Communities (86 total, 38 thin omitted)
 
 ### Community 0 - "app.js (0)"
 Cohesion: 0.07
@@ -89,29 +113,29 @@ Nodes (68): addExercise(), addToWorkout(), afterAuth(), barChart(), builderHasWo
 Cohesion: 0.06
 Nodes (37): ALLOWED_ORIGINS, cors(), json(), checkToken, forms, GLOBALS, m_forms, m_render (+29 more)
 
-### Community 2 - "MASTER-PROMPT.md rules (2)"
-Cohesion: 0.06
-Nodes (32): Emails, forms, coded website, SEO (added 2026-10-27), Release process and started-classes rule, Mandatory verification checklist, Move deploy from Netlify to Cloudflare Pages (2026-10-30), DMARC reports review and pct ramp, NEXT-SESSION.md handoff notes, Emails and forms back end (submit-form, send-email, marketing-consent), Enquiry status admin page (+24 more)
-
-### Community 3 - "fn/check-gym-access (3)"
-Cohesion: 0.06
-Nodes (24): ALLOWED_ORIGINS, cors(), hasActiveGymOrder(), json(), wixHeaders(), wixMemberId(), ALLOWED, ALLOWED_ORIGINS (+16 more)
-
-### Community 4 - "db.js (4)"
+### Community 2 - "db.js (2)"
 Cohesion: 0.05
 Nodes (3): book(), callBookClass(), cancel()
 
-### Community 5 - "email-templates/render.mjs (5)"
-Cohesion: 0.11
-Nodes (28): appDir, groups, here, items, prev, bodyBlocks(), button(), C (+20 more)
-
-### Community 6 - "fn/send-email/lib.js (6)"
+### Community 3 - "fn/send-email/lib.js (3)"
 Cohesion: 0.08
 Nodes (22): checkToken, forms, GLOBALS, m_forms, m_render, m_settings, m_templates, m_tokens (+14 more)
 
-### Community 7 - "fn/submit-form/deploy.ts (7)"
+### Community 4 - "email-templates/render.mjs (4)"
+Cohesion: 0.11
+Nodes (27): appDir, groups, here, items, prev, bodyBlocks(), button(), C (+19 more)
+
+### Community 5 - "migration-admin-backend-4.sql (5)"
+Cohesion: 0.12
+Nodes (25): public.admin_analytics(), public.admin_timetable(), public.admin_attendance(), public.admin_checkin_roster(), public.admin_waitlist(), public.checkins, public.waitlist, public.admin_class_remove() (+17 more)
+
+### Community 6 - "fn/submit-form/deploy.ts (6)"
 Cohesion: 0.10
 Nodes (21): addDays(), ALLOWED_ORIGINS, cors(), Ctx, Deps, firstWord(), Input, json() (+13 more)
+
+### Community 7 - "schema.sql (7)"
+Cohesion: 0.13
+Nodes (19): public.admin_members(), public.admin_staff_set(), public.admin_whoami(), public.send_engagement_emails(), public.send_lead_and_referral_emails(), public.email_cron_health_reminders(), public.email_cron_week_one(), public.marketing_consent (+11 more)
 
 ### Community 8 - "fn/admin-campaign/logic.ts (8)"
 Cohesion: 0.12
@@ -121,9 +145,9 @@ Nodes (17): ALLOWED_ORIGINS, cors(), json(), BATCH, campaign(), checkContent(), 
 Cohesion: 0.16
 Nodes (24): cancelEmailVars(), cors, emailCancelled(), handle(), json(), wix(), wixCancel(), wixHeaders() (+16 more)
 
-### Community 10 - "DESIGN.md design system (10)"
-Cohesion: 0.10
-Nodes (21): Components (CTA, chips, cards, inputs, nav), DESIGN.md Design System, Design Do's and Don'ts, Elevation and Structural Float Rule, Mobile single-column layout with floating bottom nav, Creative North Star: The Neighbourhood Coach, Palette (Gym Red, neutrals), Shapes and Graduated Radius Rule (+13 more)
+### Community 10 - "migration-forms-and-consent.sql (10)"
+Cohesion: 0.11
+Nodes (18): public.admin_health(), public._tt_mode(), public.admin_dashboard(), public.admin_emails(), public.admin_enquiries(), public.admin_insights(), public.app_flags, public.send_class_reminder_emails() (+10 more)
 
 ### Community 11 - "fn/admin-class-cancelled/logic.ts (11)"
 Cohesion: 0.14
@@ -133,9 +157,9 @@ Nodes (11): ALLOWED_ORIGINS, cors(), json(), classCancelled(), Deps, Input, Out,
 Cohesion: 0.14
 Nodes (10): Deps, m_forms, m_render, m_settings, m_templates, m_tokens, m_validate, Out (+2 more)
 
-### Community 13 - "forms/build.mjs (13)"
-Cohesion: 0.18
-Nodes (14): appDir, here, nav, panes, prev, f(), catalog(), esc() (+6 more)
+### Community 13 - "DESIGN.md design system (13)"
+Cohesion: 0.15
+Nodes (14): Components (CTA, chips, cards, inputs, nav), DESIGN.md Design System, Design Do's and Don'ts, Elevation and Structural Float Rule, Mobile single-column layout with floating bottom nav, Creative North Star: The Neighbourhood Coach, Palette (Gym Red, neutrals), Shapes and Graduated Radius Rule (+6 more)
 
 ### Community 14 - "fn/sync-wix-bookings/logic.ts (14)"
 Cohesion: 0.16
@@ -145,90 +169,158 @@ Nodes (13): wixHeaders(), wixPost(), ClassRow, DAYS, ExistingOther, ExistingRow,
 Cohesion: 0.19
 Nodes (10): ALLOWED_ORIGINS, campaign(), checkContent(), clean(), cors(), Deps, Input, json() (+2 more)
 
-### Community 16 - "fn/admin-class-cancelled/deploy.ts (16)"
+### Community 16 - "shared/bundle.mjs (16)"
+Cohesion: 0.16
+Nodes (8): here, MODULES, ONLY, root, TARGETS, wrap(), wrapped, root
+
+### Community 17 - "fn/admin-class-cancelled/deploy.ts (17)"
 Cohesion: 0.16
 Nodes (9): ALLOWED_ORIGINS, classCancelled(), cors(), Deps, Input, json(), Out, pretty() (+1 more)
 
-### Community 17 - "fn/send-booking-email/email.ts (17)"
+### Community 18 - "NEXT-SESSION.md (18)"
+Cohesion: 0.16
+Nodes (13): Release process and started-classes rule, Move deploy from Netlify to Cloudflare Pages (2026-10-30), DMARC reports review and pct ramp, NEXT-SESSION.md handoff notes, Enquiry status admin page, Instagram live feed (instagram-sync, instagram-feed), Opening hours 05:00 to midnight daily (Google/Wix wrong), Incident 2026-10-21: schema.sql re-run by mistake (+5 more)
+
+### Community 19 - "fn/send-booking-email/email.ts (19)"
 Cohesion: 0.20
 Nodes (10): APP_URL, Booking, buildEmail(), CANCEL_MINUTES, ClassRow, esc(), firstName(), GYM_ADDRESS (+2 more)
 
-### Community 18 - "fn/sync-timetable (18)"
+### Community 20 - "fn/sync-timetable (20)"
 Cohesion: 0.20
 Nodes (10): addDays(), BLOCKED_GYM, DAYS, Kind, lengthText(), londonToday(), Row, websitePattern() (+2 more)
 
-### Community 19 - "manifest.json (19)"
+### Community 21 - "migration-admin-backend.sql (21)"
+Cohesion: 0.18
+Nodes (8): public.admin_class_set_active(), public.admin_audit(), public.admin_marketing(), public.admin_member_health(), public.admin_staff_list(), public.staff, public.staff_access_log, public.staff_role()
+
+### Community 22 - "migration-admin-backend-3.sql (22)"
+Cohesion: 0.16
+Nodes (5): public.admin_forms_summary(), public.admin_rota(), public.admin_tasks(), public.staff_shifts, public.staff_tasks
+
+### Community 23 - "manifest.json (23)"
 Cohesion: 0.15
 Nodes (12): background_color, categories, description, display, icons, name, orientation, scope (+4 more)
 
-### Community 20 - "gen-client-exercises.js (20)"
+### Community 24 - "forms/README.md (24)"
+Cohesion: 0.18
+Nodes (8): Wix to Hostinger migration plan and launch checklist, Email library (56 emails, templates.mjs, render.mjs), Action to email status matrix, Owner steps to make built parts live, Built-in form safeguards (honeypot, rate limit, consent), Embedding forms on Wix / Hostinger via /f/ pages, Form catalog (11 forms), Automatic test commands and bundle step
+
+### Community 25 - "gen-client-exercises.js (25)"
 Cohesion: 0.15
 Nodes (10): clash, db, dup, existing, fs, maxSort, names, out (+2 more)
 
-### Community 21 - "fn/sync-wix-payments (21)"
+### Community 26 - "migration-security-hardening.sql (26)"
+Cohesion: 0.21
+Nodes (8): public.enforce_booking_rules(), public.gym_access_plans, public.member_access, public.enforce_booking_rules(), booking_rules, public.booking_counts(), public.enforce_booking_rules(), public.signup_attempts
+
+### Community 27 - "forms/test.mjs (27)"
+Cohesion: 0.18
+Nodes (9): templates, here, out, pub, f(), forms, emailIds, kids (+1 more)
+
+### Community 28 - "fn/sync-wix-payments (28)"
 Cohesion: 0.20
 Nodes (3): who(), wix(), wixHeaders()
 
-### Community 22 - "forms/build-pages.mjs (22)"
-Cohesion: 0.24
-Nodes (4): here, out, pub, root
+### Community 29 - "fn/marketing-consent/deploy.ts (29)"
+Cohesion: 0.20
+Nodes (5): ALLOWED, ALLOWED_ORIGINS, cors(), json(), m_tokens
 
-### Community 23 - "fn/book-class/cancel-email.test.mjs (23)"
+### Community 30 - "forms/build.mjs (30)"
+Cohesion: 0.29
+Nodes (9): appDir, here, nav, panes, prev, catalog(), esc(), field() (+1 more)
+
+### Community 31 - "fn/book-class/cancel-email.test.mjs (31)"
 Cohesion: 0.20
 Nodes (6): body, calls, db, here, tmp, v
 
-### Community 24 - "admin-notify.js (24)"
+### Community 32 - "admin-notify.js (32)"
 Cohesion: 0.39
 Nodes (7): fillClasses(), iso(), nextDate(), reset(), setDate(), show(), start()
 
-### Community 25 - "shared/bundle.mjs (25)"
-Cohesion: 0.25
-Nodes (7): here, MODULES, ONLY, root, TARGETS, wrap(), wrapped
+### Community 33 - "MASTER-PROMPT.md (33)"
+Cohesion: 0.22
+Nodes (6): Emails, forms, coded website, SEO (added 2026-10-27), Mandatory verification checklist, Emails and forms back end (submit-form, send-email, marketing-consent), Resend API key stored only in Supabase Secrets, Resend domain verification via Wix DNS, send-booking-email edge function and trigger
 
-### Community 26 - "forms/forms.mjs (26)"
+### Community 34 - "migration-booking-emails.sql (34)"
+Cohesion: 0.25
+Nodes (6): booking_email, public.email_log, public.notify_booking_email(), classes_wix_unique, public.sync_log, public.weekly_report_stats()
+
+### Community 35 - "forms/forms.mjs (35)"
 Cohesion: 0.25
 Nodes (4): base, marketing, name(), utm
 
-### Community 28 - "shared/validate.test.mjs (28)"
+### Community 37 - "shared/validate.test.mjs (37)"
 Cohesion: 0.25
 Nodes (6): F, F, kid, pt, r, trial
 
-### Community 29 - "shared/tokens.mjs (29)"
+### Community 38 - "fn/marketing-consent (38)"
+Cohesion: 0.32
+Nodes (6): ALLOWED_ORIGINS, cors(), json(), checkToken, m_tokens, makeToken
+
+### Community 39 - "shared/tokens.mjs (39)"
 Cohesion: 0.43
 Nodes (7): b64u(), checkToken(), enc, fromB64u(), hex(), mac(), makeToken()
 
-### Community 30 - "shared/validate.mjs (30)"
+### Community 40 - "shared/validate.mjs (40)"
 Cohesion: 0.46
 Nodes (7): addDays(), ageOn(), asList(), clean(), META_MAX, validate(), validDate()
 
-### Community 31 - "admin-campaign.js (31)"
+### Community 41 - "MASTER-PROMPT.md (41)"
+Cohesion: 0.29
+Nodes (7): Supabase backend requirements (RLS, numbered SQL), Deliverables: app, backend, website mockup, legal pages, notes, Legal pages (privacy, terms, cookies), Member app PWA requirements, Website mockup requirements (generator scripts), Member and admin capabilities, Technical constraints (vanilla JS, strict CSP, Supabase)
+
+### Community 42 - "fn/check-gym-access (42)"
+Cohesion: 0.43
+Nodes (6): ALLOWED_ORIGINS, cors(), hasActiveGymOrder(), json(), wixHeaders(), wixMemberId()
+
+### Community 43 - "fn/member-signup (43)"
+Cohesion: 0.43
+Nodes (6): ALLOWED_ORIGINS, cors(), getWixMember(), hasActivePlan(), json(), wixHeaders()
+
+### Community 44 - "migration-meals.sql (44)"
+Cohesion: 0.43
+Nodes (5): meal_plan_template_items_tpl, public.foods, public.meal_plan_template_items, public.meal_plan_templates, public.recipes
+
+### Community 45 - "admin-campaign.js (45)"
 Cohesion: 0.53
 Nodes (4): call(), content(), show(), start()
+
+### Community 47 - "migration-exercise-suggestions.sql (47)"
+Cohesion: 0.67
+Nodes (5): exercise_suggestions_limit, exercise_suggestions_status_idx, exercise_suggestions_user_name_idx, public.exercise_suggestions, public.limit_exercise_suggestions()
+
+### Community 49 - "email-templates/README.md (49)"
+Cohesion: 0.50
+Nodes (3): Payment and membership emails (sync-wix-payments, dormant), Launch decisions in settings.mjs, Wix email to replacement mapping
+
+### Community 53 - "migration-push-reminders.sql (53)"
+Cohesion: 0.83
+Nodes (3): public.booking_reminders, public.due_class_reminders(), public.push_subscriptions
 
 ## Ambiguous Edges - Review These
 - `Release process and started-classes rule` → `Move deploy from Netlify to Cloudflare Pages (2026-10-30)`  [AMBIGUOUS]
   NEXT-SESSION.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **18 isolated node(s):** `Elevation and Structural Float Rule`, `Shapes and Graduated Radius Rule`, `Slot Row signature component`, `DMARC reports review and pct ramp`, `Enquiry status admin page` (+13 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 304 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 isolated node(s):** `Elevation and Structural Float Rule`, `Shapes and Graduated Radius Rule`, `Slot Row signature component`, `Legal pages (privacy, terms, cookies)`, `Website mockup requirements (generator scripts)` (+13 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 370 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **38 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Are the 8 inferred relationships involving `processSubmission()` (e.g. with `.countByIp()` and `.countByUser()`) actually correct?**
-  _`processSubmission()` has 8 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `public.class_bookings` connect `migration-admin-backend-4.sql (5)` to `migration-booking-emails.sql (34)`, `schema.sql (7)`, `migration-forms-and-consent.sql (10)`, `migration-cancel-limit.sql (51)`, `migration-push-reminders.sql (53)`, `migration-security-hardening.sql (26)`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **What connects `Elevation and Structural Float Rule`, `Shapes and Graduated Radius Rule`, `Slot Row signature component` to the rest of the system?**
   _18 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app.js (0)` be split into smaller, more focused modules?**
   _Cohesion score 0.07441688263606072 - nodes in this community are weakly interconnected._
 - **Should `fn/submit-form/logic.ts (1)` be split into smaller, more focused modules?**
   _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
-- **Should `MASTER-PROMPT.md rules (2)` be split into smaller, more focused modules?**
-  _Cohesion score 0.059800664451827246 - nodes in this community are weakly interconnected._
-- **Should `fn/check-gym-access (3)` be split into smaller, more focused modules?**
-  _Cohesion score 0.05647840531561462 - nodes in this community are weakly interconnected._
+- **Should `db.js (2)` be split into smaller, more focused modules?**
+  _Cohesion score 0.04994192799070848 - nodes in this community are weakly interconnected._
+- **Should `fn/send-email/lib.js (3)` be split into smaller, more focused modules?**
+  _Cohesion score 0.08258258258258258 - nodes in this community are weakly interconnected._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._

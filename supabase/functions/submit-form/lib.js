@@ -167,6 +167,10 @@ t("lead-followup-2", { group: "Website forms", marketing: true, to: "lead", when
   title: "Still thinking about it?", cta: { label: "Book a free trial", url: "{{site_url}}book-a-free-class" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Just one last note. If now is not the right time, that is fine. Your free trial offer stays open whenever you are ready." }] });
 
+t("free-class-confirm", { group: "Website forms", to: "lead", when: "Right after someone requests a free class from the new website", subject: "Your free class request, {{first_name}}", pre: "We will confirm your place within one working day.",
+  title: "Free class request received", cta: { label: "See our classes", url: "{{site_url}}our-classes" },
+  body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for requesting a free class at MY GYM London. We will confirm your place within one working day." }, { kv: [["Class", "{{class_name}}", "class_name"], ["Date", "{{class_date}}", "class_date"], ["Time", "{{class_time}}", "class_time"]] }, { h: "PAR-Q — Physical Activity Readiness Questionnaire" }, { p: "Before your first session, please read through these seven questions and reply to this email if you answer Yes to any of them." }, { list: ["Has your doctor ever said that you have a heart condition and that you should only do physical activity recommended by a doctor?", "Do you feel pain in your chest when you do physical activity?", "In the past month, have you had chest pain when you were not doing physical activity?", "Do you lose your balance because of dizziness, or do you ever lose consciousness?", "Do you have a bone or joint problem that could be made worse by a change in your physical activity?", "Is your doctor currently prescribing medication for your blood pressure or heart condition?", "Do you know of any other reason why you should not do physical activity?"] }, { note: "If you answered Yes to any question above, please reply to this email before your session so we can make sure you are safe to train. If you are unsure, speak to your GP first." }, { muted: "If you answered No to all seven questions, you are ready to go. We look forward to seeing you at MY GYM London." }] });
+
 t("guide-delivery", { group: "Website forms", to: "lead", when: "Right after someone asks for the free MyGym guide on the website (service email, sent whether or not they opt in to news)", subject: "Your free MyGym guide, {{first_name}}", pre: "Part 1 is ready to download.",
   title: "Your free MyGym guide", cta: { label: "Download Part 1", url: "{{site_url}}downloads/MyGym-Guide-Part-1.pdf" },
   body: [{ p: "Hi {{first_name}}," }, { p: "Thanks for asking for our guide. Part 1 of the MyGym London Ultimate Fitness Startup guide is ready for you. It covers how we coach, a getting started checklist, goal setting and a 6 week challenge timeline." }, { note: "Tip: save the PDF to your phone, so you have your checklist with you at the gym." }, { p: "Not sure where to begin? Try a free class and see if MyGym feels like your gym. Email us at {{gym_email}} and we will help you pick one." }, { muted: "You asked for this guide on our website, so we sent it. We only send news and offers if you ticked the box." }] });
@@ -241,6 +245,10 @@ t("refer-a-friend-prompt", { group: "Keep members engaged", marketing: true, whe
 t("admin-new-booking", { group: "To the gym", to: "admin", when: "Each time a booking is made (can be switched to a daily summary)", subject: "New booking: {{person_name}}, {{class_name}} {{when}}", pre: "{{spaces_left}} spaces left.",
   title: "New booking", cta: { label: "Open bookings", url: "{{admin_url}}" },
   body: [{ kv: [["Member", "{{person_name}}"], ["Class", "{{class_name}}"], ["When", "{{when}}"], ["Spaces left", "{{spaces_left}}"], ["Booked from", "{{source_page}}", "source_page"]] }] });
+
+t("admin-free-class", { group: "To the gym", to: "admin", when: "When someone requests a free class from the new website", subject: "Free class request: {{person_name}}", pre: "New free class enquiry from the website.",
+  title: "New free class request",
+  body: [{ kv: [["From", "{{person_name}}"], ["Email", "{{person_email}}"], ["Phone", "{{person_phone}}", "person_phone"], ["Class requested", "{{class_name}}", "class_name"], ["Date", "{{class_date}}", "class_date"], ["Time", "{{class_time}}", "class_time"], ["Source", "{{source_page}}", "source_page"]] }, { note: "They have been sent a confirmation email including the PAR-Q health questionnaire. Await their reply before confirming the session if any health flag is raised." }, { muted: "Reply to this email to contact them directly." }] });
 
 t("admin-overbooked", { group: "To the gym", to: "admin", when: "If a session ever ends up with more people than spaces (for example from a sync clash)", subject: "Overbooked: {{class_name}}, {{when}}", pre: "{{booked}} booked, {{capacity}} spaces.",
   title: "A session is overbooked", cta: { label: "Fix it now", url: "{{admin_url}}" },
@@ -580,6 +588,13 @@ f("guide-signup", { adminLabel: "free guide sign-up", title: "Get the free MyGym
   privacy: `We use your details to send you the guide. We only send news and offers if you tick the box. See our <a href="${PRIVACY}">Privacy Notice</a>.` });
 
 
+
+f("free-class", { adminLabel: "free class request", title: "Try a free class", intro: "Pick a class from the timetable, fill in your details, and we will confirm your free session within one working day.", where: "www: Home page — new website (GitHub Pages)",
+  honeypot: "website",
+  fields: [name(), email(), phone(true), { id: "class_name", type: "text", label: "Class you want to try", required: true, max: 100 }, { id: "class_date", type: "text", label: "Date", required: false, max: 50 }, { id: "class_time", type: "text", label: "Time", required: false, max: 20 }, { id: "class_duration", type: "text", label: "Duration", required: false, max: 20 }, { id: "health_ready", type: "hidden" }, ...utm],
+  success: "Thanks! Check your inbox — your confirmation and a short health questionnaire (PAR-Q) are on their way.",
+  notify: "admin-free-class", autoreply: "free-class-confirm", pipeline: "new", source: "free-class",
+  consents: [marketing, { id: "health_ready", required: true, text: "I am fit to exercise, or I will tell the coach before the class about anything that might affect me." }] });
 
 return { default: F };
 })();

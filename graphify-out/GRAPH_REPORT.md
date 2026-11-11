@@ -4,8 +4,8 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 813 nodes · 1415 edges · 79 communities (45 shown, 34 thin omitted)
-- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 107 edges (avg confidence: 0.85)
+- 813 nodes · 1429 edges · 81 communities (46 shown, 35 thin omitted)
+- Extraction: 91% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 121 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -17,16 +17,19 @@
 - app.js (0)
 - fn/submit-form/logic.ts (1)
 - db.js
-- fn/send-email/lib.js (3)
+- schema.sql
 - email-templates/render.mjs (4)
 - migration-admin-backend-4.sql (5)
 - graphify-link-db.py
 - build-pages.mjs
 - fn/admin-campaign/logic.ts (8)
 - fn/book-class/logic.ts (9)
+- migration-meals.sql
 - fn/admin-class-cancelled/logic.ts (11)
+- public.member_health
 - DESIGN.md design system (13)
 - fn/sync-wix-bookings/logic.ts (14)
+- public.app_flags
 - shared/bundle.mjs (16)
 - NEXT-SESSION.md (18)
 - fn/send-booking-email/email.ts (19)
@@ -47,7 +50,6 @@
 - forms/forms.mjs (35)
 - forms/forms.js (36)
 - shared/validate.test.mjs (37)
-- fn/marketing-consent (38)
 - shared/tokens.mjs (39)
 - shared/validate.mjs (40)
 - MASTER-PROMPT.md (41)
@@ -75,10 +77,10 @@
 4. `el()` - 21 edges
 5. `public.wix_other_bookings` - 21 edges
 6. `handle()` - 19 edges
-7. `NEXT-SESSION.md handoff notes` - 17 edges
-8. `processSubmission()` - 16 edges
-9. `renderWorkouts()` - 14 edges
-10. `go()` - 13 edges
+7. `render()` - 17 edges
+8. `NEXT-SESSION.md handoff notes` - 17 edges
+9. `processSubmission()` - 16 edges
+10. `renderWorkouts()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `getClasses()` --reads_from--> `public.classes`  [INFERRED]
@@ -100,7 +102,7 @@
 - **Brand identity shared across design, product and master prompt** — design_palette, design_typography, product_brand_commitments [INFERRED 0.85]
 - **Wix replacement: hostinger site, emails, forms, payments** — next_session_wix_to_hostinger, supabase_email_templates_readme_wix_replacement, next_session_payment_emails [INFERRED 0.85]
 
-## Communities (79 total, 34 thin omitted)
+## Communities (81 total, 35 thin omitted)
 
 ### Community 0 - "app.js (0)"
 Cohesion: 0.07
@@ -111,16 +113,16 @@ Cohesion: 0.07
 Nodes (21): ALLOWED_ORIGINS, cors(), json(), addDays(), Ctx, Deps, firstWord(), Input (+13 more)
 
 ### Community 2 - "db.js"
-Cohesion: 0.06
-Nodes (37): addTemplate(), addWeight(), addWorkout(), book(), callBookClass(), cancel(), deleteMeasurements(), deleteWorkout() (+29 more)
+Cohesion: 0.11
+Nodes (12): addWorkout(), book(), callBookClass(), cancel(), deleteWorkout(), getClasses(), getPastBookings(), getProfile() (+4 more)
 
-### Community 3 - "fn/send-email/lib.js (3)"
-Cohesion: 0.10
-Nodes (8): Deps, Out, Req, sendEmail(), nv, { s, d }, welcomeVars, public.email_overrides
+### Community 3 - "schema.sql"
+Cohesion: 0.20
+Nodes (10): addTemplate(), addWeight(), deleteMeasurements(), getTemplates(), getWeights(), on_auth_user_created, public.handle_new_user(), public.is_admin() (+2 more)
 
 ### Community 4 - "email-templates/render.mjs (4)"
-Cohesion: 0.11
-Nodes (28): appDir, groups, here, items, prev, bodyBlocks(), button(), C (+20 more)
+Cohesion: 0.05
+Nodes (36): appDir, groups, here, items, prev, bodyBlocks(), button(), C (+28 more)
 
 ### Community 5 - "migration-admin-backend-4.sql (5)"
 Cohesion: 0.13
@@ -142,9 +144,17 @@ Nodes (17): ALLOWED_ORIGINS, cors(), json(), BATCH, campaign(), checkContent(), 
 Cohesion: 0.16
 Nodes (24): cancelEmailVars(), cors, emailCancelled(), handle(), json(), wix(), wixCancel(), wixHeaders() (+16 more)
 
+### Community 10 - "migration-meals.sql"
+Cohesion: 0.29
+Nodes (8): getFoods(), getMealPlans(), getRecipes(), meal_plan_template_items_tpl, public.foods, public.meal_plan_template_items, public.meal_plan_templates, public.recipes
+
 ### Community 11 - "fn/admin-class-cancelled/logic.ts (11)"
 Cohesion: 0.14
 Nodes (11): ALLOWED_ORIGINS, cors(), json(), classCancelled(), Deps, Input, Out, pretty() (+3 more)
+
+### Community 12 - "public.member_health"
+Cohesion: 0.33
+Nodes (7): getHealth(), saveHealth(), turnOffMeasurements(), turnOnMeasurements(), withdrawHealth(), public.consent_log, public.member_health
 
 ### Community 13 - "DESIGN.md design system (13)"
 Cohesion: 0.15
@@ -195,8 +205,8 @@ Cohesion: 0.21
 Nodes (9): public.admin_class_set_active(), public.booking_email_vars(), public.enforce_booking_rules(), public.member_access, classes_gym_wix_unique, public.enforce_booking_rules(), public.enforce_booking_rules(), public.enforce_booking_rules() (+1 more)
 
 ### Community 28 - "fn/sync-wix-payments (28)"
-Cohesion: 0.15
-Nodes (5): who(), wix(), wixHeaders(), public._tt_mode(), public.app_flags
+Cohesion: 0.20
+Nodes (3): who(), wix(), wixHeaders()
 
 ### Community 29 - "fn/marketing-consent/deploy.ts (29)"
 Cohesion: 0.28
@@ -230,13 +240,9 @@ Nodes (4): base, marketing, name(), utm
 Cohesion: 0.25
 Nodes (6): F, F, kid, pt, r, trial
 
-### Community 38 - "fn/marketing-consent (38)"
-Cohesion: 0.40
-Nodes (3): ALLOWED_ORIGINS, cors(), json()
-
 ### Community 39 - "shared/tokens.mjs (39)"
-Cohesion: 0.43
-Nodes (7): b64u(), checkToken(), enc, fromB64u(), hex(), mac(), makeToken()
+Cohesion: 0.21
+Nodes (10): ALLOWED_ORIGINS, cors(), json(), b64u(), checkToken(), enc, fromB64u(), hex() (+2 more)
 
 ### Community 40 - "shared/validate.mjs (40)"
 Cohesion: 0.46
@@ -289,21 +295,21 @@ Nodes (9): public.admin_forms_summary(), public.admin_health(), public.admin_enq
 ## Knowledge Gaps
 - **18 isolated node(s):** `Elevation and Structural Float Rule`, `Shapes and Graduated Radius Rule`, `Slot Row signature component`, `DMARC reports review and pct ramp`, `Enquiry status admin page` (+13 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 297 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public.profiles` connect `migration-admin-backend.sql (21)` to `admin-notify.js (32)`, `fn/submit-form/logic.ts (1)`, `db.js`, `public.weekly_report_stats`, `migration-admin-backend-4.sql (5)`, `fn/admin-campaign/logic.ts (8)`, `fn/book-class/logic.ts (9)`, `fn/check-gym-access (42)`, `fn/admin-class-cancelled/logic.ts (11)`, `admin-campaign.js (45)`, `migration-admin-backend-3.sql (22)`, `migration-security-hardening.sql (26)`, `public.form_submissions`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
+- **Why does `public.profiles` connect `migration-admin-backend.sql (21)` to `admin-notify.js (32)`, `fn/submit-form/logic.ts (1)`, `db.js`, `schema.sql`, `public.weekly_report_stats`, `migration-admin-backend-4.sql (5)`, `fn/admin-campaign/logic.ts (8)`, `fn/book-class/logic.ts (9)`, `fn/check-gym-access (42)`, `fn/admin-class-cancelled/logic.ts (11)`, `admin-campaign.js (45)`, `migration-admin-backend-3.sql (22)`, `migration-security-hardening.sql (26)`, `public.form_submissions`?**
+  _High betweenness centrality (0.120) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `public.class_bookings` (e.g. with `book()` and `cancel()`) actually correct?**
   _`public.class_bookings` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Elevation and Structural Float Rule`, `Shapes and Graduated Radius Rule`, `Slot Row signature component` to the rest of the system?**
   _18 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app.js (0)` be split into smaller, more focused modules?**
   _Cohesion score 0.07441688263606072 - nodes in this community are weakly interconnected._
-- **Why does `public.class_bookings` connect `migration-admin-backend-4.sql (5)` to `db.js`, `public.weekly_report_stats`, `fn/book-class/logic.ts (9)`, `fn/admin-class-cancelled/logic.ts (11)`, `fn/sync-wix-bookings/logic.ts (14)`, `send-class-reminders/index.ts`, `fn/send-booking-email/email.ts (19)`, `migration-cancel-limit.sql (51)`, `migration-admin-backend.sql (21)`, `migration-admin-backend-3.sql (22)`, `migration-security-hardening.sql (26)`, `public.form_submissions`?**
-  _High betweenness centrality (0.058) - this node is a cross-community bridge._
+- **Why does `render()` connect `email-templates/render.mjs (4)` to `fn/admin-campaign/logic.ts (8)`, `fn/submit-form/logic.ts (1)`, `fn/admin-class-cancelled/logic.ts (11)`?**
+  _High betweenness centrality (0.098) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `public.classes` (e.g. with `start()` and `getClasses()`) actually correct?**
   _`public.classes` has 5 INFERRED edges - model-reasoned connections that need verification._
 

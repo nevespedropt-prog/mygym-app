@@ -13,6 +13,7 @@
 // Safety stops (for that part only; it changes nothing and reports why): too few sessions found
 // (classes < 5, gym < 10), more than half of the current rows would disappear, or Wix returns an error.
 // Dry run: POST {"dry": true} (or GET ?dry=1) returns what it WOULD change and writes nothing.
+// Launch switch: when the back office controls the timetable (app_flags timetable_backoffice = 'on') this function does nothing.
 //
 // Secrets: WIX_API_KEY, WIX_SITE_ID (same as member-signup). The key needs "Read Bookings - Public Data" and
 // "Read Bookings Calendar Availability". SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
@@ -169,6 +170,11 @@ Deno.serve(async (req) => {
   else if (req.method !== "GET") return json(405, { error: "Method not allowed" });
 
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  // Launch switch: once the owner gives the back office control of the timetable (app_flags key timetable_backoffice = 'on'),
+  // the website no longer drives it. No flag row, 'off', or a read error all mean "carry on exactly as before".
+  const { data: flag } = await admin.from("app_flags").select("mode").eq("key", "timetable_backoffice").maybeSingle();
+  if (flag?.mode === "on") return json(200, { skipped: true, reason: "the timetable is controlled from the back office; the website sync is switched off" });
 
   // abuse guard: at most one call a minute
   const { data: log } = await admin.from("sync_log").select("last_call").eq("id", "timetable").maybeSingle();

@@ -5,3 +5,5 @@ exclude:
   - README.md
   - netlify.toml
   - _headers
+  - graphify-out
+  - tools

@@ -62,7 +62,7 @@ Speed
 - Git repo, branch `main`. One clear commit per change, numbered releases (v1, v2, ...).
 - Before each release: run the verification checklist in the skill. Report only what was actually checked and say plainly what was not (real phone, live push, live login).
 - Ask me before deploying to the live domain. After deploy, tell me exactly how to confirm it on my phone.
-- Hosting: the app is served by Netlify (free) from the `main` branch of the repo, so every push to `main` goes live; list what will go live and get my yes before each push. Security headers live in `netlify.toml`. GitHub Pages is only the fallback.
+- Hosting: the app is served by Cloudflare Pages from the `main` branch of the repo (moved from Netlify on 2026-10-30), so every push to `main` goes live; list what will go live and get my yes before each push. Security headers live in `_headers`, which Cloudflare Pages and Netlify both read. Netlify and GitHub Pages are only fallbacks.
 - Classes and gym hours that have started (London time) cannot be seen or booked: this rule is enforced in the app, the booking function and the database trigger, and all three must stay in step.
 - Never run `supabase/schema.sql` on the live project (it re-creates an open bookings policy and adds sample classes). When staging SQL for me, open a new query and check the tab text first.
 
@@ -139,4 +139,4 @@ Before any git push, list every unpushed commit and changed file and push only w
 - Forms: one `submit-form` function validates, rate limits, stores (with a retention date and weekly purge) and emails both sides. An admin page lists enquiries and lets me mark them joined, not now or spam so follow-ups stop.
 - Website: build it as code from one generator script (not Wix), host it on [HOSTING], keep payments/checkout on a separate subdomain [JOIN DOMAIN]. Security headers and old-address redirects in `.htaccess`.
 - SEO and AI search: per-page titles and descriptions, JSON-LD, FAQ schema, `robots.txt` allowing AI crawlers, `llms.txt`, sitemap, Google Business Profile. No invented ratings or sample reviews on a live page.
-- Hosting limits: on the Netlify free plan batch pushes (one per session); I click Deploy myself.
+- Hosting limits: I moved to Cloudflare Pages because Netlify's credits ran out on 2026-10-26 and Cloudflare has no credit limit, so pushes no longer need batching to save credits. The approval rule before each push to `main` still applies.

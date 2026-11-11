@@ -12,10 +12,10 @@
     "semantic_hash": "127d226ee0ce90b39c887d56cffbd03f"
   },
   "_config.yml": {
-    "mtime": 1794433357.9992492,
-    "seen": 1794434018.9668732,
-    "ast_hash": "9fc37acc82cd976e1268d06484d4f1db",
-    "semantic_hash": "9fc37acc82cd976e1268d06484d4f1db"
+    "mtime": 1794435271.7517624,
+    "seen": 1794435322.3140283,
+    "ast_hash": "b4bdc58fce9b23ccd64c8af3a7aa7eeb",
+    "semantic_hash": ""
   },
   "admin-campaign.js": {
     "mtime": 1794433357.9992492,
@@ -143,12 +143,6 @@
     "ast_hash": "92b79469ba58d6fe3a76d0482ac00f23",
     "semantic_hash": "92b79469ba58d6fe3a76d0482ac00f23"
   },
-  "supabase/functions/admin-campaign/deploy.ts": {
-    "mtime": 1794433358.0079422,
-    "seen": 1794434018.966901,
-    "ast_hash": "3c87ec6fdca152a8461289a747f1d7f6",
-    "semantic_hash": "3c87ec6fdca152a8461289a747f1d7f6"
-  },
   "supabase/functions/admin-campaign/index.ts": {
     "mtime": 1794433358.0080001,
     "seen": 1794434018.966902,
@@ -166,12 +160,6 @@
     "seen": 1794434018.9669046,
     "ast_hash": "0ffe44fd5dd8dc42e59a047686c97544",
     "semantic_hash": "0ffe44fd5dd8dc42e59a047686c97544"
-  },
-  "supabase/functions/admin-class-cancelled/deploy.ts": {
-    "mtime": 1794433358.0080001,
-    "seen": 1794434018.9669058,
-    "ast_hash": "999636f3fe91e89bc3ba1744c7cbe889",
-    "semantic_hash": "999636f3fe91e89bc3ba1744c7cbe889"
   },
   "supabase/functions/admin-class-cancelled/index.ts": {
     "mtime": 1794433358.008158,
@@ -227,12 +215,6 @@
     "ast_hash": "54d90f3f28ae5902cfbe898bf8a8ea54",
     "semantic_hash": "54d90f3f28ae5902cfbe898bf8a8ea54"
   },
-  "supabase/functions/marketing-consent/deploy.ts": {
-    "mtime": 1794433358.0082624,
-    "seen": 1794434018.9669182,
-    "ast_hash": "0818a043845f6ee653a44bfa615c2102",
-    "semantic_hash": "0818a043845f6ee653a44bfa615c2102"
-  },
   "supabase/functions/marketing-consent/index.ts": {
     "mtime": 1794433358.0085573,
     "seen": 1794434018.9669197,
@@ -269,12 +251,6 @@
     "ast_hash": "23aaf2a2effbef5021d5fdf2d99605fb",
     "semantic_hash": "23aaf2a2effbef5021d5fdf2d99605fb"
   },
-  "supabase/functions/send-email/deploy.ts": {
-    "mtime": 1794433358.0086832,
-    "seen": 1794434018.9669294,
-    "ast_hash": "cda38046a2eca6bc2b0d1fc3a56d2499",
-    "semantic_hash": "cda38046a2eca6bc2b0d1fc3a56d2499"
-  },
   "supabase/functions/send-email/index.ts": {
     "mtime": 1794433358.0088682,
     "seen": 1794434018.9669306,
@@ -298,12 +274,6 @@
     "seen": 1794434018.9669347,
     "ast_hash": "38ac24f98e583db3e70f7d915d2f67e2",
     "semantic_hash": "38ac24f98e583db3e70f7d915d2f67e2"
-  },
-  "supabase/functions/submit-form/deploy.ts": {
-    "mtime": 1794433358.0088682,
-    "seen": 1794434018.9669363,
-    "ast_hash": "823b8ad8a1216799450fbe48ab9d858c",
-    "semantic_hash": "823b8ad8a1216799450fbe48ab9d858c"
   },
   "supabase/functions/submit-form/index.ts": {
     "mtime": 1794433358.00968,
@@ -750,10 +720,10 @@
     "semantic_hash": "3b4f05cfb06e9a0b94f161223b0b193a"
   },
   "MASTER-PROMPT.md": {
-    "mtime": 1794433357.9992492,
-    "seen": 1794434018.9670334,
-    "ast_hash": "d917fb18d33fe1b92aaf9bee6abb17bc",
-    "semantic_hash": "d917fb18d33fe1b92aaf9bee6abb17bc"
+    "mtime": 1794435269.7957623,
+    "seen": 1794435322.3141675,
+    "ast_hash": "42caa15cdfdfaf8f63f4e5e54789dc0f",
+    "semantic_hash": ""
   },
   "NEXT-SESSION.md": {
     "mtime": 1794433357.9992492,
@@ -762,10 +732,10 @@
     "semantic_hash": "06ad4cd62484e394242617464e7d2e5c"
   },
   "PRODUCT.md": {
-    "mtime": 1794433357.9992492,
-    "seen": 1794434018.9670355,
-    "ast_hash": "dbdb09438d4e66b0b6be0e9aab8c374e",
-    "semantic_hash": "dbdb09438d4e66b0b6be0e9aab8c374e"
+    "mtime": 1794435271.2197623,
+    "seen": 1794435322.3141701,
+    "ast_hash": "c466c6625e01819213cf4627e836ebda",
+    "semantic_hash": ""
   },
   "supabase/README-CHECKS.md": {
     "mtime": 1794433358.0019572,
@@ -802,5 +772,845 @@
     "seen": 1794434018.9670434,
     "ast_hash": "8bf8830f1bc4f5e2373f15349264cee1",
     "semantic_hash": "8bf8830f1bc4f5e2373f15349264cee1"
+  },
+  "tools/graphify-link-db.py": {
+    "mtime": 1794434591.7611992,
+    "seen": 1794435322.3141637,
+    "ast_hash": "c39dbc16ce32fad5adc4351752035e2e",
+    "semantic_hash": ""
+  },
+  ".impeccable/critique/index-2026-11-10.html": {
+    "mtime": 1794433357.9990857,
+    "seen": 1794435322.3141654,
+    "ast_hash": "ec009224e6f363072a363b8dc2b70220",
+    "semantic_hash": ""
+  },
+  "admin-campaign.html": {
+    "mtime": 1794433357.9992492,
+    "seen": 1794435322.314171,
+    "ast_hash": "75052bf067c9d246d1d8fda530e6c22e",
+    "semantic_hash": ""
+  },
+  "admin-notify.html": {
+    "mtime": 1794433357.9992492,
+    "seen": 1794435322.3141725,
+    "ast_hash": "5421b716b5146dbf7b0214589ed37e5e",
+    "semantic_hash": ""
+  },
+  "cookies.html": {
+    "mtime": 1794433357.9992492,
+    "seen": 1794435322.3141732,
+    "ast_hash": "c679997814d2b15d2678d47e155e3888",
+    "semantic_hash": ""
+  },
+  "email.html": {
+    "mtime": 1794433358.0001361,
+    "seen": 1794435322.3141742,
+    "ast_hash": "a0a806cba290c64a3230bf890dbd247a",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3141751,
+    "ast_hash": "7ccee69abc45248ddfb78fea246770f8",
+    "semantic_hash": ""
+  },
+  "privacy.html": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3141763,
+    "ast_hash": "8f6cc10f399ac0c8d2dfaf22193852e0",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-change-request.html": {
+    "mtime": 1794433358.0042818,
+    "seen": 1794435322.3141828,
+    "ast_hash": "81ced3887bf28819095b4450dd96377c",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-membership-cancelled.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141837,
+    "ast_hash": "895dc9409412ae119951cc0118fcf0cc",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-new-booking.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141844,
+    "ast_hash": "57aad306afec5fe5668986f57360542c",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-new-enquiry.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141854,
+    "ast_hash": "d651ee752d9a16e3d640d76b6d62d0ea",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-new-member.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141863,
+    "ast_hash": "258b390865bed3381e4062dd1200a9eb",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-new-review.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314187,
+    "ast_hash": "8171dd9c34c0b71d7db8409e5a2ba39b",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-overbooked.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314188,
+    "ast_hash": "9e50137ea50aba39c2e0259ca3fe015a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/admin-payment-failed.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314189,
+    "ast_hash": "f85c9ca35f2c080d0d9a4630c77a9b64",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/auth-confirm-email-change.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.31419,
+    "ast_hash": "d1bbf43cf4c0eadc3e638085652a6ac5",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/auth-invite.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141909,
+    "ast_hash": "788ed026351716163b4057a19b3f63f6",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/auth-magic-link.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141918,
+    "ast_hash": "dcc53297ce1ad46c4153cfc51478be3b",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/auth-password-changed.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141925,
+    "ast_hash": "19496a68ffada7f1354d51ed4f88bc8a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/booking-cancelled.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141935,
+    "ast_hash": "7d2adba1dccd5bcc96c3dcee1f9860f5",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/booking-confirmation.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141942,
+    "ast_hash": "3d0dcb0c9ff377916fce30f3e861d2e6",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/booking-rescheduled.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314195,
+    "ast_hash": "826c4401e79168e1a659a3df8b19814e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/card-expiring.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314196,
+    "ast_hash": "bb7c046f5b3814f52bda5bd5b15c7435",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/class-cancelled-by-gym.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314197,
+    "ast_hash": "26b4b4ae6d11495204841f58163b6b70",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/class-reminder.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314198,
+    "ast_hash": "e19a4bde3ef31a0d652517efcfdc0059",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/corporate-autoreply.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3141987,
+    "ast_hash": "884a4c8ae02521e8e4969e586d4c4f02",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/enquiry-autoreply.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142,
+    "ast_hash": "c50d4ff7d2e329021afaad14ba3acb37",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/guide-delivery.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142006,
+    "ast_hash": "cdacd71d152827a6b8169196acece219",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/guide-tips-meals.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142014,
+    "ast_hash": "1b3927162c4288c331dea9641e58ad24",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/guide-tips-warmup.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142023,
+    "ast_hash": "72318c0dd795b952de05021c72eae077",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/health-form-due.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314203,
+    "ast_hash": "435979061f2a4f4fa96f5775eb44bb14",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/kids-registration-received.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314204,
+    "ast_hash": "549206c3b1d6717f28cfd1b8df429c55",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/lead-followup-1.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142047,
+    "ast_hash": "91d599991119d7879e027fa115535e75",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/lead-followup-2.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142054,
+    "ast_hash": "468221895a7d8b8ff385ee2aba7b1895",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/membership-cancelled.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142061,
+    "ast_hash": "3dd7695f44c808234af368ddb18e9a84",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/membership-ended.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314207,
+    "ast_hash": "99b502a834eda644e98fd886ba89402f",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/membership-paused.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142078,
+    "ast_hash": "25b3c81cdaa18dd8725902f799077e5e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/membership-resumed.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142087,
+    "ast_hash": "86047356cd291097c1282ff2d6ba5059",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/milestone.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142095,
+    "ast_hash": "aa7bcb13766b1d7be5915b3619b3b35e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/missed-class.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142104,
+    "ast_hash": "55862a256c37276556ebbf2a27cfdce7",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/newsletter-welcome.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142111,
+    "ast_hash": "88433aef6fe3413d9de875c2eb37fdb6",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/newsletter.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142169,
+    "ast_hash": "ea00b4b558e5bfcb03537ee191f91091",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/offer-autoreply.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314218,
+    "ast_hash": "83c6491c83e919a39a25c30184bb2bf2",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/payment-failed-1.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142188,
+    "ast_hash": "4a8ea6d54bd15742e355cf4e6c354a9d",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/payment-failed-2.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142197,
+    "ast_hash": "5bb50fb4ab2463218ad9b0b1e9f4fd0e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/payment-failed-final.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142204,
+    "ast_hash": "3bc063e4db761345917f03a20aeba2a2",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/payment-receipt.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142216,
+    "ast_hash": "cadf2906108809e0b3f43a6b71a25d3b",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/plan-changed.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142223,
+    "ast_hash": "d4b752aa74bafd97b9f1654c29f5a2fe",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/pt-enquiry-autoreply.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142233,
+    "ast_hash": "0fbda2ac3102335de7b9869c1972e0f5",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/refer-a-friend-prompt.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142242,
+    "ast_hash": "a774aeaca75fcde66dc0a4160fd4cc42",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/referral-invite.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142252,
+    "ast_hash": "6db84cfc36c005ac848eb919e1f98fba",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/referral-reward.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.314226,
+    "ast_hash": "9f234cbe205580d3174ff244a679d76b",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/refund-issued.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142266,
+    "ast_hash": "a05e8daa15bee315bf21f9cb3b4d573a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/renewal-reminder.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142278,
+    "ast_hash": "96c6e5ff8ba7b0614bb9b680e1e87f57",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/review-request.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142285,
+    "ast_hash": "a6b7030d66030716bc426d4b9e842680",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/subscription-started.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142292,
+    "ast_hash": "216c2a83ba79d500c73d4a79e862c052",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/trial-confirmation.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.31423,
+    "ast_hash": "7ff5d665ad296fd89161b416f2693d8b",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/trial-ending.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142307,
+    "ast_hash": "add74f1af5416e6798feca891ccc37ce",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/waitlist-booked.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142319,
+    "ast_hash": "b6be7eb59f1f7fe88c14f693879150e8",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/waitlist-joined.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142326,
+    "ast_hash": "43ec22cb5a66e9419276717cf889641c",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/we-miss-you.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142333,
+    "ast_hash": "b846852c3fd9bedc1819f0cbedd10971",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/html/welcome.html": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142343,
+    "ast_hash": "4fc500faa09eaa859d4ee1f7123463d9",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-change-request.txt": {
+    "mtime": 1794433358.0045462,
+    "seen": 1794435322.3142354,
+    "ast_hash": "e4ca8a419948eb09c40ca581ed8e26fb",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-membership-cancelled.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142362,
+    "ast_hash": "763c532ee03e572ef65f02e1ed231acc",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-new-booking.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314237,
+    "ast_hash": "ef8d6bcefa3123df9dc2339bb8fe1462",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-new-enquiry.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142378,
+    "ast_hash": "0b4293894eb6a0e1110a687836a9d40a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-new-member.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142388,
+    "ast_hash": "69f2daf702888fd1330112c32d0e27eb",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-new-review.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142397,
+    "ast_hash": "d21897b9c1b46fe1fd923452718b4ef1",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-overbooked.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142407,
+    "ast_hash": "eefbf8ec0342a3b95ce9a9dc0ddc7018",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/admin-payment-failed.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142416,
+    "ast_hash": "7ecb0f01eb3bb839d1936974533696ad",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/auth-confirm-email-change.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142426,
+    "ast_hash": "aa68a90a321d81715d47cc74187e1cc6",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/auth-invite.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142433,
+    "ast_hash": "543d93040196343a7633e3a3ae408aec",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/auth-magic-link.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314244,
+    "ast_hash": "f32efd88c181fc9f0adc6d1e3ec1b039",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/auth-password-changed.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142447,
+    "ast_hash": "460249e273797a19b0d3e41c190f78cd",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/booking-cancelled.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142457,
+    "ast_hash": "b67dc52a0fcbaa21b1ae081666423cc4",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/booking-confirmation.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142464,
+    "ast_hash": "05b1a803ec606e27308fe3abd7f8634a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/booking-rescheduled.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142471,
+    "ast_hash": "6b6605ab93932f9daf9658e945a59b7f",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/card-expiring.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314248,
+    "ast_hash": "54ec7dcffc9bfd080da8c35ea63e73b3",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/class-cancelled-by-gym.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314249,
+    "ast_hash": "56f591dc130e92e3217312a3606a6bc0",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/class-reminder.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142498,
+    "ast_hash": "54e480e78f4f78716306f1205dd13655",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/corporate-autoreply.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142505,
+    "ast_hash": "184a731bc0e90044b1116aba26ab1f9a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/enquiry-autoreply.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142512,
+    "ast_hash": "b05af5b899d17391a1421e443d963bbf",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/guide-delivery.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142521,
+    "ast_hash": "e9b704a13db49b3f14e6abe9efb640e4",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/guide-tips-meals.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314253,
+    "ast_hash": "32ac9bd499647134dd0c9453dcc69279",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/guide-tips-warmup.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142538,
+    "ast_hash": "5f75ecfff9acdafa68a228eb5fed7b88",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/health-form-due.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142545,
+    "ast_hash": "e55c8aa0498adbfbecb634ec3cd1ce33",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/kids-registration-received.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142555,
+    "ast_hash": "1db8ba5a553f91225f468aeaf844b983",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/lead-followup-1.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142562,
+    "ast_hash": "5c0e83477544bbd126db0df2168fdec2",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/lead-followup-2.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142571,
+    "ast_hash": "c04d4a40e609b29f0b1612378c7169d5",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/membership-cancelled.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142579,
+    "ast_hash": "c8eedc1196c0ff52fe8b446b8a4093c5",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/membership-ended.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314259,
+    "ast_hash": "3a3cb0bd39f34a088da61eed755fc8ba",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/membership-paused.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.31426,
+    "ast_hash": "bf5e06baf583aec681cf7f47fdba2fe1",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/membership-resumed.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314261,
+    "ast_hash": "e3047263116056dd44c3dfd515a1caca",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/milestone.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142617,
+    "ast_hash": "542accb35efcc8ec8f5b25381055be59",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/missed-class.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142629,
+    "ast_hash": "61f6cb909514dcac7185dc0faf2258c9",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/newsletter-welcome.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142638,
+    "ast_hash": "92c89953ae4e4fb960b9f407b5ca6749",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/newsletter.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142643,
+    "ast_hash": "ff59e4cb4eb330653992d57da35ffb96",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/offer-autoreply.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142653,
+    "ast_hash": "0cdcb64243b76044f39c5194cc0c7110",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/payment-failed-1.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142662,
+    "ast_hash": "f5732c6046ac8c9244311ea6a464addc",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/payment-failed-2.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314267,
+    "ast_hash": "6a1f3767644fba0857715e2c651bafca",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/payment-failed-final.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142676,
+    "ast_hash": "5861173e61dbfe066a0fe4578033b958",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/payment-receipt.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142684,
+    "ast_hash": "ad843dc752016f2738ef5caaf035f0d0",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/plan-changed.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142695,
+    "ast_hash": "c6383cf7499aa0615d1019f0ac676cbe",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/pt-enquiry-autoreply.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142705,
+    "ast_hash": "84824f07ff0fe250db2e6443eeea705e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/refer-a-friend-prompt.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142715,
+    "ast_hash": "d9a445bf3ac39c25f4c375c0c81f5cf2",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/referral-invite.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142722,
+    "ast_hash": "a5a38bf788f62be05da9985e02e4bb4c",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/referral-reward.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314273,
+    "ast_hash": "105f926eebd5d94de0d0402a8a30676a",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/refund-issued.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142738,
+    "ast_hash": "75c595a5b907e7d73f9530f9a52d59aa",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/renewal-reminder.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142748,
+    "ast_hash": "d9faa82b70866d7fb8910acb8b868740",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/review-request.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142755,
+    "ast_hash": "69a12c601b7201eae7fd211faecd660f",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/subscription-started.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142765,
+    "ast_hash": "7fd941d74464ab8b96bfa655f850890e",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/trial-confirmation.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142772,
+    "ast_hash": "0a5ebf171e5719e0beb60a0809da2828",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/trial-ending.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.314278,
+    "ast_hash": "ee230924a6a8d8da6eab051ddb7ae294",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/waitlist-booked.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142788,
+    "ast_hash": "6b44a343d4bd53c8445cd6105742b734",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/waitlist-joined.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.31428,
+    "ast_hash": "d29ea97b591d95d368e6821fa6d34a07",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/we-miss-you.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142807,
+    "ast_hash": "8d1ffa6e4ec3e0eaa00d1621891db8a2",
+    "semantic_hash": ""
+  },
+  "supabase/email-templates/text/welcome.txt": {
+    "mtime": 1794433358.0065625,
+    "seen": 1794435322.3142815,
+    "ast_hash": "f9119ad632936227127c3d0a12702ca6",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/contact.html": {
+    "mtime": 1794433358.0073595,
+    "seen": 1794435322.3142836,
+    "ast_hash": "51a6dfa8cd1f230b85713809d4493332",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/corporate-enquiry.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142846,
+    "ast_hash": "8f7cfa02cfdce6df9ad03ab32ce3f9c8",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/feedback.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142853,
+    "ast_hash": "ebc8155cc1ee240fb8b7a77f6223bfe1",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/guide-signup.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.314286,
+    "ast_hash": "0053862e99efbe1a630fed1b5cf431f3",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/kids-registration.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.314287,
+    "ast_hash": "3fbead30cc34a194c981e7ef9b4db8c2",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/landing-offer.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142877,
+    "ast_hash": "63a547515e5d8ed484a8f2ed666935cb",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/newsletter-signup.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142886,
+    "ast_hash": "9aa35b388827f04a90d66e93c3a37492",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/pause-cancel-request.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142893,
+    "ast_hash": "935c5d27f7c604b6a9a80f0d5684cd3f",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/pt-enquiry.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142905,
+    "ast_hash": "c485b72fd6837b046fadebf778511ba6",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/refer-a-friend.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142912,
+    "ast_hash": "8e29fe6848b38d1f7fa44017f0674553",
+    "semantic_hash": ""
+  },
+  "supabase/forms/html/trial-class.html": {
+    "mtime": 1794433358.0076964,
+    "seen": 1794435322.3142922,
+    "ast_hash": "0bae5dff70a41b162044056ee4ddaa65",
+    "semantic_hash": ""
+  },
+  "terms.html": {
+    "mtime": 1794433358.0125663,
+    "seen": 1794435322.314293,
+    "ast_hash": "2f8a9c07311fcc9b47ce0f754b61c61f",
+    "semantic_hash": ""
+  },
+  "icons/apple-touch-icon.png": {
+    "mtime": 1794433358.0017896,
+    "seen": 1794435322.3142939,
+    "ast_hash": "a83be24eb8e6661aa9f14b06978c74c2",
+    "semantic_hash": ""
+  },
+  "icons/favicon-16.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142948,
+    "ast_hash": "3fb35f0449da71ed1f864a0146ce7ed5",
+    "semantic_hash": ""
+  },
+  "icons/favicon-32.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142955,
+    "ast_hash": "7b9f4677a344f75d7b5d1dc5559ec2bd",
+    "semantic_hash": ""
+  },
+  "icons/favicon-48.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142962,
+    "ast_hash": "72aa73d950141b52e736ed153711bb12",
+    "semantic_hash": ""
+  },
+  "icons/favicon-64.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142972,
+    "ast_hash": "24bc8d4d7ca83f2b3c56e55416b72829",
+    "semantic_hash": ""
+  },
+  "icons/icon-192.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.314298,
+    "ast_hash": "132c5b1dbf5be64a7cb7a3575c8bf325",
+    "semantic_hash": ""
+  },
+  "icons/icon-512.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142989,
+    "ast_hash": "ce427e4de98da846870ffb514dac4617",
+    "semantic_hash": ""
+  },
+  "icons/logo-header.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3142996,
+    "ast_hash": "70a10922cfa26d464c508cda1f444c10",
+    "semantic_hash": ""
+  },
+  "icons/maskable-512.png": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3143003,
+    "ast_hash": "29bde74ba4bc4e080bb4d6ca42bd33a0",
+    "semantic_hash": ""
+  },
+  "img/hero.jpg": {
+    "mtime": 1794433358.0019572,
+    "seen": 1794435322.3143015,
+    "ast_hash": "b023308cd999504182975fa2adb0a62d",
+    "semantic_hash": ""
   }
 }

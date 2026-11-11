@@ -743,12 +743,6 @@
     "ast_hash": "8651b5c09d12782469729c10038eeadc",
     "semantic_hash": "8651b5c09d12782469729c10038eeadc"
   },
-  "vendor/supabase.js": {
-    "mtime": 1794433358.0125663,
-    "seen": 1794434018.9670312,
-    "ast_hash": "d38463437715ea2981ec190646c7e4d3",
-    "semantic_hash": "d38463437715ea2981ec190646c7e4d3"
-  },
   "DESIGN.md": {
     "mtime": 1794433357.9992492,
     "seen": 1794434018.9670324,

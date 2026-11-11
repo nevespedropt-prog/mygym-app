@@ -6,7 +6,6 @@ import { render } from "./lib.js";
 import { processSubmission, type Deps } from "./logic.ts";
 
 const ALLOWED_ORIGINS = [
-  "https://app.mygymlondon.co.uk",
   "https://www.mygymlondon.co.uk",
   "https://mygymlondon.co.uk",
   "https://nevespedropt-prog.github.io",

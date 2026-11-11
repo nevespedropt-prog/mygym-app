@@ -18,7 +18,8 @@ export interface Ctx { ipHash: string; user: { id: string; email: string } | nul
 export interface Result { status: number; body: Record<string, unknown>; }
 
 const ADMIN_EMAIL = "info@mygymlondon.co.uk";
-const ADMIN_URL = "https://app.mygymlondon.co.uk/";
+const ADMIN_URL = "https://admin.mygymlondon.co.uk/";
+const ENQUIRIES_URL = ADMIN_URL + "#/enquiries";
 const londonDate = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 const niceDate = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(new Date(iso + "T12:00:00Z"));
 const firstWord = (s: string) => (String(s).trim().split(/\s+/)[0] || "there");
@@ -103,7 +104,7 @@ export async function processSubmission(input: Input, ctx: Ctx, d: Deps): Promis
     let vars: Record<string, string>;
     if (form.notify === "admin-change-request") vars = { admin_url: ADMIN_URL, person_name: personName, request_type: data.request_type, from_date: niceDate(data.from_date), reason: data.reason ?? "Not given", sla: "2 working days" };
     else if (form.notify === "admin-new-review") vars = { admin_url: ADMIN_URL, person_name: personName, class_name: data.class ?? "Not said", rating: String(data.rating), message: data.message ?? "No comment" };
-    else vars = { admin_url: ADMIN_URL, form_name: form.adminLabel ?? String(form.title).toLowerCase(), person_name: personName, person_email: personEmail, person_phone: data.phone ?? "Not given", message: summary(data), source_page: v.meta.page_url ?? form.where };
+    else vars = { admin_url: ENQUIRIES_URL, form_name: form.adminLabel ?? String(form.title).toLowerCase(), person_name: personName, person_email: personEmail, person_phone: data.phone ?? "Not given", message: summary(data), source_page: v.meta.page_url ?? form.where };
     safe(d.send({ template: form.notify, to: ADMIN_EMAIL, vars, replyTo: personEmail || undefined }));
   }
 

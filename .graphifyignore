@@ -1,3 +1,5 @@
 vendor/
 # generated single-file bundles of index.ts + logic.ts, pasted into the Supabase dashboard
 supabase/functions/*/deploy.ts
+# generated copies of supabase/shared/ (bundle.mjs); the sources stay in the graph
+supabase/functions/*/lib.js

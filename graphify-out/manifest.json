@@ -221,12 +221,6 @@
     "ast_hash": "80d1cfd0d5632b413af6ee33c70dde79",
     "semantic_hash": "80d1cfd0d5632b413af6ee33c70dde79"
   },
-  "supabase/functions/marketing-consent/lib.js": {
-    "mtime": 1794433358.0085573,
-    "seen": 1794434018.9669209,
-    "ast_hash": "785ee4f749158fa72f16b94de2846160",
-    "semantic_hash": "785ee4f749158fa72f16b94de2846160"
-  },
   "supabase/functions/member-signup/index.ts": {
     "mtime": 1794433358.0085573,
     "seen": 1794434018.9669223,
@@ -257,12 +251,6 @@
     "ast_hash": "9484ecd15807565e29d32f540f3b4b2e",
     "semantic_hash": "9484ecd15807565e29d32f540f3b4b2e"
   },
-  "supabase/functions/send-email/lib.js": {
-    "mtime": 1794433358.0088682,
-    "seen": 1794434018.9669318,
-    "ast_hash": "67c4da4978cbe3edaf9b1b3f4d9b3abd",
-    "semantic_hash": "67c4da4978cbe3edaf9b1b3f4d9b3abd"
-  },
   "supabase/functions/send-email/logic.test.mjs": {
     "mtime": 1794433358.0088682,
     "seen": 1794434018.9669335,
@@ -280,12 +268,6 @@
     "seen": 1794434018.9669375,
     "ast_hash": "c477baa82c940b2acdc5cabfb2c01e71",
     "semantic_hash": "c477baa82c940b2acdc5cabfb2c01e71"
-  },
-  "supabase/functions/submit-form/lib.js": {
-    "mtime": 1794433358.00968,
-    "seen": 1794434018.966939,
-    "ast_hash": "6bdf02f81d15bde2c1a485aced93ce5f",
-    "semantic_hash": "6bdf02f81d15bde2c1a485aced93ce5f"
   },
   "supabase/functions/submit-form/logic.test.mjs": {
     "mtime": 1794433358.00968,

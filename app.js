@@ -1520,6 +1520,7 @@
     if (!profile) profile = (await DB.getProfile().catch(() => null)) || {};
     $('#pName').value = profile.full_name || '';
     $('#pPhone').value = profile.phone || '';
+    $('#pDob').value = profile.birthdate || '';
     $('#pWeight').value = measBlocked() ? '' : (profile.weight_kg || '');
     $('#pWeight').disabled = measBlocked();
     $('#pWeight').placeholder = measBlocked() ? 'Tracking is off' : '72.5';
@@ -1537,6 +1538,7 @@
     const patch = {
       full_name: $('#pName').value.trim(),
       phone: $('#pPhone').value.trim(),
+      birthdate: $('#pDob').value || null,
       goal: $('#pGoal').value
     };
     if (!measBlocked()) patch.weight_kg = parseFloat($('#pWeight').value) || null;

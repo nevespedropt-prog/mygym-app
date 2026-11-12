@@ -1,7 +1,8 @@
 // MY GYM London: sends marketing campaigns, one batch at a time. Two callers, both holding the shared secret (x-cron-secret):
 //   * the database schedule (every minute): starts campaigns whose send time has come and carries on any that stalled
 //   * admin-campaign ("Send now" in the back office): {"campaign_id": "..."} sends the next batch of that campaign and reports what is left
-// Safety: only people with confirmed, not withdrawn consent are in the audience (database function _campaign_audience; send-email checks again).
+// Safety: a marketing campaign only reaches people with confirmed, not withdrawn consent (database function _campaign_audience; send-email checks again).
+// A service notice (kind = 'notice') goes to clients or typed addresses without consent (_notice_audience), never has an unsubscribe link, and skips anyone who marked an email as spam.
 // Each person gets a campaign once (dedupe key campaign:<id>:<email>), so retries and overlapping runs never double up.
 // Verify JWT is OFF (the schedule is not a signed-in person); the shared secret is the lock. Secrets: CRON_SECRET.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -19,7 +20,7 @@ const cronOk = (req: Request): boolean => {
   return diff === 0;
 };
 
-interface Campaign { id: string; subject: string; preheader: string; title: string; body: string; button: string; url: string; segment: string; status: string; scheduled_for: string | null; started_at: string | null; audience: number | null; sent: number; failed: number; skipped: number }
+interface Campaign { id: string; subject: string; preheader: string; title: string; body: string; button: string; url: string; segment: string; status: string; scheduled_for: string | null; started_at: string | null; audience: number | null; sent: number; failed: number; skipped: number; kind?: string }
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json(405, { ok: false });
@@ -59,7 +60,7 @@ Deno.serve(async (req) => {
 async function runBatches(admin: ReturnType<typeof createClient>, base: string, cron: string, c: Campaign, maxBatches: number) {
   let sentNow = 0, failedNow = 0, skippedNow = 0, remaining = 0, audienceN = c.audience ?? 0, doneN = 0;
   for (let n = 0; n < maxBatches; n++) {
-    const { data: aud, error: ae } = await admin.rpc("_campaign_audience", { p_segment: c.segment });
+    const { data: aud, error: ae } = await admin.rpc("_campaign_audience_for", { p_id: c.id });
     if (ae) return { id: c.id, ok: false, error: "audience_failed" };
     const all = (aud ?? []) as { email: string; user_id: string | null }[];
     const { data: ev } = await admin.from("email_events").select("recipient").like("dedupe_key", `campaign:${c.id}:%`).eq("status", "sent").limit(20000);
@@ -73,12 +74,18 @@ async function runBatches(admin: ReturnType<typeof createClient>, base: string, 
         const { data: pr } = await admin.from("profiles").select("full_name").eq("id", p.user_id).maybeSingle();
         first = ((pr?.full_name as string) ?? "").trim().split(/\s+/)[0] || "there";
       }
+      if (first === "there") {
+        // people who only exist in Wix (no app account yet): use the first name Wix has
+        const { data: wc } = await admin.from("wix_contacts").select("first_name").eq("email", p.email).limit(1).maybeSingle();
+        const fn = ((wc?.first_name as string) ?? "").trim().split(/\s+/)[0];
+        if (fn && fn.length <= 40) first = fn;
+      }
       try {
         const r = await fetch(base + "/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-cron-secret": cron },
           body: JSON.stringify({
-            template: "newsletter", to: p.email, user_id: p.user_id ?? undefined, dedupe_key: `campaign:${c.id}:${p.email}`,
+            template: c.kind === "notice" ? "notice" : "newsletter", to: p.email, user_id: p.user_id ?? undefined, dedupe_key: `campaign:${c.id}:${p.email}`,
             vars: { campaign_subject: c.subject, campaign_preheader: c.preheader || c.subject, campaign_title: c.title, campaign_body: c.body, campaign_button: c.button, campaign_url: c.url, first_name: first },
           }),
           signal: AbortSignal.timeout(8000),

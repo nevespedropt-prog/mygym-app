@@ -1,4 +1,5 @@
-// MY GYM London: back office campaign actions (the wording and audience live in the marketing_campaigns table; see migration-marketing-campaigns.sql).
+// MY GYM London: back office campaign actions (the wording and audience live in the marketing_campaigns table; see migration-marketing-campaigns.sql and migration-notice-campaigns.sql).
+// A campaign is either marketing (needs consent) or a one-off service notice (kind = 'notice': no consent, no unsubscribe link, service information only).
 //   {"action":"test", "campaign_id"}  sends the saved campaign to the signed-in admin's own address only
 //   {"action":"send", "campaign_id"}  starts or carries on sending to the campaign's segment (the page repeats this until nothing remains)
 // Verify JWT stays ON (a signed-in person is required) and the code then checks that person is an admin. Secret used: CRON_SECRET (to call send-email and send-scheduled-campaigns).
@@ -12,7 +13,7 @@ const cors = (req: Request) => ({
 });
 const json = (req: Request, status: number, body: Record<string, unknown>) => new Response(JSON.stringify(body), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
 
-interface Campaign { id: string; subject: string; preheader: string; title: string; body: string; button: string; url: string; segment: string; status: string }
+interface Campaign { id: string; subject: string; preheader: string; title: string; body: string; button: string; url: string; segment: string; status: string; kind?: string }
 
 function problem(c: Campaign): string {
   if (!c.subject) return "Add a subject line.";
@@ -56,7 +57,7 @@ Deno.serve(async (req) => {
     if (action === "test") {
       const r = await fetch(base + "/send-email", {
         method: "POST", headers: { "Content-Type": "application/json", "x-cron-secret": cron },
-        body: JSON.stringify({ template: "newsletter", to: u.user.email.toLowerCase(), test: true, vars: { campaign_subject: c.subject, campaign_preheader: c.preheader || c.subject, campaign_title: c.title, campaign_body: c.body, campaign_button: c.button, campaign_url: c.url, first_name: "there" } }),
+        body: JSON.stringify({ template: c.kind === "notice" ? "notice" : "newsletter", to: u.user.email.toLowerCase(), test: true, vars: { campaign_subject: c.subject, campaign_preheader: c.preheader || c.subject, campaign_title: c.title, campaign_body: c.body, campaign_button: c.button, campaign_url: c.url, first_name: "there" } }),
         signal: AbortSignal.timeout(15000),
       });
       const out = await r.json().catch(() => ({}));

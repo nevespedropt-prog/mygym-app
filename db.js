@@ -389,6 +389,15 @@
       return data;
     },
 
+    /* dates (and classes) the gym has cancelled: a Set of "classId|date". The bookings stay in the database (history), but the app
+       treats these dates as cancelled: they can't be booked and any booking on them is hidden from the upcoming lists. */
+    async getCancelledKeys(dates) {
+      if (!LIVE) return new Set();
+      const { data, error } = await sb.from('class_cancellations').select('class_id,date').in('date', dates);
+      if (error) return new Set();
+      return new Set((data || []).map((x) => x.class_id + '|' + x.date));
+    },
+
     async getBookingsForDates(dates) {
       const u = await DB.getUser();
       if (!LIVE) {
@@ -397,9 +406,10 @@
       }
       if (!u) return [];
       /* own bookings (real rows) + anonymous placeholders for everyone else's, so spot counts still work */
-      const [mine, counts] = await Promise.all([
+      const [mine, counts, cancelled] = await Promise.all([
         sb.from('class_bookings').select('id,class_id,date,user_id').in('date', dates),
-        sb.rpc('booking_counts', { dates })
+        sb.rpc('booking_counts', { dates }),
+        DB.getCancelledKeys(dates)
       ]);
       if (mine.error) throw mine.error;
       if (counts.error) throw counts.error;
@@ -408,7 +418,7 @@
         const own = mine.data.filter((b) => b.class_id === c.class_id && b.date === c.date).length;
         for (let i = 0; i < c.n - own; i++) rows.push({ id: null, class_id: c.class_id, date: c.date, user_id: null });
       });
-      return rows;
+      return rows.filter((b) => !cancelled.has(b.class_id + '|' + b.date));
     },
 
     /* does this member have a Gym & Exercise Class plan? (the server decides; this only asks) */
@@ -476,7 +486,9 @@
         .lt('date', today).gte('date', startISO)
         .order('date', { ascending: false });
       if (error) throw error;
-      return data;
+      /* a booking for a class the gym cancelled stays in the history, marked as cancelled */
+      const cx = await DB.getCancelledKeys((data || []).map((b) => b.date));
+      return (data || []).map((b) => (cx.has(b.class_id + '|' + b.date) ? Object.assign({}, b, { cancelled: true }) : b));
     },
 
     /* ---- workouts ---- */

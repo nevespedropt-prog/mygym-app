@@ -254,8 +254,15 @@
      Classes that have started are hidden, unless the member holds a booking for them. */
   const hasStarted = (date, hm) => Date.now() >= londonStartMs(date, hm);
   const NO_MORE_TODAY = 'No more classes today. Pick another day above.';
+  /* dates the gym has cancelled ("classId|date"); asked for at most every 30 seconds */
+  let cancelledNow = new Set(), cxCache = null;
+  async function refreshCancelled() {
+    if (cxCache && Date.now() - cxCache.t < 30000) { cancelledNow = cxCache.data; return; }
+    try { cancelledNow = await DB.getCancelledKeys(window14()); cxCache = { t: Date.now(), data: cancelledNow }; } catch (e) { cancelledNow = new Set(); }
+  }
   async function renderTimetable(reuse) {
     await ensureClasses();
+    await refreshCancelled();
     const hasGym = classes.some(isGym);
     if (!hasGym) ttMode = 'classes';
     if (ttMode === 'gym') await checkGym();
@@ -333,6 +340,16 @@
     const what = el('span', 'what');
     what.appendChild(el('b', '', c.name));
     what.appendChild(el('small', '', gym ? c.start_time + ' – ' + endTime(c.start_time) + ' · gym floor' : [c.coach, c.info].filter(Boolean).join(' · ')));
+    /* a date the gym has cancelled: shown, but can't be booked */
+    if (cancelledNow.has(c.id + '|' + iso)) {
+      row.classList.add('cancelled');
+      what.appendChild(el('small', 'spots full', 'CANCELLED'));
+      row.appendChild(what);
+      const actC = el('span', 'act');
+      const bc = el('button', 'btn-small ghost', 'Cancelled'); bc.disabled = true;
+      actC.appendChild(bc); row.appendChild(actC);
+      return row;
+    }
     /* a class or hour that has already started can't be booked (London time) */
     const started = hasStarted(iso, c.start_time);
     if (authed) {
@@ -395,6 +412,7 @@
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
     try {
       await ensureClasses();
+      await refreshCancelled();
       const [wins, allBk, wts] = await Promise.all([
         DB.getWorkouts(200),
         DB.getBookingsForDates(window14()),
@@ -499,7 +517,7 @@
         left.appendChild(el('b', '', c ? c.name : 'Class'));
         left.appendChild(el('small', '', fmtShort(b.date) + (c ? ' · ' + c.start_time : '')));
         row.appendChild(left);
-        row.appendChild(el('small', '✅', ''));
+        row.appendChild(b.cancelled ? el('small', '', 'Cancelled') : el('small', '✅', ''));
         past.appendChild(row);
       });
     }

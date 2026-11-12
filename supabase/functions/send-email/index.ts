@@ -39,6 +39,12 @@ Deno.serve(async (req) => {
       const { data } = await admin.from("email_overrides").select("enabled").eq("template_id", t).maybeSingle();
       return data?.enabled !== false;
     },
+    getOverride: async (t) => {
+      const { data } = await admin.from("email_overrides").select("subject, body").eq("template_id", t).maybeSingle();
+      if (!data) return null;
+      const b = (data.body ?? {}) as Record<string, unknown>;
+      return { subject: (data.subject as string) || undefined, pre: b.pre as string | undefined, title: b.title as string | undefined, cta_label: b.cta_label as string | undefined, paragraphs: Array.isArray(b.paragraphs) ? (b.paragraphs as string[]) : undefined };
+    },
     claim: async (key, template, to) => {
       const { error } = await admin.from("email_events").insert({ dedupe_key: key, template, recipient: to, status: "sending" });
       if (!error) return true;

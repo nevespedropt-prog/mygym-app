@@ -30,4 +30,13 @@ ok(r.body.sent && s.sent[0].to === "info@mygymlondon.co.uk", "admin default reci
 ({ s, d } = mk()); const nv = { first_name: "N", campaign_subject: "S", campaign_preheader: "P", campaign_title: "T", campaign_body: "B", campaign_button: "Go", campaign_url: "https://x.co" };
 r = await sendEmail({ template: "newsletter", to: "a@b.co", vars: nv, test: true, dedupe_key: "k" }, d); r = await sendEmail({ template: "newsletter", to: "a@b.co", vars: nv, test: true, dedupe_key: "k" }, d);
 ok(s.sent.length === 2 && s.sent[0].subject.startsWith("[TEST] "), "test sends skip consent and dedupe, subject marked");
+// block-level wording changes (full body editing)
+{ const ov = (o) => ({ ...mk().d, getOverride: async () => o }); const mkd = (o) => { const m = mk(); m.d.getOverride = async () => o; return m; };
+  const body = [{ p: "Hi {{first_name}}, new intro" }, { note: "A new box" }, { list: ["one", "two"] }, { kv: [["Plan", "{{plan_name}}"], ["Next", "{{next_payment_date}}", "next_payment_date"]] }, { muted: "New small print" }, { h: "A heading" }];
+  const vars = { first_name: "Sara", plan_name: "Gym", amount: "35", billing_period: "monthly", start_date: "d", next_payment_date: "n", plan_includes: "x", cancellation_terms: "c" };
+  let m = mkd({ blocks: body }); r = await sendEmail({ template: "subscription-started", to: "a@b.co", vars }, m.d);
+  const h1 = m.s.sent[0]?.html ?? ""; ok(r.body.sent && h1.includes("new intro") && h1.includes("A new box") && h1.includes("New small print") && h1.includes(">one<") && h1.includes("A heading") && !h1.includes("You can pause or cancel"), "blocks replace the whole body (" + JSON.stringify(r.body) + ")");
+  m = mkd({ blocks: [{ p: "Hi {{nope}}" }] }); r = await sendEmail({ template: "subscription-started", to: "a@b.co", vars }, m.d); ok(r.body.sent && !m.s.sent[0].html.includes("{{nope}}") && m.s.sent[0].html.includes("You can pause or cancel"), "unknown placeholder in a block: whole change ignored, default sent");
+  for (const bad of [[{ p: "a", note: "b" }], [{ list: [] }], [{ kv: [["x"]] }], [{ p: "" }], [{ zzz: "x" }], "str", [], [{ p: "ok", if: "Bad Var" }]]) { m = mkd({ blocks: bad }); r = await sendEmail({ template: "subscription-started", to: "a@b.co", vars }, m.d); ok(r.body.sent && m.s.sent[0].html.includes("You can pause or cancel"), "bad blocks ignored: " + JSON.stringify(bad)); }
+  m = mkd(null); r = await sendEmail({ template: "subscription-started", to: "a@b.co", vars }, m.d); ok(m.s.sent[0].html.includes("You can pause or cancel") && !m.s.sent[0].html.includes("new intro"), "removing the change restores the default"); }
 console.log(`${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

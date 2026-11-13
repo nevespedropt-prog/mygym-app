@@ -1,0 +1,25 @@
+<form class="mgl-form" data-form="trial-gym" data-min-seconds="3" method="post" action="#" novalidate>
+  <h2>Book a free gym session</h2>
+  <p class="intro">Your first open gym session is on us. Pick a date and time and we will confirm your slot by email.</p>
+  <div class="field"><label for="trial-gym-full_name">Your name <span class="req" aria-hidden="true">*</span></label><input type="text" name="full_name" id="trial-gym-full_name" maxlength="80" autocomplete="name" required aria-required="true"></div>
+  <div class="field"><label for="trial-gym-email">Email address <span class="req" aria-hidden="true">*</span></label><input type="email" name="email" id="trial-gym-email" maxlength="120" autocomplete="email" required aria-required="true"></div>
+  <div class="field"><label for="trial-gym-phone">Phone number <span class="req" aria-hidden="true">*</span></label><input type="tel" name="phone" id="trial-gym-phone" maxlength="25" autocomplete="tel" inputmode="tel" required aria-required="true"></div>
+  <div class="field"><label for="trial-gym-preferred_date">Which day? <span class="req" aria-hidden="true">*</span></label><input type="date" name="preferred_date" id="trial-gym-preferred_date" data-min-days="1" data-max-days="30" required aria-required="true"></div>
+  <fieldset class="field group"><legend>Preferred time <span class="req" aria-hidden="true">*</span></legend>
+    <label class="opt"><input type="radio" name="preferred_time" value="Morning (5am–12pm)" required aria-required="true"> <span>Morning (5am–12pm)</span></label>
+    <label class="opt"><input type="radio" name="preferred_time" value="Afternoon (12pm–5pm)"> <span>Afternoon (12pm–5pm)</span></label>
+    <label class="opt"><input type="radio" name="preferred_time" value="Evening (5pm–midnight)"> <span>Evening (5pm–midnight)</span></label>
+  </fieldset>
+  <input type="hidden" name="utm_source" id="trial-gym-utm_source">
+  <input type="hidden" name="utm_medium" id="trial-gym-utm_medium">
+  <input type="hidden" name="utm_campaign" id="trial-gym-utm_campaign">
+  <input type="hidden" name="page_url" id="trial-gym-page_url">
+  <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="consents">
+    <label class="opt consent"><input type="checkbox" name="consent_health_ready" value="1" required aria-required="true"> <span>I am fit to exercise, or I will tell a member of staff before my session about anything that might affect me. <span class="req" aria-hidden="true">*</span></span></label>
+    <label class="opt consent"><input type="checkbox" name="consent_marketing" value="1"> <span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label>
+  </div>
+  <p class="privacy">We use your details only to reply to you. See our <a href="https://www.mygymlondon.co.uk/privacy">Privacy Notice</a>.</p>
+  <button type="submit" class="btn">Send</button>
+  <p class="status" role="status" aria-live="polite" data-success="Thanks! We will confirm your free gym session by email shortly."></p>
+</form>

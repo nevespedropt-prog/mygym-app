@@ -1537,7 +1537,7 @@
       if (p.started) rows.push(['Started', fmtD(p.started)]);
       if (p.next_payment && p.status === 'active' && !p.cancelling) rows.push(['Next payment', fmtD(p.next_payment)]);
       if (p.ends && (p.cancelling || p.status !== 'active')) rows.push([p.cancelling ? 'Ends' : 'Until', fmtD(p.ends)]);
-      rows.push(['You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : 'See your plan']);
+      rows.push(['You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : p.type === 'gym' ? 'Gym slots' : 'See your plan']);
       rows.forEach(([k, v]) => { const r = el('div', ''); r.style.cssText = 'display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)'; r.append(el('span', '', k), el('b', '', v)); card.appendChild(r); });
       if (p.payment_failed) { const w = el('div', 'err', 'Your last payment did not go through. We try again 5 days after the failed attempt. To avoid your membership being suspended, update your card with the button below.'); w.style.marginTop = '10px'; card.appendChild(w); }
       const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:10px'; card.appendChild(upd);

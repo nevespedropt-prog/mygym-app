@@ -406,10 +406,37 @@
   }
 
   /* ---------- DASHBOARD (member home) ---------- */
+  /* Home: a short membership summary that opens My membership in Profile */
+  async function renderMemHome() {
+    const box = $('#memHome'); if (!box) return;
+    let m = null; try { m = await DB.getMembership(); } catch (e) { m = null; }
+    box.textContent = '';
+    if (!m) { box.hidden = true; return; }
+    box.hidden = false;
+    const card = el('div', 'card'); card.style.cssText = 'display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap';
+    const txt = el('div', ''); const p = m.plan;
+    if (p) {
+      const st = p.status === 'paused' ? 'Paused' : p.cancelling ? 'Ending' : 'Active';
+      txt.appendChild(el('b', '', p.name + ' · ' + st));
+      const bits = [];
+      if (p.next_payment && p.status === 'active' && !p.cancelling) bits.push('Next payment ' + fmtD(p.next_payment));
+      if (p.payment_failed) bits.push('Payment needs attention');
+      if (m.credits > 0) bits.push(m.credits + (m.credits === 1 ? ' class credit' : ' class credits'));
+      if (m.request && m.request.status === 'received') bits.push('Request received');
+      if (bits.length) txt.appendChild(el('div', 'sub', bits.join(' · ')));
+    } else {
+      txt.appendChild(el('b', '', 'No membership yet'));
+      txt.appendChild(el('div', 'sub', 'Join to book classes and the gym, or pay as you go.'));
+    }
+    const go1 = el('button', 'btn-small', p ? 'My membership ›' : 'See options ›');
+    go1.addEventListener('click', () => { go('profile'); });
+    card.append(txt, go1); box.appendChild(card);
+  }
   async function renderDash() {
     const first = (profile && profile.full_name) ? profile.full_name.split(' ')[0] : '';
     $('#healthBanner').style.display = (authed && healthRec !== undefined && !healthOk()) ? 'block' : 'none';
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
+    renderMemHome();
     try {
       await ensureClasses();
       await refreshCancelled();

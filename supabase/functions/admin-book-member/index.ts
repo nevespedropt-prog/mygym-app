@@ -2,6 +2,7 @@
 //   {"action":"book","mode":"member","class_id","date","email"}  a member with a class or gym membership (their app booking, if they have an app login, plus the Wix booking)
 //   {"action":"book","mode":"payg","class_id","date","name","phone","email","amount","paid"}  a pay as you go person who pays at the gym (Wix booking + a record of what they paid)
 //   {"action":"remove","id"}  take a pay as you go walk-in off the class again (cancels the Wix booking)
+//   {"action":"remove_booking","id"}  take a member's booking off the class (cancels the Wix booking, no email)
 // Wix stays the source of truth for spaces: the Wix booking is made first, so a full class is refused. No emails are sent from here.
 // Verify JWT stays ON and the code checks the staff role.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -58,6 +59,15 @@ Deno.serve(async (req) => {
       if (w.wix_booking_id) await db.from("wix_other_bookings").delete().eq("wix_booking_id", w.wix_booking_id);
       await db.from("walkin_bookings").delete().eq("id", w.id);
       await log("walkin_removed", String(w.id));
+      return json(req, 200, { ok: true });
+    }
+    if (b.action === "remove_booking") {
+      const { data: bk } = await db.from("class_bookings").select("id, wix_booking_id, class_id, date").eq("id", String(b.id ?? "")).maybeSingle();
+      if (!bk) return json(req, 404, { ok: false, error: "That booking was not found. Reload the page." });
+      if (bk.wix_booking_id && !(await wixCancel(bk.wix_booking_id))) return json(req, 502, { ok: false, error: "Wix would not cancel it just now. Try again in a minute." });
+      const { error: de } = await db.from("class_bookings").delete().eq("id", bk.id);
+      if (de) return json(req, 500, { ok: false, error: "Could not remove it. Reload the page and check." });
+      await log("staff_removed_booking", "class " + bk.class_id + " on " + bk.date);
       return json(req, 200, { ok: true });
     }
     if (b.action !== "book") return json(req, 400, { ok: false, error: "Unknown action." });

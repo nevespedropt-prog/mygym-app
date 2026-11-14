@@ -369,6 +369,23 @@
       return data === true;
     },
 
+    /* ---- my membership: plan, credits, and asking the gym to pause, cancel or change it ---- */
+    async getMembership() {
+      if (!LIVE) return null;
+      const { data, error } = await sb.rpc('my_membership');
+      return error ? null : data;
+    },
+    async requestChange(type, from, reason, message) {
+      if (!LIVE) throw new Error('Not available in demo mode.');
+      const { error } = await sb.rpc('request_membership_change', { p_type: type, p_from: from, p_reason: reason || null, p_message: message || null });
+      if (error) throw new Error(error.message || 'Could not send. Try again.');
+    },
+    async withdrawRequest(id) {
+      if (!LIVE) return;
+      const { error } = await sb.rpc('withdraw_membership_request', { p_id: id });
+      if (error) throw new Error(error.message || 'Could not withdraw. Try again.');
+    },
+
     async saveProfile(patch) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
       if (!LIVE) {

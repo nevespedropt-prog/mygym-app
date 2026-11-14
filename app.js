@@ -1514,8 +1514,69 @@
     if (authed && h && document.getElementById(h) && document.getElementById(h).classList.contains('view')) go(h);
   });
 
+  /* ---- My membership (Profile): plan, next payment, credits, and a request to pause, cancel or change ---- */
+  const fmtD = (d) => d ? new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const isoPlus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  async function renderMembership() {
+    const box = $('#memCard'); if (!box) return;
+    let m = null; try { m = await DB.getMembership(); } catch (e) { m = null; }
+    box.textContent = '';
+    if (!m || (!m.plan && !m.request && !m.credits)) { box.hidden = true; return; }
+    box.hidden = false;
+    const card = el('div', 'card'); box.appendChild(card);
+    card.appendChild(el('h3', '', 'My membership'));
+    const p = m.plan;
+    if (p) {
+      const per = { MONTH: 'every month', WEEK: 'every week', YEAR: 'every year' }[p.unit] || '';
+      const top = el('div', ''); top.style.cssText = 'background:linear-gradient(135deg,#e03939,#a03535);color:#fff;border-radius:16px;padding:14px;margin-bottom:10px';
+      const st = el('b', '', p.status === 'paused' ? 'Paused' : p.cancelling ? 'Ending' : 'Active'); st.style.cssText = 'font-size:12px;background:rgba(255,255,255,.22);border-radius:999px;padding:2px 10px';
+      const nm = el('div', '', p.name); nm.style.cssText = 'font:800 22px/1.1 var(--disp);text-transform:uppercase;margin-top:8px';
+      const pr = el('div', '', (p.amount ? '£' + Number(p.amount).toFixed(p.amount % 1 ? 2 : 0) + ' ' + per : '')); pr.style.cssText = 'font:800 28px var(--disp);margin-top:4px';
+      top.append(st, nm, pr); card.appendChild(top);
+      const rows = [];
+      if (p.started) rows.push(['Started', fmtD(p.started)]);
+      if (p.next_payment && p.status === 'active' && !p.cancelling) rows.push(['Next payment', fmtD(p.next_payment)]);
+      if (p.ends && (p.cancelling || p.status !== 'active')) rows.push([p.cancelling ? 'Ends' : 'Until', fmtD(p.ends)]);
+      rows.push(['You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : 'See your plan']);
+      rows.forEach(([k, v]) => { const r = el('div', ''); r.style.cssText = 'display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)'; r.append(el('span', '', k), el('b', '', v)); card.appendChild(r); });
+      if (p.payment_failed) { const w = el('div', 'err', 'Your last payment did not go through. We try again 5 days after the failed attempt. To avoid your membership being suspended, update your card with the button below.'); w.style.marginTop = '10px'; card.appendChild(w); }
+      const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:10px'; card.appendChild(upd);
+    }
+    if (m.credits > 0) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. Ask us at the gym to use it.'); c.style.cssText = 'margin-top:10px;background:#e6f5ec;border-radius:12px;padding:10px'; card.appendChild(c); }
+    const q = m.request;
+    if (q && q.status === 'received') {
+      const lbl = { pause: 'Pause', cancel: 'Cancel', change: 'Change plan' }[q.type];
+      const b = el('div', ''); b.style.cssText = 'margin-top:12px;border:2px solid var(--acc);border-radius:14px;padding:12px';
+      b.append(el('b', '', 'Your request: ' + lbl + ' from ' + fmtD(q.from_date)), el('div', 'sub', 'Received. We reply within 2 working days and nothing changes until we confirm.'));
+      const w = el('button', 'btn-small', 'Withdraw this request'); w.style.marginTop = '8px';
+      w.addEventListener('click', async () => { w.disabled = true; try { await DB.withdrawRequest(q.id); } catch (e) { w.textContent = e.message; } renderMembership(); });
+      b.appendChild(w); card.appendChild(b);
+    } else if (p) {
+      if (q && (q.status === 'done' || q.status === 'declined') && q.resolved_at && Date.now() - new Date(q.resolved_at).getTime() < 14 * 864e5) {
+        const d = el('div', 'sub', q.status === 'done' ? 'Your last request (' + q.type + ') was confirmed on ' + fmtD(q.resolved_at) + '.' : 'Your last request could not be done. We will be in touch.'); d.style.marginTop = '10px'; card.appendChild(d);
+      }
+      const open = el('button', 'btn-small', 'Pause, cancel or change my plan'); open.style.cssText = 'margin-top:12px;display:block';
+      const form = el('div', ''); form.hidden = true; form.style.marginTop = '10px';
+      const sel = el('select', ''); [['pause', 'Pause my membership'], ['cancel', 'Cancel my membership'], ['change', 'Change my plan']].forEach(([v, t]) => { const o = el('option', '', t); o.value = v; sel.appendChild(o); });
+      const date = el('input', ''); date.type = 'date'; date.min = isoPlus(0); date.max = isoPlus(90); date.value = p.next_payment || isoPlus(7);
+      const why = el('select', ''); ['', 'Moving away', 'Cost', 'Injury or health', 'Not enough time', 'Not what I expected', 'Other'].forEach((t) => { const o = el('option', '', t || 'Mind telling us why? (optional)'); o.value = t; why.appendChild(o); });
+      const msg = el('textarea', ''); msg.rows = 3; msg.maxLength = 600; msg.placeholder = 'Anything else? (optional)';
+      const note = el('div', 'sub', 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. A request sent after that takes effect after your next payment. Nothing changes until we confirm it by email.');
+      const err = el('div', 'err', ''); const send = el('button', 'cta', 'Send request');
+      [['What would you like to do?', sel], ['From which date?', date], ['', why], ['', msg]].forEach(([l, n]) => { const f = el('div', 'field'); if (l) f.appendChild(el('label', '', l)); f.appendChild(n); form.appendChild(f); });
+      form.append(note, err, send);
+      open.addEventListener('click', () => { form.hidden = !form.hidden; });
+      send.addEventListener('click', async () => {
+        send.disabled = true; err.textContent = '';
+        try { await DB.requestChange(sel.value, date.value, why.value, msg.value); renderMembership(); }
+        catch (e) { err.textContent = e.message; send.disabled = false; }
+      });
+      card.append(open, form);
+    }
+  }
   async function renderProfile() {
     renderReminders();
+    renderMembership();
     renderHealthProfile();
     if (!profile) profile = (await DB.getProfile().catch(() => null)) || {};
     $('#pName').value = profile.full_name || '';

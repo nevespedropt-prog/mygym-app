@@ -1521,10 +1521,16 @@
     const box = $('#memCard'); if (!box) return;
     let m = null; try { m = await DB.getMembership(); } catch (e) { m = null; }
     box.textContent = '';
-    if (!m || (!m.plan && !m.request && !m.credits)) { box.hidden = true; return; }
+    if (!m) { box.hidden = true; return; }
     box.hidden = false;
     const card = el('div', 'card'); box.appendChild(card);
     card.appendChild(el('h3', '', 'My membership'));
+    if (!m.plan && !m.request && !m.credits) {
+      card.appendChild(el('p', 'sub', 'Your account is ready. You do not have a membership yet. Members book classes and gym slots here. You can also pay as you go for a single class on our website.'));
+      const a1 = el('a', 'btn-small', 'See memberships →'); a1.href = 'https://www.mygymlondon.co.uk/pricing-plans/memberships'; a1.target = '_blank'; a1.rel = 'noopener'; card.appendChild(a1);
+      const a2 = el('a', 'btn-small', 'Pay as you go →'); a2.href = 'https://www.mygymlondon.co.uk/classes.html'; a2.target = '_blank'; a2.rel = 'noopener'; a2.style.marginLeft = '8px'; card.appendChild(a2);
+      return;
+    }
     const p = m.plan;
     if (p) {
       const per = { MONTH: 'every month', WEEK: 'every week', YEAR: 'every year' }[p.unit] || '';

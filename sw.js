@@ -1,5 +1,5 @@
 /* MY GYM London PWA — offline-first service worker */
-const CACHE = 'mygym-v36';
+const CACHE = 'mygym-v37';
 const ASSETS = [
   './',
   './manifest.json',

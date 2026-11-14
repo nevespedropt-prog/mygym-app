@@ -530,12 +530,12 @@
       up.appendChild(row);
     });
 
-    // recent history (past 30 days)
+    // recent history (past 90 days)
     const past = $('#pastBox'); past.textContent = '';
     let hist = [];
-    try { hist = await DB.getPastBookings(30); } catch (e) {}
+    try { hist = await DB.getPastBookings(90); } catch (e) {}
     if (!hist.length) {
-      past.appendChild(el('p', 'note', 'Attended classes will show up here.'));
+      past.appendChild(el('p', 'note', 'Your past bookings from the last 90 days will show up here.'));
     } else {
       hist.forEach((b) => {
         const c = classes.find((x) => x.id === b.class_id);

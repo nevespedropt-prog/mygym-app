@@ -15,7 +15,7 @@ const json = (req: Request, status: number, body: Record<string, unknown>) => ne
 const HEALTH_VERSION = "2026-10-v1";
 const CHECKOUT = "https://join.mygymlondon.co.uk";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const typeOf = (n: string) => /personal training/i.test(n) ? "pt" : /gym/i.test(n) ? "gym_classes" : /class/i.test(n) ? "classes" : "other";
+const typeOf = (n: string) => /personal training/i.test(n) ? "pt" : /payg|pay as you go/i.test(n) ? "payg" : /^\s*gym( only)? membership\s*$/i.test(n) ? "gym" : /gym/i.test(n) ? "gym_classes" : /class/i.test(n) ? "classes" : "other";
 
 async function wix(method: string, path: string, body?: unknown) {
   const r = await fetch("https://www.wixapis.com" + path, { method, signal: AbortSignal.timeout(25000),
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     const r = await wix("GET", "/pricing-plans/v2/plans?limit=50");
     if (!r.ok) return json(req, 502, { ok: false, error: "Could not read the plans from Wix." });
     // deno-lint-ignore no-explicit-any
-    const plans = (r.data?.plans ?? []).filter((p: any) => !p.archived && p.visible !== false).map((p: any) => ({ id: p.id, name: String(p.name ?? ""), unit: p.pricing?.subscription?.cycleDuration?.unit ?? "", amount: Number(p.pricing?.prices?.[0]?.price?.total ?? p.pricing?.prices?.[0]?.price?.value ?? 0) || null }));
+    const plans = (r.data?.plans ?? []).filter((p: any) => !p.archived).map((p: any) => ({ id: p.id, name: String(p.name ?? ""), unit: p.pricing?.subscription?.cycleDuration?.unit ?? "", amount: Number(p.pricing?.price?.value ?? p.pricing?.prices?.[0]?.price?.total ?? p.pricing?.prices?.[0]?.price?.value ?? 0) || null }));
     return json(req, 200, { ok: true, plans });
   }
   if (b.action !== "create") return json(req, 400, { ok: false, error: "Unknown action." });

@@ -1,6 +1,8 @@
 // MY GYM London: back office "book someone into a class or gym slot" (admin, manager and reception).
 //   {"action":"book","mode":"member","class_id","date","email"}  a member with a class or gym membership (their app booking, if they have an app login, plus the Wix booking)
 //   {"action":"book","mode":"payg","class_id","date","name","phone","email","amount","paid"}  a pay as you go person who pays at the gym (Wix booking + a record of what they paid)
+//   {"action":"book","mode":"trial","class_id","date","name","phone","email"}  a free trial: booked in Wix, details kept; a second trial for the same email or phone is refused
+//   {"action":"approve_enquiry","id"}  approve a website free-class request: books it as a free trial and marks the request Free trial
 //   {"action":"remove","id"}  take a pay as you go walk-in off the class again (cancels the Wix booking)
 //   {"action":"remove_booking","id"}  take a member's booking off the class (cancels the Wix booking, no email)
 // Wix stays the source of truth for spaces: the Wix booking is made first, so a full class is refused. No emails are sent from here.
@@ -70,6 +72,32 @@ Deno.serve(async (req) => {
       await log("staff_removed_booking", "class " + bk.class_id + " on " + bk.date);
       return json(req, 200, { ok: true });
     }
+    // a website "free class" request that the team approves: work out the class and date it asked for, then book it as a free trial
+    let enquiryId: string | null = null;
+    if (b.action === "approve_enquiry") {
+      const { data: sub } = await db.from("form_submissions").select("id, form_id, data, status, created_at").eq("id", String(b.id ?? "")).maybeSingle();
+      if (!sub || !["free-class", "trial-gym"].includes(sub.form_id)) return json(req, 404, { ok: false, error: "That request was not found. Reload the page." });
+      const d = (sub.data ?? {}) as Record<string, string>;
+      if (sub.form_id === "trial-gym") {
+        // a free gym session request has a day and a part of the day; the team picks the hour (class_id) when approving
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.preferred_date ?? "")) || !Number.isInteger(Number(b.class_id))) return json(req, 422, { ok: false, error: "Choose the gym hour to book them into." });
+        enquiryId = sub.id as string;
+        b = { action: "book", mode: "trial", class_id: Number(b.class_id), date: d.preferred_date, name: d.full_name, email: d.email, phone: d.phone };
+      } else {
+      const m = /(\d{1,2})\s+([A-Za-z]{3})/.exec(String(d.class_date ?? ""));
+      const mi = m ? ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(m[2].toLowerCase()) : -1;
+      if (!m || mi < 0) return json(req, 422, { ok: false, error: "The date they chose could not be read. Use Add someone on the Schedule or Timetable page." });
+      const made = String(sub.created_at).slice(0, 10); let yr = Number(made.slice(0, 4));
+      let dt = `${yr}-${String(mi + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`; if (dt < made) { yr++; dt = `${yr}-${String(mi + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`; }
+      const day = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long" }).format(new Date(dt + "T12:00:00Z"));
+      const { data: cands } = await db.from("classes").select("id, start_time").ilike("name", String(d.class_name ?? "").trim()).eq("day_name", day).eq("active", true);
+      const t = String(d.class_time ?? "").slice(0, 5);
+      const hit = (cands ?? []).filter((c: { start_time: string }) => !t || String(c.start_time).slice(0, 5) === t);
+      if (hit.length !== 1) return json(req, 422, { ok: false, error: "That class could not be matched on the timetable. Use Add someone on the Schedule or Timetable page." });
+      enquiryId = sub.id as string;
+      b = { action: "book", mode: "trial", class_id: hit[0].id, date: dt, name: d.full_name, email: d.email, phone: d.phone };
+      }
+    }
     if (b.action !== "book") return json(req, 400, { ok: false, error: "Unknown action." });
 
     const classId = Number(b.class_id), date = String(b.date ?? "");
@@ -81,7 +109,7 @@ Deno.serve(async (req) => {
     if (dayName !== cls.day_name) return json(req, 422, { ok: false, error: "That class does not run on " + dayName + "." });
 
     // who
-    const mode = b.mode === "member" ? "member" : "payg";
+    const mode = b.mode === "member" ? "member" : b.mode === "trial" ? "trial" : "payg";
     let email = String(b.email ?? "").trim().toLowerCase(), name = String(b.name ?? "").trim().slice(0, 80), phone = String(b.phone ?? "").trim().slice(0, 30), userId: string | null = null;
     if (email && !EMAIL.test(email)) return json(req, 422, { ok: false, error: "That email does not look right." });
     if (mode === "member") {
@@ -99,6 +127,13 @@ Deno.serve(async (req) => {
       const { data: pr } = userId ? await db.from("profiles").select("full_name").eq("id", userId).maybeSingle() : { data: null };
       name = (pr?.full_name as string) || (wc?.full_name as string) || email;
     } else if (name.length < 2) return json(req, 422, { ok: false, error: "Add their name." });
+    const phoneKey = phone.replace(/\D/g, "").replace(/^(44|0)/, "");
+    if (mode === "trial") {
+      if (!email && phoneKey.length < 7) return json(req, 422, { ok: false, error: "A free trial needs an email or a phone number, so we can follow up." });
+      const ors: string[] = []; if (email) ors.push("email.eq." + email.replace(/[,()]/g, "")); if (phoneKey.length >= 7) ors.push("phone_key.eq." + phoneKey);
+      const { data: prev } = await db.from("free_trials").select("name, date").or(ors.join(",")).order("date", { ascending: false }).limit(1).maybeSingle();
+      if (prev) return json(req, 409, { ok: false, error: prev.name + " already had a free trial on " + prev.date + ". Offer them a membership or pay as you go instead." });
+    }
 
     // the Wix session, then the Wix booking (a full class is refused here)
     const sv = await wix("POST", "/_api/bookings/v2/services/query", { query: { paging: { limit: 100 } } });
@@ -125,8 +160,10 @@ Deno.serve(async (req) => {
       if (error) { await wixCancel(wixId); return json(req, 409, { ok: false, error: "Could not save the booking. Nothing was booked." }); }
     } else {
       await db.from("wix_other_bookings").upsert({ wix_booking_id: wixId, class_id: classId, date }, { onConflict: "wix_booking_id", ignoreDuplicates: true });
-      await db.from("walkin_bookings").insert({ class_id: classId, date, name, phone: phone || null, email: email || null, kind: mode, amount: mode === "payg" ? (Number(b.amount) || null) : null, paid_at_gym: mode === "payg" ? b.paid !== false : false, wix_booking_id: wixId, created_by: u.user.id });
+      const { data: wk } = await db.from("walkin_bookings").insert({ class_id: classId, date, name, phone: phone || null, email: email || null, kind: mode, amount: mode === "payg" ? (Number(b.amount) || null) : null, paid_at_gym: mode === "payg" ? b.paid !== false : false, wix_booking_id: wixId, created_by: u.user.id }).select("id").maybeSingle();
+      if (mode === "trial" && wk?.id) await db.from("free_trials").insert({ walkin_id: wk.id, name, email: email || null, phone: phone || null, phone_key: phoneKey || null, class_id: classId, class_name: cls.name, date, created_by: u.user.id });
     }
+    if (enquiryId) await db.from("form_submissions").update({ status: "trial", handled_at: new Date().toISOString() }).eq("id", enquiryId);
     await log("staff_booked", (mode === "member" ? email : name) + " into class " + classId + " on " + date);
     return json(req, 200, { ok: true, mode, wix: true });
   } catch (e) {

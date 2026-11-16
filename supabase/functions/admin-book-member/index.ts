@@ -8,7 +8,7 @@
 // Wix stays the source of truth for spaces: the Wix booking is made first, so a full class is refused. No emails are sent from here.
 // Verify JWT stays ON and the code checks the staff role.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { contactName, findSlot, londonDate, matchService } from "./logic.ts";
+import { contactName, findSlot, londonDate, londonHM, matchService } from "./logic.ts";
 
 const ALLOWED_ORIGINS = ["https://admin.mygymlondon.co.uk", "http://localhost:8137"];
 const cors = (req: Request) => ({
@@ -107,6 +107,10 @@ Deno.serve(async (req) => {
     if (!cls) return json(req, 404, { ok: false, error: "That class is not available." });
     const dayName = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "long" }).format(new Date(date + "T12:00:00Z"));
     if (dayName !== cls.day_name) return json(req, 422, { ok: false, error: "That class does not run on " + dayName + "." });
+    if (date === londonDate(new Date())) {
+      const [sh, sm] = String(cls.start_time).slice(0, 5).split(":").map(Number), [nh, nm] = londonHM(new Date()).split(":").map(Number);
+      if (nh * 60 + nm - (sh * 60 + sm) > 60) return json(req, 422, { ok: false, error: "That session started at " + String(cls.start_time).slice(0, 5) + " today and is over, so it can no longer be booked. Pick another date." });
+    }
 
     // who
     const mode = b.mode === "member" ? "member" : b.mode === "trial" ? "trial" : "payg";
@@ -152,7 +156,7 @@ Deno.serve(async (req) => {
     const contact: any = { firstName: who.firstName, lastName: who.lastName }; if (email) contact.email = email; if (phone) contact.phone = phone;
     const cr = await wix("POST", "/bookings/v2/bookings", { booking: { bookedEntity: { slot: { eventId: slot.eventId } }, contactDetails: contact, totalParticipants: 1, status: "CONFIRMED" }, participantNotification: { notifyParticipants: false } });
     const wixId: string | undefined = cr.data?.booking?.id;
-    if (!cr.ok || !wixId) return json(req, cr.status === 400 || cr.status === 428 ? 409 : 502, { ok: false, error: cr.status === 400 || cr.status === 428 ? "Wix would not take this booking (the class may be full, or Wix needs an email or phone for them)." : "Wix is busy. Try again in a minute." });
+    if (!cr.ok || !wixId) return json(req, cr.status === 400 || cr.status === 428 ? 409 : 502, { ok: false, error: cr.status === 400 || cr.status === 428 ? "Wix would not take this booking" + (cr.data?.message ? " (Wix said: " + String(cr.data.message).slice(0, 160) + ")" : " (the session may have started, be full, or Wix needs an email or phone for them)") + "." : "Wix is busy. Try again in a minute." });
 
     // our own records
     if (mode === "member" && userId) {

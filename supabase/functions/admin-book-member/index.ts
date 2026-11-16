@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
     if (mode === "trial") {
       if (!email && phoneKey.length < 7) return json(req, 422, { ok: false, error: "A free trial needs an email or a phone number, so we can follow up." });
       const ors: string[] = []; if (email) ors.push("email.eq." + email.replace(/[,()]/g, "")); if (phoneKey.length >= 7) ors.push("phone_key.eq." + phoneKey);
-      const { data: prev } = await db.from("free_trials").select("name, date").or(ors.join(",")).order("date", { ascending: false }).limit(1).maybeSingle();
+      const { data: prev } = await db.from("free_trials").select("name, date").or(ors.join(",")).not("walkin_id", "is", null).order("date", { ascending: false }).limit(1).maybeSingle();
       if (prev) return json(req, 409, { ok: false, error: prev.name + " already had a free trial on " + prev.date + ". Offer them a membership or pay as you go instead." });
     }
 
@@ -165,7 +165,10 @@ Deno.serve(async (req) => {
     } else {
       await db.from("wix_other_bookings").upsert({ wix_booking_id: wixId, class_id: classId, date }, { onConflict: "wix_booking_id", ignoreDuplicates: true });
       const { data: wk } = await db.from("walkin_bookings").insert({ class_id: classId, date, name, phone: phone || null, email: email || null, kind: mode, amount: mode === "payg" ? (Number(b.amount) || null) : null, paid_at_gym: mode === "payg" ? b.paid !== false : false, wix_booking_id: wixId, created_by: u.user.id }).select("id").maybeSingle();
-      if (mode === "trial" && wk?.id) await db.from("free_trials").insert({ walkin_id: wk.id, name, email: email || null, phone: phone || null, phone_key: phoneKey || null, class_id: classId, class_name: cls.name, date, created_by: u.user.id });
+      let granted: string | null = null;
+      if (mode === "trial" && wk?.id) { const ors2: string[] = []; if (email) ors2.push("email.eq." + email.replace(/[,()]/g, "")); if (phoneKey.length >= 7) ors2.push("phone_key.eq." + phoneKey); const { data: g } = await db.from("free_trials").select("id").or(ors2.join(",")).is("walkin_id", null).limit(1).maybeSingle(); granted = (g?.id as string | undefined) ?? null; }
+      if (granted && wk?.id) await db.from("free_trials").update({ walkin_id: wk.id, class_id: classId, class_name: cls.name, date }).eq("id", granted);
+      else if (mode === "trial" && wk?.id) await db.from("free_trials").insert({ walkin_id: wk.id, name, email: email || null, phone: phone || null, phone_key: phoneKey || null, class_id: classId, class_name: cls.name, date, created_by: u.user.id });
     }
     if (enquiryId) await db.from("form_submissions").update({ status: "trial", handled_at: new Date().toISOString() }).eq("id", enquiryId);
     await log("staff_booked", (mode === "member" ? email : name) + " into class " + classId + " on " + date);

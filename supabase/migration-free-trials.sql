@@ -28,3 +28,18 @@ end $$;
 revoke all on function public.admin_free_trials() from public, anon;
 grant execute on function public.admin_free_trials() to authenticated;
 notify pgrst, 'reload schema';
+
+-- 2026-11-16: free trials granted when adding a member (class_name 'Class trial' / 'Gym trial', walkin_id null) wait here until their first session is booked.
+-- admin_free_trials now returns 'used' (a session has been booked) so the back office can list the waiting ones.
+create or replace function public.admin_free_trials() returns jsonb
+language plpgsql stable security definer set search_path = public, auth, pg_temp as $$
+declare r text := public._need(array['admin', 'manager', 'reception']);
+begin
+  return coalesce((select jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'email', t.email, 'phone', t.phone, 'class', t.class_name, 'date', t.date,
+    'used', t.walkin_id is not null,
+    'member', exists (select 1 from public.wix_orders o where t.email is not null and lower(o.email) = lower(t.email) and o.status = 'ACTIVE')) order by (t.walkin_id is null) desc, t.date desc, t.created_at desc)
+    from public.free_trials t), '[]'::jsonb);
+end $$;
+revoke all on function public.admin_free_trials() from public, anon;
+grant execute on function public.admin_free_trials() to authenticated;
+notify pgrst, 'reload schema';

@@ -59,8 +59,17 @@ Deno.serve(async (req) => {
   if (!h.no_allergies && !String(h.allergies ?? "").trim()) return json(req, 422, { ok: false, error: "On the health form, tick 'no allergies' or write the allergy." });
   const full = [first, last].filter(Boolean).join(" "), today = new Date().toISOString().slice(0, 10);
   const start = /^\d{4}-\d{2}-\d{2}$/.test(String(b.start_date ?? "")) ? String(b.start_date) : today;
-  const planId = String(b.plan_id ?? ""), planName = String(b.plan_name ?? "").slice(0, 120), amount = Number(b.plan_amount) || null, unit = String(b.plan_unit ?? "");
-  const pay = ["in_person", "card_link", "later"].includes(b.pay) ? b.pay : "later";
+  const rawPlan = String(b.plan_id ?? ""), trialKind = rawPlan === "trial:class" ? "Class trial" : rawPlan === "trial:gym" ? "Gym trial" : "";
+  const planId = trialKind ? "" : rawPlan, planName = trialKind ? "Free " + trialKind.toLowerCase() : String(b.plan_name ?? "").slice(0, 120), amount = Number(b.plan_amount) || null, unit = String(b.plan_unit ?? "");
+  const pay = trialKind ? "later" : ["in_person", "card_link", "later"].includes(b.pay) ? b.pay : "later";
+  const phoneKey = phone.replace(/\D/g, "").replace(/^(44|0)/, "");
+  if (trialKind) {
+    // one free trial per person: spotted by email or phone
+    const ors: string[] = []; if (email) ors.push("email.eq." + email.replace(/[,()]/g, "")); if (phoneKey.length >= 7) ors.push("phone_key.eq." + phoneKey);
+    if (!ors.length) return json(req, 422, { ok: false, error: "A free trial needs an email or a phone number, so we can follow up." });
+    const { data: prev } = await db.from("free_trials").select("name, date").or(ors.join(",")).order("date", { ascending: false }).limit(1).maybeSingle();
+    if (prev) return json(req, 409, { ok: false, error: prev.name + " already had a free trial on " + prev.date + ". Choose a membership or a pay as you go plan instead." });
+  }
   const steps: { name: string; ok: boolean; detail?: string }[] = [];
   const step = (name: string, ok: boolean, detail?: string) => steps.push({ name, ok, detail });
   let contactId: string | null = null, memberId: string | null = null, orderId: string | null = null, orderRow: any = null, userId: string | null = null, checkout: string | null = null;
@@ -127,10 +136,11 @@ Deno.serve(async (req) => {
   if (contactId) await db.from("wix_contacts").upsert({ contact_id: contactId, email, first_name: first, last_name: last || null, full_name: full, phone: phone || null, is_member: true, created_wix: new Date().toISOString(), last_activity: new Date().toISOString(), birthdate: b.birthdate || null, updated_at: new Date().toISOString() }, { onConflict: "contact_id" });
   if (orderId && orderRow) await db.from("wix_orders").upsert({ order_id: orderId, contact_id: contactId, email, first_name: first, full_name: full, plan_name: planName || "Membership", plan_includes: "", amount: amount ?? 0, cycle_unit: unit, status: String(orderRow.status ?? "ACTIVE"), last_payment_status: String(orderRow.lastPaymentStatus ?? "PAID"), cycle_index: 0, cycle_started: orderRow.startDate ?? new Date().toISOString(), end_date: orderRow.endDate ?? null, auto_renew_canceled: false, baseline: true, updated_at: new Date().toISOString() }, { onConflict: "order_id" });
   const { data: rec, error: re } = await db.from("manual_members").insert({ email: email || null, full_name: full, phone: phone || null, birthdate: b.birthdate || null, emergency_name: String(b.emergency_name ?? "").slice(0, 80) || null, emergency_phone: String(b.emergency_phone ?? "").slice(0, 30) || null,
-    plan_id: planId || null, plan_name: planName || null, plan_type: planName ? typeOf(planName) : null, amount, unit: unit || null, start_date: planId ? start : null, paid_how: planId ? pay : null,
+    plan_id: planId || null, plan_name: planName || null, plan_type: planName && !trialKind ? typeOf(planName) : null, amount, unit: unit || null, start_date: planId ? start : null, paid_how: planId ? pay : null,
     wix_contact_id: contactId, wix_member_id: memberId, wix_order_id: orderId, user_id: userId, health: { ...healthRec, taken_by: String(b.taken_by ?? "").slice(0, 80) },
     consents: { terms: true, privacy: true, marketing: !!c.marketing, taken_in_person: true, taken_by: String(b.taken_by ?? "").slice(0, 80), at: new Date().toISOString() }, created_by: u.user.id }).select("id").single();
   if (re) step("Back office record", false, re.message); else step("Back office record", true, "Saved.");
+  if (trialKind) { const { error: te } = await db.from("free_trials").insert({ name: full, email: email || null, phone: phone || null, phone_key: phoneKey || null, class_name: trialKind, date: start, created_by: u.user.id }); step("Free trial", !te, te ? te.message : trialKind + " recorded. They can book their free session from the Schedule or Timetable page (Add someone), or by the website free class form."); }
   await db.from("staff_access_log").insert({ user_id: u.user.id, action: "member_added_in_person", target: email || phone });
   return json(req, 200, { ok: true, steps, checkout_link: checkout, key: email || (rec ? "manual:" + rec.id : "") });
 });

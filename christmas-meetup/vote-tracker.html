@@ -92,6 +92,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     <h2>Add a vote</h2>
     <form id="voteForm" class="row" autocomplete="off">
       <label for="vName">Client name<input type="text" id="vName" required maxlength="80" placeholder="e.g. Maria Santos"></label>
+      <label for="vDish">Food choices (optional)<input type="text" id="vDish" maxlength="400" placeholder="e.g. 3 courses: crab tian, lamb, sundae. No nuts"></label>
       <div class="choices" role="radiogroup" aria-label="Choice">
         <label for="vD"><input type="radio" name="choice" id="vD" value="dinner" required><span>Dinner</span></label>
         <label for="vB"><input type="radio" name="choice" id="vB" value="brunch"><span>Brunch</span></label>
@@ -162,6 +163,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     votes.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).forEach(function (x) {
       var li = document.createElement("li");
       var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = x.name;
+      if (x.dishes) { var ds = document.createElement("div"); ds.className = "note"; ds.textContent = x.dishes; nm.appendChild(ds); }
       var tg = document.createElement("span"); tg.className = "tag " + x.choice; tg.textContent = x.choice === "dinner" ? "Dinner" : "Brunch";
       var bt = document.createElement("button"); bt.type = "button"; bt.className = "ghost"; bt.textContent = "Remove";
       bt.setAttribute("aria-label", "Remove vote from " + x.name);
@@ -188,7 +190,9 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     lines.push("Where: " + (venue ? venue + (addr ? ", " + addr : "") : "[add venue]"));
     lines.push("Price: " + (price ? price + " per person (Festive menu, drinks extra)" : "[add price]"));
     lines.push("");
-    lines.push("The pub needs a non-refundable deposit of £10 per person to confirm the table, and a food order from everyone in advance. [add how to pay the deposit and the date I need your food choices by]");
+    lines.push("The pub needs a non-refundable deposit of £10 per person to confirm the table. [add how to pay the deposit and the date it is due]");
+    lines.push("");
+    lines.push("Thanks for sending your food choices with your vote. I'll pass the full order to the pub.");
     lines.push("");
     lines.push("Please reply to confirm you're coming and tell me about any food allergies or dietary needs.");
     lines.push("");
@@ -214,8 +218,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var ch = document.querySelector('input[name="choice"]:checked');
     if (!name || !ch) return;
     var btn = $("addBtn"); btn.disabled = true;
-    col.doc(slug(name)).set({ name: name, choice: ch.value, at: Date.now() }).then(function () {
-      $("vName").value = ""; ch.checked = false; $("vName").focus();
+    col.doc(slug(name)).set({ name: name, choice: ch.value, dishes: $("vDish").value.trim(), at: Date.now() }).then(function () {
+      $("vName").value = ""; $("vDish").value = ""; ch.checked = false; $("vName").focus();
     }).catch(function (e) {
       showErr(e && e.code === "invalid_argument" ? "You need edit access to add votes." : "Could not save that vote (" + (e && e.code || "error") + ").");
     }).then(function () { btn.disabled = false; });
@@ -228,7 +232,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     col = db.collection("votes");
     col.onSnapshot(function (snap) {
       if (!snap.metadata.fromCache) { clearTimeout(timer); $("status").textContent = ""; }
-      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice, at: x.at || 0 }; });
+      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice, dishes: String(x.dishes || ""), at: x.at || 0 }; });
       render();
     }, function (e) { clearTimeout(timer); $("status").textContent = "Could not load votes (" + (e && e.code || "error") + ")."; });
   }

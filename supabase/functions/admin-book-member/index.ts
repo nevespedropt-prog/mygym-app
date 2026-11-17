@@ -55,9 +55,14 @@ Deno.serve(async (req) => {
 
   try {
     if (b.action === "remove") {
-      const { data: w } = await db.from("walkin_bookings").select("id, wix_booking_id").eq("id", String(b.id ?? "")).maybeSingle();
+      const { data: w } = await db.from("walkin_bookings").select("id, wix_booking_id, kind, class_id").eq("id", String(b.id ?? "")).maybeSingle();
       if (!w) return json(req, 404, { ok: false, error: "That booking was not found. Reload the page." });
       if (w.wix_booking_id && !(await wixCancel(w.wix_booking_id))) return json(req, 502, { ok: false, error: "Wix would not cancel it just now. Try again in a minute." });
+      if (w.kind === "trial") {
+        // the free trial goes back to "waiting for a session": the credit is only used once the session has happened
+        const { data: cl } = await db.from("classes").select("kind").eq("id", w.class_id).maybeSingle();
+        await db.from("free_trials").update({ walkin_id: null, class_id: null, class_name: cl?.kind === "gym" ? "Gym trial" : "Class trial" }).eq("walkin_id", w.id);
+      }
       if (w.wix_booking_id) await db.from("wix_other_bookings").delete().eq("wix_booking_id", w.wix_booking_id);
       await db.from("walkin_bookings").delete().eq("id", w.id);
       await log("walkin_removed", String(w.id));

@@ -43,3 +43,22 @@ end $$;
 revoke all on function public.admin_free_trials() from public, anon;
 grant execute on function public.admin_free_trials() to authenticated;
 notify pgrst, 'reload schema';
+
+-- 2026-11-17: removing a free trial booking gives the credit back. The record is kept (walkin_id null = waiting for a session);
+-- the credit counts as used only once the session date has passed ('state': waiting | booked | used).
+alter table public.free_trials drop constraint if exists free_trials_walkin_id_fkey;
+alter table public.free_trials add constraint free_trials_walkin_id_fkey foreign key (walkin_id) references public.walkin_bookings(id) on delete set null;
+create or replace function public.admin_free_trials() returns jsonb
+language plpgsql stable security definer set search_path = public, auth, pg_temp as $$
+declare r text := public._need(array['admin', 'manager', 'reception']); today text := to_char(now() at time zone 'Europe/London', 'YYYY-MM-DD');
+begin
+  return coalesce((select jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'email', t.email, 'phone', t.phone, 'class', t.class_name, 'date', t.date,
+    'state', case when t.walkin_id is null then 'waiting' when t.date >= today then 'booked' else 'used' end,
+    'used', t.walkin_id is not null,
+    'member', exists (select 1 from public.wix_orders o where t.email is not null and lower(o.email) = lower(t.email) and o.status = 'ACTIVE'))
+    order by (t.walkin_id is null) desc, t.date desc, t.created_at desc)
+    from public.free_trials t), '[]'::jsonb);
+end $$;
+revoke all on function public.admin_free_trials() from public, anon;
+grant execute on function public.admin_free_trials() to authenticated;
+notify pgrst, 'reload schema';

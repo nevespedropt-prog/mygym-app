@@ -193,27 +193,47 @@ Deno.serve(async (req) => {
       const periodEnd: string | null = old ? (old.currentCycle?.endedDate ?? old.endDate ?? null) : null;
 
       if (pay === "in_person") {
-        if (!m.email) return json(req, 422, { ok: false, error: "Wix needs an email address for a plan. Add one first." });
-        if (!m.contactId) return json(req, 422, { ok: false, error: "This person is not in Wix yet. Use Add member to create them with their plan." });
-        const c = await wix("GET", `/contacts/v4/contacts/${m.contactId}`);
-        let memberId: string | null = c.data?.contact?.memberInfo?.memberId ?? null;
-        if (!memberId) {
-          const mem = await wix("POST", "/members/v1/members", { member: { loginEmail: m.email, contact: { firstName: String(b.first ?? "") || undefined } } });
-          if (!mem.ok) return json(req, 502, { ok: false, error: "They have no Wix member account and it could not be created. " + why(mem) });
-          memberId = mem.data?.member?.id ?? null; step("Wix member", true, "Created their Wix member account (needed to record a plan).");
+        // someone added in person with only a phone number (for example a free trial) needs an email before Wix can hold a plan for them
+        let em = m.email, contactId = m.contactId;
+        if (!em) {
+          em = String(b.email ?? "").trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return json(req, 422, { ok: false, error: "Add their email address: Wix needs one to record a plan." });
         }
+        let memberId: string | null = null;
+        if (contactId) {
+          const c = await wix("GET", `/contacts/v4/contacts/${contactId}`);
+          memberId = c.data?.contact?.memberInfo?.memberId ?? null;
+        } else {
+          const { data: wc } = await db.from("wix_contacts").select("contact_id").ilike("email", em).limit(1).maybeSingle();
+          contactId = (wc?.contact_id as string | undefined) ?? null;
+          if (contactId) { const c = await wix("GET", `/contacts/v4/contacts/${contactId}`); memberId = c.data?.contact?.memberInfo?.memberId ?? null; }
+        }
+        if (!memberId) {
+          const nm = String(b.name ?? "").trim().split(/\s+/), fn = nm[0] || String(b.first ?? "") || "Member", ln = nm.slice(1).join(" ");
+          const mem = await wix("POST", "/members/v1/members", { member: { loginEmail: em, contact: { firstName: fn, lastName: ln || undefined, emails: [em] } } });
+          if (!mem.ok) return json(req, 502, { ok: false, error: "They have no Wix member account and it could not be created. " + why(mem) });
+          memberId = mem.data?.member?.id ?? null; contactId = contactId ?? mem.data?.member?.contactId ?? null;
+          step("Wix member", true, "Created their Wix member account (needed to record a plan).");
+        }
+        if (!contactId) return json(req, 422, { ok: false, error: "This person is not in Wix yet. Use Add member to create them with their plan." });
+        if (m.manualId) await db.from("manual_members").update({ email: em, wix_contact_id: contactId, wix_member_id: memberId }).eq("id", m.manualId);
         // deno-lint-ignore no-explicit-any
         const body: any = { memberId, planId, paid: true };
         if (effective === "NEXT_PAYMENT_DATE" && periodEnd && Date.parse(periodEnd) > Date.now()) body.startDate = periodEnd;
         const n = await wix("POST", "/pricing-plans/v2/checkout/orders/offline", body);
         if (!n.ok || !n.data?.order?.id) return json(req, 502, { ok: false, error: "The new plan was not created, so nothing was changed. " + why(n), steps });
         step("New plan", true, "Recorded in Wix as paid in person" + (body.startDate ? ", starting when the old plan ends." : ", starting now."));
-        await db.from("wix_orders").upsert({ order_id: n.data.order.id, contact_id: m.contactId, email: m.email, first_name: String(b.first ?? "") || null, full_name: String(b.name ?? "") || null, plan_name: planName || "Membership", plan_includes: "", amount, cycle_unit: unit, status: String(n.data.order.status ?? "ACTIVE"), last_payment_status: String(n.data.order.lastPaymentStatus ?? "PAID"), cycle_index: 0, cycle_started: n.data.order.startDate ?? new Date().toISOString(), end_date: n.data.order.endDate ?? null, auto_renew_canceled: false, baseline: true, updated_at: new Date().toISOString() }, { onConflict: "order_id" });
+        await db.from("wix_orders").upsert({ order_id: n.data.order.id, contact_id: contactId, email: em, first_name: String(b.first ?? "") || null, full_name: String(b.name ?? "") || null, plan_name: planName || "Membership", plan_includes: "", amount, cycle_unit: unit, status: String(n.data.order.status ?? "ACTIVE"), last_payment_status: String(n.data.order.lastPaymentStatus ?? "PAID"), cycle_index: 0, cycle_started: n.data.order.startDate ?? new Date().toISOString(), end_date: n.data.order.endDate ?? null, auto_renew_canceled: false, baseline: true, updated_at: new Date().toISOString() }, { onConflict: "order_id" });
       } else step("New plan", true, "To be paid by card: open the Wix checkout with them, or send them the link.");
 
       if (old) {
         const c = await cancelOld(oldId, effective as "IMMEDIATELY" | "NEXT_PAYMENT_DATE");
         step("Old plan", c.ok, c.ok ? c.detail : "The old plan could NOT be stopped: " + c.detail + " Cancel it by hand now, or they will be charged for both.");
+      }
+      if (m.manualId && !steps.some((x) => !x.ok)) {
+        // someone added in person (for example on a free trial): their record now shows the real plan
+        const ptype = /personal training/i.test(planName) ? "pt" : /payg|pay as you go/i.test(planName) ? "payg" : /^\s*gym( only)? membership\s*$/i.test(planName) ? "gym" : /gym/i.test(planName) ? "gym_classes" : /class/i.test(planName) ? "classes" : null;
+        await db.from("manual_members").update({ plan_id: planId, plan_name: planName || null, plan_type: ptype, amount: amount || null, unit: unit || null, start_date: new Date().toISOString().slice(0, 10), paid_how: pay }).eq("id", m.manualId);
       }
       await log("member_plan_changed", (oldId || "new") + " -> " + planId);
       const bad = steps.some((s) => !s.ok);

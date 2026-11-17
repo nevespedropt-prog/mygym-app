@@ -5,3 +5,6 @@ free-android-ios-gym-app-.json
 SECURITY-REPORT.md
 supabase/.temp/
 push-private-key.txt
+
+# Keep bank details out of the repo
+*.local.txt

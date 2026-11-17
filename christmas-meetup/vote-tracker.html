@@ -1,0 +1,235 @@
+<title>Christmas Meetup Votes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one narrow column. Tally first, then add-a-vote form, voter list, then the confirmation email builder. */
+:root {
+  --bg: #f4f6f3;
+  --surface: #ffffff;
+  --fg: #1d2420;
+  --muted: #5b6d63;
+  --line: #d5ddd8;
+  --dinner: #16382c;
+  --brunch: #c8553d;
+  --good: #1f7a4d;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Space Grotesk", "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101713; --surface: #18221c; --fg: #e8eee9; --muted: #98aa9f; --line: #2c3a32;
+    --dinner: #5fae8a; --brunch: #e07a62; --good: #5fcf9a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101713; --surface: #18221c; --fg: #e8eee9; --muted: #98aa9f; --line: #2c3a32;
+  --dinner: #5fae8a; --brunch: #e07a62; --good: #5fcf9a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1, h2 { font-family: var(--font-head); margin: 0; text-wrap: balance; }
+h1 { font-size: 28px; line-height: 1.2; }
+h2 { font-size: 18px; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.tally { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.opt { border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-width: 0; }
+.opt .label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.opt .when { font-size: 13px; color: var(--muted); }
+.opt .count { font: 700 40px/1.1 var(--font-head); font-variant-numeric: tabular-nums; margin-top: 6px; }
+.opt.dinner .count { color: var(--dinner); } .opt.brunch .count { color: var(--brunch); }
+.opt.lead { border-width: 2px; }
+.opt.dinner.lead { border-color: var(--dinner); } .opt.brunch.lead { border-color: var(--brunch); }
+.bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; display: flex; }
+.bar span { display: block; height: 100%; transition: width .3s; }
+.bar .d { background: var(--dinner); } .bar .b { background: var(--brunch); }
+.verdict { font-weight: 600; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+input[type=text], textarea, select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; width: 100%; }
+textarea { min-height: 220px; resize: vertical; line-height: 1.5; }
+:focus-visible { outline: 2px solid var(--dinner); outline-offset: 2px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.row > label { flex: 1 1 180px; }
+.choices { display: flex; gap: 8px; }
+.choices input { position: absolute; opacity: 0; pointer-events: none; }
+.choices label { flex-direction: row; cursor: pointer; border: 1px solid var(--line); border-radius: 6px; padding: 10px 16px; color: var(--fg); font-size: 15px; }
+.choices input:checked + span { font-weight: 700; }
+.choices label:has(input:checked) { border-color: var(--fg); background: var(--bg); }
+.choices label:has(input:focus-visible) { outline: 2px solid var(--dinner); }
+button { font: inherit; font-weight: 600; border: 0; border-radius: 6px; padding: 10px 18px; background: var(--dinner); color: var(--bg); cursor: pointer; }
+button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 4px 10px; font-weight: 500; font-size: 13px; }
+button:disabled { opacity: .5; cursor: default; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); min-width: 0; }
+li:first-child { border-top: 0; }
+li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tag { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; border: 1px solid currentColor; }
+.tag.dinner { color: var(--dinner); } .tag.brunch { color: var(--brunch); }
+.note { font-size: 13px; color: var(--muted); }
+.err { color: var(--brunch); font-size: 13px; }
+@media (max-width: 420px) { .tally { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+
+<main>
+  <header>
+    <h1>Christmas meetup votes</h1>
+    <p class="sub">Add each reply as it comes in. The tally and the confirmation email update by themselves.</p>
+  </header>
+
+  <section class="panel" aria-live="polite">
+    <div class="tally">
+      <div class="opt dinner" id="optD"><div class="label">Dinner</div><div class="when">Fri 18 Dec, 7:00 pm</div><div class="count" id="cD">0</div></div>
+      <div class="opt brunch" id="optB"><div class="label">Brunch</div><div class="when">Sat 19 Dec, 12:00 pm</div><div class="count" id="cB">0</div></div>
+    </div>
+    <div class="bar" aria-hidden="true"><span class="d" id="barD" style="width:0"></span><span class="b" id="barB" style="width:0"></span></div>
+    <div class="verdict" id="verdict">No votes yet.</div>
+    <div class="note" id="status"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Add a vote</h2>
+    <form id="voteForm" class="row" autocomplete="off">
+      <label for="vName">Client name<input type="text" id="vName" required maxlength="80" placeholder="e.g. Maria Santos"></label>
+      <div class="choices" role="radiogroup" aria-label="Choice">
+        <label for="vD"><input type="radio" name="choice" id="vD" value="dinner" required><span>Dinner</span></label>
+        <label for="vB"><input type="radio" name="choice" id="vB" value="brunch"><span>Brunch</span></label>
+      </div>
+      <button type="submit" id="addBtn">Add vote</button>
+    </form>
+    <div class="note">One vote per name. Adding the same name again changes that person's vote.</div>
+    <div class="err" id="err" hidden></div>
+  </section>
+
+  <section class="panel">
+    <h2>Votes <span class="note" id="total"></span></h2>
+    <ul id="list"></ul>
+    <div class="note" id="empty">Nothing here yet. Add the first reply above.</div>
+  </section>
+
+  <section class="panel">
+    <h2>Confirmation email</h2>
+    <div class="row">
+      <label for="cDay">Day to confirm
+        <select id="cDay"><option value="auto">Winner by votes</option><option value="dinner">Dinner, Fri 18 Dec</option><option value="brunch">Brunch, Sat 19 Dec</option></select>
+      </label>
+      <label for="cPrice">Price per person<input type="text" id="cPrice" placeholder="e.g. 35 euros"></label>
+    </div>
+    <div class="row">
+      <label for="cVenue">Venue<input type="text" id="cVenue" placeholder="Restaurant name"></label>
+      <label for="cAddr">Address<input type="text" id="cAddr" placeholder="Street, city"></label>
+    </div>
+    <label for="cText">Email text<textarea id="cText" readonly></textarea></label>
+    <div class="row"><button id="copyBtn" type="button">Copy email text</button><span class="note" id="copyMsg"></span></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var votes = [];
+  var col = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var DAY = { dinner: "Friday 18 December at 7:00 pm", brunch: "Saturday 19 December at 12:00 pm" };
+  var NAME = { dinner: "dinner", brunch: "brunch" };
+
+  function slug(s) {
+    var t = s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return t || ("v" + Date.now());
+  }
+  function counts() {
+    var c = { dinner: 0, brunch: 0 };
+    votes.forEach(function (v) { if (c[v.choice] !== undefined) c[v.choice]++; });
+    return c;
+  }
+  function winner(c) { return c.dinner === c.brunch ? null : (c.dinner > c.brunch ? "dinner" : "brunch"); }
+
+  function render() {
+    var c = counts(), n = c.dinner + c.brunch, w = winner(c);
+    $("cD").textContent = c.dinner; $("cB").textContent = c.brunch;
+    $("barD").style.width = n ? (c.dinner / n * 100) + "%" : "0";
+    $("barB").style.width = n ? (c.brunch / n * 100) + "%" : "0";
+    $("optD").classList.toggle("lead", w === "dinner");
+    $("optB").classList.toggle("lead", w === "brunch");
+    var v;
+    if (!n) v = "No votes yet.";
+    else if (!w) v = "Tied at " + c.dinner + " each. You pick the day, or wait for more replies.";
+    else v = (w === "dinner" ? "Dinner" : "Brunch") + " leads " + Math.max(c.dinner, c.brunch) + " to " + Math.min(c.dinner, c.brunch) + ".";
+    $("verdict").textContent = v;
+    $("total").textContent = n ? "(" + n + ")" : "";
+
+    var ul = $("list"); ul.textContent = "";
+    votes.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).forEach(function (x) {
+      var li = document.createElement("li");
+      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = x.name;
+      var tg = document.createElement("span"); tg.className = "tag " + x.choice; tg.textContent = x.choice === "dinner" ? "Dinner" : "Brunch";
+      var bt = document.createElement("button"); bt.type = "button"; bt.className = "ghost"; bt.textContent = "Remove";
+      bt.setAttribute("aria-label", "Remove vote from " + x.name);
+      bt.addEventListener("click", function () {
+        col.doc(x.id).delete().catch(function (e) { showErr("Could not remove that vote (" + (e && e.code || "error") + ")."); });
+      });
+      li.appendChild(nm); li.appendChild(tg); li.appendChild(bt); ul.appendChild(li);
+    });
+    $("empty").hidden = n > 0;
+    buildEmail();
+  }
+
+  function buildEmail() {
+    var c = counts(), sel = $("cDay").value, day = sel === "auto" ? winner(c) : sel;
+    if (!day) { $("cText").value = "Pick a day above, or wait until one option leads, and the email text appears here."; return; }
+    var lines = ["Hi everyone,", ""];
+    var n = c.dinner + c.brunch;
+    var lead = c[day], other = c[day === "dinner" ? "brunch" : "dinner"];
+    if (sel === "auto" || lead > other) lines.push("The votes are in. " + (day === "dinner" ? "Dinner" : "Brunch") + " won, " + lead + " votes to " + other + ", out of " + n + " replies.");
+    else lines.push("Thanks for voting. We got " + n + " replies and I'm going with " + NAME[day] + ".");
+    lines.push("");
+    lines.push("When: " + DAY[day]);
+    var venue = $("cVenue").value.trim(), addr = $("cAddr").value.trim(), price = $("cPrice").value.trim();
+    lines.push("Where: " + (venue ? venue + (addr ? ", " + addr : "") : "[add venue]"));
+    lines.push("Price: " + (price ? price + " per person" : "[add price]"));
+    lines.push("");
+    lines.push("Reply to this email to confirm you're coming and tell me about any food allergies or dietary needs.");
+    lines.push("");
+    lines.push("See you there,");
+    lines.push("Pedro");
+    $("cText").value = lines.join("\n");
+  }
+
+  function showErr(m) { var e = $("err"); e.textContent = m; e.hidden = !m; }
+
+  ["cDay", "cPrice", "cVenue", "cAddr"].forEach(function (id) { $(id).addEventListener("input", buildEmail); });
+  $("copyBtn").addEventListener("click", function () {
+    var ta = $("cText"), msg = $("copyMsg");
+    function ok() { msg.textContent = "Copied."; }
+    function fb() { ta.removeAttribute("readonly"); ta.select(); try { document.execCommand("copy"); ok(); } catch (e) { msg.textContent = "Select the text and copy it by hand."; } ta.setAttribute("readonly", ""); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(ok, fb); else fb();
+  });
+
+  $("voteForm").addEventListener("submit", function (ev) {
+    ev.preventDefault(); showErr("");
+    if (!col) { showErr("The vote store is not available in this view."); return; }
+    var name = $("vName").value.trim();
+    var ch = document.querySelector('input[name="choice"]:checked');
+    if (!name || !ch) return;
+    var btn = $("addBtn"); btn.disabled = true;
+    col.doc(slug(name)).set({ name: name, choice: ch.value, at: Date.now() }).then(function () {
+      $("vName").value = ""; ch.checked = false; $("vName").focus();
+    }).catch(function (e) {
+      showErr(e && e.code === "invalid_argument" ? "You need edit access to add votes." : "Could not save that vote (" + (e && e.code || "error") + ").");
+    }).then(function () { btn.disabled = false; });
+  });
+
+  render();
+  var timer = setTimeout(function () { $("status").textContent = "Still connecting to the vote store."; }, 10000);
+  function start(db) {
+    if (!db) { clearTimeout(timer); $("status").textContent = "The vote store is not available in this view. Open the page while signed in."; return; }
+    col = db.collection("votes");
+    col.onSnapshot(function (snap) {
+      if (!snap.metadata.fromCache) { clearTimeout(timer); $("status").textContent = ""; }
+      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice, at: x.at || 0 }; });
+      render();
+    }, function (e) { clearTimeout(timer); $("status").textContent = "Could not load votes (" + (e && e.code || "error") + ")."; });
+  }
+  if (window.claude && window.claude.use) window.claude.use("db").then(start, function () { start(null); }); else start(null);
+})();
+</script>

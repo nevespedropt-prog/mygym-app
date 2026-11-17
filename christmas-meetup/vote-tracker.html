@@ -80,8 +80,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
   <section class="panel" aria-live="polite">
     <div class="tally">
-      <div class="opt dinner" id="optD"><div class="label">Dinner</div><div class="when">Fri 18 Dec, 7:00 pm</div><div class="count" id="cD">0</div></div>
-      <div class="opt brunch" id="optB"><div class="label">Brunch</div><div class="when">Sat 19 Dec, 12:00 pm</div><div class="count" id="cB">0</div></div>
+      <div class="opt dinner" id="optD"><div class="label">Dinner</div><div class="when">Sat 19 Dec, 7:00 pm</div><div class="count" id="cD">0</div></div>
+      <div class="opt brunch" id="optB"><div class="label">Brunch</div><div class="when">Sun 20 Dec, 12:00 pm</div><div class="count" id="cB">0</div></div>
     </div>
     <div class="bar" aria-hidden="true"><span class="d" id="barD" style="width:0"></span><span class="b" id="barB" style="width:0"></span></div>
     <div class="verdict" id="verdict">No votes yet.</div>
@@ -112,7 +112,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     <h2>Confirmation email</h2>
     <div class="row">
       <label for="cDay">Day to confirm
-        <select id="cDay"><option value="auto">Winner by votes</option><option value="dinner">Dinner, Fri 18 Dec</option><option value="brunch">Brunch, Sat 19 Dec</option></select>
+        <select id="cDay"><option value="auto">Winner by votes</option><option value="dinner">Dinner, Sat 19 Dec</option><option value="brunch">Brunch, Sun 20 Dec</option></select>
       </label>
       <label for="cPrice">Price per person<input type="text" id="cPrice" value="£33 for two courses, £38 for three"></label>
     </div>
@@ -130,7 +130,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   var votes = [];
   var col = null;
   var $ = function (id) { return document.getElementById(id); };
-  var DAY = { dinner: "Friday 18 December at 7:00 pm", brunch: "Saturday 19 December at 12:00 pm" };
+  var DAY = { dinner: "Saturday 19 December at 7:00 pm", brunch: "Sunday 20 December at 12:00 pm" };
   var NAME = { dinner: "dinner", brunch: "brunch" };
 
   function slug(s) {
@@ -193,7 +193,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     lines.push("Please reply to confirm you're coming and tell me about any food allergies or dietary needs.");
     lines.push("");
     lines.push("See you there,");
-    lines.push("Pedro");
+    lines.push("Pedro, MY GYM London");
     $("cText").value = lines.join("\n");
   }
 

@@ -114,11 +114,11 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
       <label for="cDay">Day to confirm
         <select id="cDay"><option value="auto">Winner by votes</option><option value="dinner">Dinner, Fri 18 Dec</option><option value="brunch">Brunch, Sat 19 Dec</option></select>
       </label>
-      <label for="cPrice">Price per person<input type="text" id="cPrice" placeholder="e.g. 35 euros"></label>
+      <label for="cPrice">Price per person<input type="text" id="cPrice" value="£33 for two courses, £38 for three"></label>
     </div>
     <div class="row">
-      <label for="cVenue">Venue<input type="text" id="cVenue" placeholder="Restaurant name"></label>
-      <label for="cAddr">Address<input type="text" id="cAddr" placeholder="Street, city"></label>
+      <label for="cVenue">Venue<input type="text" id="cVenue" value="The Old Wheatsheaf"></label>
+      <label for="cAddr">Address<input type="text" id="cAddr" value="3 Windmill Hill, Enfield EN2 6SE"></label>
     </div>
     <label for="cText">Email text<textarea id="cText" readonly></textarea></label>
     <div class="row"><button id="copyBtn" type="button">Copy email text</button><span class="note" id="copyMsg"></span></div>
@@ -186,9 +186,11 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     lines.push("When: " + DAY[day]);
     var venue = $("cVenue").value.trim(), addr = $("cAddr").value.trim(), price = $("cPrice").value.trim();
     lines.push("Where: " + (venue ? venue + (addr ? ", " + addr : "") : "[add venue]"));
-    lines.push("Price: " + (price ? price + " per person" : "[add price]"));
+    lines.push("Price: " + (price ? price + " per person (Festive menu, drinks extra)" : "[add price]"));
     lines.push("");
-    lines.push("Reply to this email to confirm you're coming and tell me about any food allergies or dietary needs.");
+    lines.push("The pub needs a non-refundable deposit of £10 per person to confirm the table, and a food order from everyone in advance. [add how to pay the deposit and the date I need your food choices by]");
+    lines.push("");
+    lines.push("Please reply to confirm you're coming and tell me about any food allergies or dietary needs.");
     lines.push("");
     lines.push("See you there,");
     lines.push("Pedro");

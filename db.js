@@ -386,6 +386,29 @@
       if (error) throw new Error(error.message || 'Could not withdraw. Try again.');
     },
 
+    /* ---- what this member may see (waiting list, friend link): switched on for everyone at launch ---- */
+    async features() {
+      if (!LIVE) return {};
+      const { data, error } = await sb.rpc('my_features');
+      return error ? {} : (data || {});
+    },
+    async myWaitlist() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.rpc('my_waitlist');
+      return error ? [] : (data || []);
+    },
+    async waitlistJoin(classId, date) {
+      if (!LIVE) throw new Error('Not available in demo mode.');
+      const { data, error } = await sb.rpc('waitlist_join', { p_class: classId, p_date: date });
+      if (error) throw new Error(error.message || 'Could not join the waiting list.');
+      return data;
+    },
+    async waitlistLeave(classId, date) {
+      if (!LIVE) return;
+      const { error } = await sb.rpc('waitlist_leave', { p_class: classId, p_date: date });
+      if (error) throw new Error(error.message || 'Could not leave the waiting list.');
+    },
+
     async saveProfile(patch) {
       const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
       if (!LIVE) {

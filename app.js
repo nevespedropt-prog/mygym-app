@@ -206,6 +206,16 @@
   /* ---------- TIMETABLE (everyone; booking for members) ---------- */
   let bkCache = null; // { t, data } — reused for 30s when only the day changes
   let ttMode = 'classes'; // 'classes' | 'gym'
+  let feat = null, featFor = null, wlMap = new Map();   // what this member may see (waiting list, friend link) and their waiting-list places
+  async function ensureFeatures() {
+    if (!me) { feat = null; featFor = null; return {}; }
+    if (feat && featFor === me.id) return feat;
+    try { feat = await DB.features(); } catch (e) { feat = {}; }
+    featFor = me.id;
+    wlMap = new Map();
+    if (feat.waitlist) { try { (await DB.myWaitlist()).forEach((w) => wlMap.set(w.class_id + '|' + w.date, w.position)); } catch (e) { /* keep empty */ } }
+    return feat;
+  }
   let ttFlash = '';       // a message to show once after the list redraws (e.g. "That class has already started")
   const isGym = (c) => c.kind === 'gym';
   /* gym hours are for Gym & Exercise Class members. The server decides (and enforces it when booking);
@@ -262,6 +272,7 @@
   }
   async function renderTimetable(reuse) {
     await ensureClasses();
+    await ensureFeatures();
     await refreshCancelled();
     const hasGym = classes.some(isGym);
     if (!hasGym) ttMode = 'classes';
@@ -385,6 +396,20 @@
         const locked = gym && gymState !== 'yes';
         b.textContent = locked ? (gymState === 'error' ? 'Try again' : 'Members only') : started ? 'Started' : 'Book';
         b.disabled = locked || left <= 0 || started;
+        if (left <= 0 && !started && !locked && feat && feat.waitlist) {
+          const pos = wlMap.get(c.id + '|' + iso);
+          b.textContent = pos ? 'Waitlist #' + pos : 'Join waitlist'; b.className = 'btn-small' + (pos ? ' ghost' : ''); b.disabled = false;
+          b.title = pos ? 'Tap to leave the waiting list' : 'We will email you if a space opens';
+          b.addEventListener('click', async () => {
+            b.disabled = true;
+            try {
+              if (pos) { await DB.waitlistLeave(c.id, iso); ttFlash = 'You have left the waiting list.'; }
+              else { const r = await DB.waitlistJoin(c.id, iso); ttFlash = 'You are number ' + (r && r.position || 1) + ' in line. We will email you if a space opens, then it goes to the first person to book.'; }
+              feat = null; refreshAfterBooking();
+            } catch (e) { b.disabled = false; $('#ttNote').textContent = (e && e.message) || 'Could not update the waiting list.'; }
+          });
+          act.appendChild(b); row.appendChild(act); return row;
+        }
         b.addEventListener('click', async () => {
           if (hasStarted(iso, c.start_time)) { ttFlash = 'That ' + (gym ? 'hour' : 'class') + ' has already started.'; refreshAfterBooking(); return; }
           if (healthRec !== undefined && !healthOk()) { openHealth(true); return; }
@@ -501,6 +526,7 @@
   /* ---------- BOOKINGS (member) ---------- */
   async function renderBookings() {
     await ensureClasses();
+    await ensureFeatures();
     const up = $('#upcomingBox'); up.textContent = '';
     let upcoming = [];
     try { upcoming = await upcomingBookings(); } catch (e) {}
@@ -526,9 +552,34 @@
         catch (e) { row.style.display = ''; b.disabled = false; }
       });
       act.appendChild(b);
+      /* one tap to book the same class again next week */
+      const nd = new Date(x.date + 'T12:00:00'); nd.setDate(nd.getDate() + 7); const nextIso = fmtISO(nd);
+      const nextBooked = upcoming.some((y) => y.class.id === x.class.id && y.date === nextIso);
+      const rb = el('button', 'btn-small', nextBooked ? 'Booked next week' : 'Same time next week');
+      rb.disabled = nextBooked; rb.style.marginLeft = '6px'; rb.title = 'Book ' + x.class.name + ' again, ' + fmtShort(nextIso);
+      rb.addEventListener('click', async () => {
+        rb.disabled = true; rb.textContent = 'Booking...';
+        try { await DB.book(x.class.id, nextIso); bkCache = null; renderBookings(); }
+        catch (e) { rb.disabled = false; rb.textContent = 'Same time next week'; rb.title = (e && e.message) || 'Could not book that. Check the Timetable.'; up.insertBefore(el('p', 'note', (e && e.message) || 'Could not book next week. Check the Timetable.'), up.firstChild); }
+      });
+      act.appendChild(rb);
       row.appendChild(act);
       up.appendChild(row);
     });
+    /* classes the member is waiting for a space in */
+    if (feat && feat.waitlist) {
+      let wl = []; try { wl = await DB.myWaitlist(); } catch (e) { wl = []; }
+      if (wl.length) {
+        up.appendChild(el('h3', '', 'On the waiting list'));
+        wl.forEach((w) => {
+          const r2 = el('div', 'slot'); r2.appendChild(el('span', 'time', String(w.start_time).slice(0, 5)));
+          const wh = el('span', 'what'); wh.appendChild(el('b', '', w.name)); wh.appendChild(el('small', '', fmtShort(w.date) + ' · number ' + w.position + ' in line' + (w.notified ? ' · a space opened, book it now' : ''))); r2.appendChild(wh);
+          const ac = el('span', 'act'); const lv = el('button', 'btn-small ghost', 'Leave');
+          lv.addEventListener('click', async () => { lv.disabled = true; try { await DB.waitlistLeave(w.class_id, w.date); feat = null; renderBookings(); } catch (e) { lv.disabled = false; } });
+          ac.appendChild(lv); r2.appendChild(ac); up.appendChild(r2);
+        });
+      }
+    }
 
     // recent history (past 90 days)
     const past = $('#pastBox'); past.textContent = '';
@@ -545,6 +596,11 @@
         left.appendChild(el('small', '', fmtShort(b.date) + (c ? ' · ' + c.start_time : '')));
         row.appendChild(left);
         row.appendChild(b.cancelled ? el('small', '', 'Cancelled') : el('small', '✅', ''));
+        if (c && !isGym(c)) {
+          const ag = el('button', 'btn-small ghost', 'Book again'); ag.style.marginLeft = '8px';
+          ag.addEventListener('click', () => { ttMode = 'classes'; go('timetable'); });
+          row.appendChild(ag);
+        }
         past.appendChild(row);
       });
     }
@@ -1607,7 +1663,31 @@
       card.append(open, form);
     }
   }
+  /* Bring a friend: a personal link that gives a friend a free class (shown once the friend link is switched on) */
+  async function renderFriend() {
+    const box = $('#friendCard'); if (!box) return;
+    const f = await ensureFeatures();
+    box.textContent = '';
+    if (!f || !f.friend_pass || !f.referral_code) { box.hidden = true; return; }
+    box.hidden = false;
+    const link = 'https://www.mygymlondon.co.uk/?ref=' + encodeURIComponent(f.referral_code) + '#free-class';
+    const card = el('div', 'card');
+    card.appendChild(el('h3', '', 'Bring a friend'));
+    card.appendChild(el('p', 'sub', 'Send your friend this link. They get a free class, and when they join you get 100% off your next month.'));
+    const row = el('div', ''); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const share = el('button', 'btn-small', 'Share the link');
+    const copy = el('button', 'btn-small ghost', 'Copy link');
+    const msg = 'Come and try MY GYM London with me. Your first class is free: ' + link;
+    share.addEventListener('click', async () => {
+      if (navigator.share) { try { await navigator.share({ title: 'MY GYM London', text: msg }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    });
+    copy.addEventListener('click', async () => { try { await navigator.clipboard.writeText(link); copy.textContent = 'Copied'; } catch (e) { copy.textContent = link; } });
+    row.append(share, copy); card.appendChild(row);
+    box.appendChild(card);
+  }
   async function renderProfile() {
+    renderFriend();
     renderReminders();
     renderMembership();
     renderHealthProfile();

@@ -71,7 +71,7 @@
 
   function setNav() {
     const ab = $('#authBtn');
-    ab.textContent = authed ? '👤 Me' : 'Log in';
+    ab.textContent = authed ? '👤 Account' : 'Log in';
     ab.classList.toggle('ghost', !authed);
     $('#demoBanner').style.display = DB.isLive() ? 'none' : 'block';
   }
@@ -146,7 +146,7 @@
     $('#aSubmit').disabled = true;
     try {
       if (authMode === 'up') {
-        const wantsNews = $('#aNews').checked;
+        const wantsNews = $('#aNews').checked;   // ticked by default; the wording says it can be switched off any time
         const res = await DB.signUp(email, pass, $('#aName').value.trim());
         if (DB.isLive() && !(res && res.session)) {
           $('#authSub').textContent = '✅ Account created — check your email to confirm, then log in.';
@@ -438,23 +438,26 @@
     box.textContent = '';
     if (!m) { box.hidden = true; return; }
     box.hidden = false;
-    const card = el('div', 'card'); card.style.cssText = 'display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap';
-    const txt = el('div', ''); const p = m.plan;
+    const p = m.plan;
     if (p) {
-      const st = p.status === 'paused' ? 'Paused' : p.cancelling ? 'Ending' : 'Active';
-      txt.appendChild(el('b', '', p.name + ' · ' + st));
+      const vc = memCardVisual(m); vc.style.cursor = 'pointer'; vc.setAttribute('role', 'button'); vc.tabIndex = 0;
+      const open = () => { go('profile'); pTab('mem'); };
+      vc.addEventListener('click', open); vc.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+      box.appendChild(vc);
       const bits = [];
       if (p.next_payment && p.status === 'active' && !p.cancelling) bits.push('Next payment ' + fmtD(p.next_payment));
       if (p.payment_failed) bits.push('Payment needs attention');
       if (m.credits > 0) bits.push(m.credits + (m.credits === 1 ? ' class credit' : ' class credits'));
       if (m.request && m.request.status === 'received') bits.push('Request received');
-      if (bits.length) txt.appendChild(el('div', 'sub', bits.join(' · ')));
-    } else {
-      txt.appendChild(el('b', '', 'No membership yet'));
-      txt.appendChild(el('div', 'sub', 'Join to book classes and the gym, or pay as you go.'));
+      if (bits.length) { const l = el('div', 'sub', bits.join(' · ') + ' · tap the card for details'); l.style.cssText = 'margin:8px 4px 0;text-align:center'; box.appendChild(l); }
+      return;
     }
-    const go1 = el('button', 'btn-small', p ? 'My membership ›' : 'See options ›');
-    go1.addEventListener('click', () => { go('profile'); });
+    const card = el('div', 'card'); card.style.cssText = 'display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap';
+    const txt = el('div', '');
+    txt.appendChild(el('b', '', 'No membership yet'));
+    txt.appendChild(el('div', 'sub', 'Join to book classes and the gym, or pay as you go.'));
+    const go1 = el('button', 'btn-small', 'See options ›');
+    go1.addEventListener('click', () => { go('profile'); pTab('mem'); });
     card.append(txt, go1); box.appendChild(card);
   }
   async function renderDash() {
@@ -1398,7 +1401,7 @@
   function paintLocks() { document.body.classList.toggle('hlock', !!(authed && healthRec !== undefined && !healthOk())); }
   function openHealth(locked) {              // send the member to the Health & safety card on their Profile page
     healthOpen = true; healthDirty = false;
-    go('profile');
+    go('profile'); pTab('health');
     setTimeout(() => {
       const c = $('#healthCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' });
       if (locked) toast($('#hMsg'), 'Complete this form to unlock Bookings, Log and Progress.', true);
@@ -1597,41 +1600,70 @@
     if (authed && h && document.getElementById(h) && document.getElementById(h).classList.contains('view')) go(h);
   });
 
-  /* ---- My membership (Profile): plan, next payment, credits, and a request to pause, cancel or change ---- */
+  /* ---- Account tabs: Membership | Details | Health | Settings ---- */
+  function pTab(t) {
+    const pv = $('#profile'); if (!pv) return;
+    if (['mem', 'det', 'health', 'set'].indexOf(t) === -1) t = 'mem';
+    pv.setAttribute('data-tab', t);
+    $$('#pTabs button').forEach((b) => b.classList.toggle('sel', b.getAttribute('data-t') === t));
+    try { sessionStorage.setItem('mygym_ptab', t); } catch (e) { /* private window */ }
+  }
+  document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#pTabs button'); if (b) { pTab(b.getAttribute('data-t')); window.scrollTo({ top: 0 }); } });
+  pTab('mem');
+
+  /* ---- Membership hub (Account → Membership): card, usage, billing, manage plan ---- */
   const fmtD = (d) => d ? new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const isoPlus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const money = (a) => '£' + Number(a).toFixed(a % 1 ? 2 : 0);
+  /* the visual membership card: used in the hub and, smaller, on Home */
+  function memCardVisual(m) {
+    const p = m.plan; const st = p.status === 'paused' ? 'Paused' : p.cancelling ? 'Ending' : 'Active';
+    const per = { MONTH: 'every month', WEEK: 'every week', YEAR: 'every year' }[p.unit] || '';
+    const c = el('div', 'mcard');
+    const top = el('div', 'mt'); top.append(el('span', '', 'MY GYM London'), el('span', 'chip2', st)); c.appendChild(top);
+    c.appendChild(el('div', 'mn', p.name));
+    if (p.amount) c.appendChild(el('div', 'mp', money(p.amount) + ' ' + per));
+    const bt = el('div', 'mb');
+    const l = el('div', ''); l.append(el('span', '', 'Member'), el('b', '', (profile && profile.full_name) || ''));
+    const r = el('div', ''); r.style.textAlign = 'right'; r.append(el('span', '', 'Member since'), el('b', '', fmtD(m.member_since || p.started)));
+    bt.append(l, r); c.appendChild(bt);
+    return c;
+  }
   async function renderMembership() {
     const box = $('#memCard'); if (!box) return;
     let m = null; try { m = await DB.getMembership(); } catch (e) { m = null; }
     box.textContent = '';
     if (!m) { box.hidden = true; return; }
     box.hidden = false;
-    const card = el('div', 'card'); box.appendChild(card);
-    card.appendChild(el('h3', '', 'My membership'));
-    if (!m.plan && !m.request && !m.credits) {
+    const p = m.plan;
+    if (!p && !m.request && !m.credits) {
+      const card = el('div', 'card'); box.appendChild(card);
+      card.appendChild(el('h3', '', 'My membership'));
       card.appendChild(el('p', 'sub', 'Your account is ready. You do not have a membership yet. Members book classes and gym slots here. You can also pay as you go for a single class on our website.'));
       const a1 = el('a', 'btn-small', 'See memberships →'); a1.href = 'https://www.mygymlondon.co.uk/pricing-plans/memberships'; a1.target = '_blank'; a1.rel = 'noopener'; card.appendChild(a1);
       const a2 = el('a', 'btn-small', 'Pay as you go →'); a2.href = 'https://www.mygymlondon.co.uk/our-classes'; a2.target = '_blank'; a2.rel = 'noopener'; a2.style.marginLeft = '8px'; card.appendChild(a2);
       return;
     }
-    const p = m.plan;
+    if (p) box.appendChild(memCardVisual(m));
+    const u = m.usage || {};
     if (p) {
-      const per = { MONTH: 'every month', WEEK: 'every week', YEAR: 'every year' }[p.unit] || '';
-      const top = el('div', ''); top.style.cssText = 'background:linear-gradient(135deg,#e03939,#a03535);color:#fff;border-radius:16px;padding:14px;margin-bottom:10px';
-      const st = el('b', '', p.status === 'paused' ? 'Paused' : p.cancelling ? 'Ending' : 'Active'); st.style.cssText = 'font-size:12px;background:rgba(255,255,255,.22);border-radius:999px;padding:2px 10px';
-      const nm = el('div', '', p.name); nm.style.cssText = 'font:800 22px/1.1 var(--disp);text-transform:uppercase;margin-top:8px';
-      const pr = el('div', '', (p.amount ? '£' + Number(p.amount).toFixed(p.amount % 1 ? 2 : 0) + ' ' + per : '')); pr.style.cssText = 'font:800 28px var(--disp);margin-top:4px';
-      top.append(st, nm, pr); card.appendChild(top);
-      const rows = [];
-      if (p.started) rows.push(['Started', fmtD(p.started)]);
-      if (p.next_payment && p.status === 'active' && !p.cancelling) rows.push(['Next payment', fmtD(p.next_payment)]);
-      if (p.ends && (p.cancelling || p.status !== 'active')) rows.push([p.cancelling ? 'Ends' : 'Until', fmtD(p.ends)]);
-      rows.push(['You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : p.type === 'gym' ? 'Gym slots' : 'See your plan']);
-      rows.forEach(([k, v]) => { const r = el('div', ''); r.style.cssText = 'display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)'; r.append(el('span', '', k), el('b', '', v)); card.appendChild(r); });
-      if (p.payment_failed) { const w = el('div', 'err', 'Your last payment did not go through. We try again 5 days after the failed attempt. To avoid your membership being suspended, update your card with the button below.'); w.style.marginTop = '10px'; card.appendChild(w); }
-      const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:10px'; card.appendChild(upd);
+      const st = el('div', 'stats'); st.style.marginTop = '12px';
+      [[u.month || 0, 'visits this month'], [u.d30 || 0, 'last 30 days'], [m.credits || 0, m.credits === 1 ? 'class credit' : 'class credits']].forEach(([n, t]) => { const s = el('div', 'stat'); s.append(el('b', '', String(n)), el('small', '', t)); st.appendChild(s); });
+      box.appendChild(st);
     }
-    if (m.credits > 0) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. Ask us at the gym to use it.'); c.style.cssText = 'margin-top:10px;background:#e6f5ec;border-radius:12px;padding:10px'; card.appendChild(c); }
+    const card = el('div', 'card'); box.appendChild(card);
+    if (p) {
+      if (p.payment_failed) { const w = el('div', 'err', 'Your last payment did not go through. We try again 5 days after the failed attempt. To avoid your membership being suspended, update your card with the button below.'); w.style.marginBottom = '10px'; card.appendChild(w); }
+      const rows = el('div', 'mrows'); card.appendChild(rows);
+      const add = (k, v) => { const r = el('div', 'mrow'); r.append(el('span', '', k), el('b', '', v)); rows.appendChild(r); };
+      if (p.next_payment && p.status === 'active' && !p.cancelling) add('Next payment', fmtD(p.next_payment) + (p.amount ? ' · ' + money(p.amount) : ''));
+      if (p.ends && (p.cancelling || p.status !== 'active')) add(p.cancelling ? 'Ends' : 'Until', fmtD(p.ends));
+      add('You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : p.type === 'gym' ? 'Gym slots' : 'See your plan');
+      if (u.next) add('Next booking', fmtShort(u.next.date) + ' · ' + (u.next.time || '').slice(0, 5) + ' ' + (u.next.name || ''));
+      if (u.last_visit) add('Last visit', fmtShort(u.last_visit));
+      const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:12px'; card.appendChild(upd);
+    }
+    if (m.credits > 0) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. Ask us at the gym to use it.'); c.style.cssText = 'margin-top:12px;background:#e6f5ec;border-radius:12px;padding:10px 12px;font-size:14px'; card.appendChild(c); }
     const q = m.request;
     if (q && q.status === 'received') {
       const lbl = { pause: 'Pause', cancel: 'Cancel', change: 'Change plan' }[q.type];
@@ -1644,23 +1676,28 @@
       if (q && (q.status === 'done' || q.status === 'declined') && q.resolved_at && Date.now() - new Date(q.resolved_at).getTime() < 14 * 864e5) {
         const d = el('div', 'sub', q.status === 'done' ? 'Your last request (' + q.type + ') was confirmed on ' + fmtD(q.resolved_at) + '.' : 'Your last request could not be done. We will be in touch.'); d.style.marginTop = '10px'; card.appendChild(d);
       }
-      const open = el('button', 'btn-small', 'Pause, cancel or change my plan'); open.style.cssText = 'margin-top:12px;display:block';
-      const form = el('div', ''); form.hidden = true; form.style.marginTop = '10px';
+      card.appendChild(el('b', '', 'Manage my plan')).style.cssText = 'display:block;margin-top:16px';
+      const grid = el('div', 'mgrid'); card.appendChild(grid);
+      const form = el('div', ''); form.hidden = true; form.style.marginTop = '12px';
       const sel = el('select', ''); [['pause', 'Pause my membership'], ['cancel', 'Cancel my membership'], ['change', 'Change my plan']].forEach(([v, t]) => { const o = el('option', '', t); o.value = v; sel.appendChild(o); });
       const date = el('input', ''); date.type = 'date'; date.min = isoPlus(0); date.max = isoPlus(90); date.value = p.next_payment || isoPlus(7);
       const why = el('select', ''); ['', 'Moving away', 'Cost', 'Injury or health', 'Not enough time', 'Not what I expected', 'Other'].forEach((t) => { const o = el('option', '', t || 'Mind telling us why? (optional)'); o.value = t; why.appendChild(o); });
       const msg = el('textarea', ''); msg.rows = 3; msg.maxLength = 600; msg.placeholder = 'Anything else? (optional)';
-      const note = el('div', 'sub', 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. A request sent after that takes effect after your next payment. Nothing changes until we confirm it by email.');
+      const note = el('div', 'sub', 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. A request sent after that takes effect after your next payment. Nothing changes until we confirm it by email.'); note.style.margin = '8px 0';
       const err = el('div', 'err', ''); const send = el('button', 'cta', 'Send request');
+      [['pause', 'Pause'], ['change', 'Change plan'], ['cancel', 'Cancel']].forEach(([v, t]) => {
+        const b = el('button', '', t); b.type = 'button';
+        b.addEventListener('click', () => { sel.value = v; Array.from(card.querySelectorAll('.mgrid button')).forEach((x) => x.classList.toggle('sel', x === b)); form.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+        grid.appendChild(b);
+      });
       [['What would you like to do?', sel], ['From which date?', date], ['', why], ['', msg]].forEach(([l, n]) => { const f = el('div', 'field'); if (l) f.appendChild(el('label', '', l)); f.appendChild(n); form.appendChild(f); });
       form.append(note, err, send);
-      open.addEventListener('click', () => { form.hidden = !form.hidden; });
       send.addEventListener('click', async () => {
         send.disabled = true; err.textContent = '';
         try { await DB.requestChange(sel.value, date.value, why.value, msg.value); renderMembership(); }
         catch (e) { err.textContent = e.message; send.disabled = false; }
       });
-      card.append(open, form);
+      card.appendChild(form);
     }
   }
   /* Bring a friend: a personal link that gives a friend a free class (shown once the friend link is switched on) */

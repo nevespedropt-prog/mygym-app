@@ -177,6 +177,23 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .btn-small:disabled{opacity:.45}
 
 /* segmented control */
+#profile [data-pt]{display:none}
+#profile[data-tab="mem"] [data-pt="mem"]:not([hidden]),#profile[data-tab="det"] [data-pt="det"],#profile[data-tab="health"] [data-pt="health"],#profile[data-tab="set"] [data-pt="set"]{display:block}
+.ptabs button{font-size:13px;letter-spacing:.03em;padding:11px 2px}
+.mcard{background:linear-gradient(135deg,#e03939 0%,#a03535 70%,#7d2626 100%);color:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(160,53,53,.28);position:relative;overflow:hidden}
+.mcard:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
+.mcard .mt{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--disp);letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.mcard .chip2{background:rgba(255,255,255,.22);border-radius:999px;padding:3px 11px;font-weight:700;font-size:12px;letter-spacing:.02em;text-transform:none}
+.mcard .mn{font:800 25px/1.08 var(--disp);text-transform:uppercase;margin:16px 0 4px}
+.mcard .mp{font:800 30px/1 var(--disp)}
+.mcard .mb{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:12.5px;opacity:.92}
+.mcard .mb b{display:block;font-size:14px}
+.mrows{margin-top:6px}
+.mrow{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.mgrid button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 4px;font:700 13px var(--disp);letter-spacing:.04em;text-transform:uppercase;color:var(--txt);cursor:pointer}
+.mgrid button.sel{border-color:var(--acc);color:var(--acc)}
 .seg{display:flex;background:#ebeaea;border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{flex:1;background:none;border:none;color:var(--mut);font:700 16px/1 var(--disp);letter-spacing:.06em;text-transform:uppercase;padding:11px 4px;border-radius:11px;cursor:pointer}
 .seg button.sel{background:#fff;color:var(--acc);box-shadow:0 1px 4px rgba(0,0,0,.1)}
@@ -521,7 +538,7 @@ nav.show{display:block}
     <p class="hint" id="emailHint" style="display:none">Please use the same email as your MY GYM website account, so your plan and bookings match.</p>
     <div class="field"><label>Password</label><div class="pw"><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="eye" aria-label="Show password" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19.8 19.8 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a19.9 19.9 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg></button></div></div>
     <label class="agree" id="agreeField" style="display:none"><input type="checkbox" id="aAgree"><span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
-    <label class="agree" id="newsField" style="display:none"><input type="checkbox" id="aNews"><span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time. (Optional)</span></label>
+    <label class="agree" id="newsField" style="display:none"><input type="checkbox" id="aNews" checked><span>Keep me posted with news and offers from MY GYM London by email. I can switch this off any time in Account → Settings.</span></label>
     <div class="err" id="aErr"></div>
     <button class="cta" id="aSubmit" type="submit" style="margin:4px 0 0">Log in</button>
     <p class="note" id="forgotWrap" style="margin:12px 0 0"><a href="#" id="forgotLink" style="color:var(--acc);font-weight:700">Forgot password?</a></p>
@@ -544,11 +561,17 @@ nav.show{display:block}
 
 <!-- ============ PROFILE (via header Me button) ============ -->
 <section class="view" id="profile">
-  <h2>My profile</h2>
-  <p class="sub">Helps your coaches help you. Private — never shared.</p>
-  <div id="memCard" hidden></div>
-  <div id="friendCard" hidden></div>
-  <div class="card">
+  <h2>My account</h2>
+  <div class="seg ptabs" id="pTabs" role="tablist">
+    <button type="button" data-t="mem" class="sel">Membership</button>
+    <button type="button" data-t="det">Details</button>
+    <button type="button" data-t="health">Health</button>
+    <button type="button" data-t="set">Settings</button>
+  </div>
+  <div id="memCard" data-pt="mem" hidden></div>
+  <div id="friendCard" data-pt="mem" hidden></div>
+  <div class="card" data-pt="det">
+    <p class="sub" style="margin:0 0 10px">Helps your coaches help you. Private, never shared.</p>
     <div class="field"><label>Full name</label><input id="pName" placeholder="Your name"></div>
     <div class="field"><label>Phone (optional)</label><input id="pPhone" type="tel" autocomplete="tel" placeholder="07..."></div>
     <div class="field"><label>Date of birth (optional, for a birthday hello)</label><input id="pDob" type="date" autocomplete="bday" max="2015-12-31"></div>
@@ -569,13 +592,7 @@ nav.show{display:block}
     <div class="ok" id="pMsg"></div>
     <button class="cta" id="pSave" style="margin:4px 0 0">Save profile</button>
   </div>
-  <div class="card" id="emailCard">
-    <b>Emails</b>
-    <p class="sub" style="margin:6px 0 10px">We always email you about your bookings and membership. News and offers are optional.</p>
-    <label class="chk"><input type="checkbox" id="pNews"><span>Send me news and offers from MY GYM London by email. I can unsubscribe at any time.</span></label>
-    <div class="ok" id="pNewsMsg"></div>
-  </div>
-  <div class="card" id="healthCard">
+  <div class="card" id="healthCard" data-pt="health">
     <b>Health &amp; safety</b>
     <p class="sub" style="margin:6px 0 10px" id="hStatus"></p>
     <div class="lockline" id="hLockNote" style="display:none">🔒 Complete the form below to unlock Bookings, Log and Progress.</div>
@@ -632,7 +649,7 @@ nav.show{display:block}
       <button id="mSwitch" class="switch" role="switch" aria-checked="false" aria-label="Weight and body fat tracking" disabled><span></span></button>
     </div>
   </div>
-  <div class="card" id="remCard">
+  <div class="card" id="remCard" data-pt="set">
     <div class="remrow">
       <div><b>Class reminders</b>
         <p class="sub" style="margin:4px 0 0">A notification one hour before a booked class or gym slot.</p></div>
@@ -640,16 +657,22 @@ nav.show{display:block}
     </div>
     <p class="sub" style="margin:10px 0 0" id="remNote"></p>
   </div>
-  <div class="card">
+  <div class="card" data-pt="set">
     <b>Account</b>
     <p class="sub" style="margin:6px 0 12px" id="pEmail"></p>
     <button class="btn-small ghost" id="logoutBtn">Log out</button>
   </div>
-  <div class="card">
+  <div class="card" data-pt="set">
     <b>Contact us</b>
     <p class="sub" style="margin:6px 0 12px">Questions, class changes, PT interest.</p>
     <a class="btn-small ghost" href="mailto:info@mygymlondon.co.uk" style="display:inline-block;text-decoration:none">Email info@mygymlondon.co.uk</a>
     <a class="btn-small ghost" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;margin-top:8px">DM @mygym_london</a>
+  </div>
+  <div class="card" id="emailCard" data-pt="set">
+    <b>Email preferences</b>
+    <p class="sub" style="margin:6px 0 10px">We will always email you about your bookings, payments and membership. You can turn news and offers off here.</p>
+    <label class="chk"><input type="checkbox" id="pNews"><span>News and offers from MY GYM London</span></label>
+    <div class="ok" id="pNewsMsg"></div>
   </div>
 </section>
 

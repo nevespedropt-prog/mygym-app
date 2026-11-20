@@ -178,8 +178,24 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 
 /* segmented control */
 #profile [data-pt]{display:none}
-#profile[data-tab="mem"] [data-pt="mem"]:not([hidden]),#profile[data-tab="det"] [data-pt="det"],#profile[data-tab="health"] [data-pt="health"],#profile[data-tab="set"] [data-pt="set"]{display:block}
-.ptabs button{font-size:13px;letter-spacing:.03em;padding:11px 2px}
+#profile[data-tab="mem"] [data-pt="mem"]:not([hidden]),#profile[data-tab="det"] [data-pt="det"],#profile[data-tab="health"] [data-pt="health"],#profile[data-tab="notif"] [data-pt="notif"],#profile[data-tab="priv"] [data-pt="priv"]{display:block}
+.ptabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:2px}
+.ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex:0 0 auto;font-size:13px;letter-spacing:.03em;padding:11px 13px;white-space:nowrap}
+.streak{display:block}
+.streak .sk1{display:flex;align-items:baseline;gap:8px}
+.streak .sk1 b{font:800 40px/1 var(--disp);color:var(--acc)}
+.streak .sk1 span{font:700 16px var(--disp);text-transform:uppercase;letter-spacing:.04em}
+.streak .dots{display:flex;gap:6px;margin:10px 0 6px}
+.streak .dots i{flex:1;height:10px;border-radius:99px;background:var(--line)}
+.streak .dots i.on{background:var(--acc)}.streak .dots i.now{outline:2px solid var(--acc);outline-offset:1px}
+.streak .sk2{font-size:13.5px;color:var(--mut)}
+.streak .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.streak .badges span{font:700 12px var(--disp);letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:#fdf3f2;color:var(--acc);border:1px solid #f1c9c5}
+.danger{border-color:#f1c9c5}
+.danger summary{cursor:pointer;font-weight:700;color:#8a1f17}
+.btn-danger{background:#b3261e;color:#fff;border:0;border-radius:999px;padding:12px 18px;font:700 16px var(--disp);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;width:100%}
+.btn-danger:disabled{opacity:.45;cursor:not-allowed}
 .mcard{background:linear-gradient(135deg,#e03939 0%,#a03535 70%,#7d2626 100%);color:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(160,53,53,.28);position:relative;overflow:hidden}
 .mcard:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
 .mcard .mt{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--disp);letter-spacing:.14em;text-transform:uppercase;opacity:.9}
@@ -191,6 +207,21 @@ a.btn .chev{margin-left:auto;color:var(--mut);font-size:20px}
 .mrows{margin-top:6px}
 .mrow{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .mrow:first-child{border-top:0}
+.mcard .mreq{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.18);font-size:13px}
+.mcard .mreq b{padding:2px 10px;border-radius:99px;background:#fff;color:#8a4b00;font-size:12px}
+.mcard .mreq.confirmed b{color:#145a2a}.mcard .mreq.declined b{color:#8a1f17}
+.notice1{margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:#fff6d6;color:#5b4700;font-size:13.5px;line-height:1.4}
+.ok2{margin-top:12px;padding:12px;border-radius:12px;background:#e6f5ec;color:#145a2a;font-weight:600;font-size:14px}
+.mstat{margin-top:12px;padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.mstat.good{background:#e6f5ec;color:#145a2a}.mstat.bad{background:#fdecec;color:#8a1f17}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pc{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;display:flex;flex-direction:column;gap:6px}
+.pc.cur{border:2px solid var(--acc);background:#fdf3f2}
+.pcflag{align-self:flex-start;font:700 11px var(--disp);letter-spacing:.08em;text-transform:uppercase;background:var(--acc);color:#fff;border-radius:99px;padding:2px 9px}
+.pcn{font:800 16px/1.15 var(--disp);text-transform:uppercase}
+.pcp b{font:800 24px var(--disp)}.pcp span{font-size:12px;color:var(--mut)}
+.pc ul{margin:0;padding-left:16px;font-size:13px;color:var(--txt);flex:1}
+.pcb{margin-top:6px;width:100%}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .mgrid button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 4px;font:700 13px var(--disp);letter-spacing:.04em;text-transform:uppercase;color:var(--txt);cursor:pointer}
 .mgrid button.sel{border-color:var(--acc);color:var(--acc)}
@@ -399,11 +430,13 @@ nav.show{display:block}
     <div class="stat"><b id="statBooked">0</b><small>classes booked</small></div>
     <div class="stat"><b id="statWeight">–</b><small>latest weight</small></div>
   </div>
+  <div class="card" id="remPrompt" hidden></div>
   <div class="card" id="goalCard">
     <b style="font-size:14.5px">Weekly goal · 3 workouts</b>
     <div class="pbar"><i id="goalBar" style="width:0%"></i></div>
     <small style="color:var(--mut)" id="goalTxt">0/3 done — let's move!</small>
   </div>
+  <div class="card streak" id="streakCard" hidden></div>
   <div id="nextWrap" style="display:none">
     <h2>Next class</h2>
     <div id="nextCard"></div>
@@ -538,7 +571,7 @@ nav.show{display:block}
     <p class="hint" id="emailHint" style="display:none">Please use the same email as your MY GYM website account, so your plan and bookings match.</p>
     <div class="field"><label>Password</label><div class="pw"><input id="aPass" name="password" type="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="eye" aria-label="Show password" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19.8 19.8 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a19.9 19.9 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg></button></div></div>
     <label class="agree" id="agreeField" style="display:none"><input type="checkbox" id="aAgree"><span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
-    <label class="agree" id="newsField" style="display:none"><input type="checkbox" id="aNews" checked><span>Keep me posted with news and offers from MY GYM London by email. I can switch this off any time in Account → Settings.</span></label>
+    <label class="agree" id="newsField" style="display:none"><input type="checkbox" id="aNews" checked><span>Keep me posted with news and offers from MY GYM London by email. I can switch this off any time in Account → Privacy and data.</span></label>
     <div class="err" id="aErr"></div>
     <button class="cta" id="aSubmit" type="submit" style="margin:4px 0 0">Log in</button>
     <p class="note" id="forgotWrap" style="margin:12px 0 0"><a href="#" id="forgotLink" style="color:var(--acc);font-weight:700">Forgot password?</a></p>
@@ -564,9 +597,10 @@ nav.show{display:block}
   <h2>My account</h2>
   <div class="seg ptabs" id="pTabs" role="tablist">
     <button type="button" data-t="mem" class="sel">Membership</button>
-    <button type="button" data-t="det">Details</button>
+    <button type="button" data-t="det">My details</button>
     <button type="button" data-t="health">Health</button>
-    <button type="button" data-t="set">Settings</button>
+    <button type="button" data-t="notif">Notifications</button>
+    <button type="button" data-t="priv">Privacy and data</button>
   </div>
   <div id="memCard" data-pt="mem" hidden></div>
   <div id="friendCard" data-pt="mem" hidden></div>
@@ -649,7 +683,9 @@ nav.show{display:block}
       <button id="mSwitch" class="switch" role="switch" aria-checked="false" aria-label="Weight and body fat tracking" disabled><span></span></button>
     </div>
   </div>
-  <div class="card" id="remCard" data-pt="set">
+  <div class="card" id="notifInfo" data-pt="notif"><b>Emails about your membership</b><p class="sub" style="margin:6px 0 0">We always email you about your bookings, payments and membership. These are not marketing and cannot be switched off. Your choice about news and offers is under Privacy and data.</p></div>
+  <div class="card" id="remCard" data-pt="notif">
+    <p class="sub" style="margin:0 0 8px"><b>Recommended: on.</b> Your phone asks once for permission. After that you get a reminder an hour before each booking.</p>
     <div class="remrow">
       <div><b>Class reminders</b>
         <p class="sub" style="margin:4px 0 0">A notification one hour before a booked class or gym slot.</p></div>
@@ -657,23 +693,38 @@ nav.show{display:block}
     </div>
     <p class="sub" style="margin:10px 0 0" id="remNote"></p>
   </div>
-  <div class="card" data-pt="set">
+  <div class="card" data-pt="det">
     <b>Account</b>
     <p class="sub" style="margin:6px 0 12px" id="pEmail"></p>
     <button class="btn-small ghost" id="logoutBtn">Log out</button>
   </div>
-  <div class="card" data-pt="set">
+  <div class="card" data-pt="det">
     <b>Contact us</b>
     <p class="sub" style="margin:6px 0 12px">Questions, class changes, PT interest.</p>
     <a class="btn-small ghost" href="mailto:info@mygymlondon.co.uk" style="display:inline-block;text-decoration:none">Email info@mygymlondon.co.uk</a>
     <a class="btn-small ghost" href="https://www.instagram.com/mygym_london" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;margin-top:8px">DM @mygym_london</a>
   </div>
-  <div class="card" id="emailCard" data-pt="set">
+  <div class="card" id="dataCard" data-pt="priv">
+    <b>Your data</b>
+    <p class="sub" style="margin:6px 0 10px">You can take a copy of everything you have given us. It downloads as one file.</p>
+    <button class="btn-small" id="dlData" type="button">Download my data</button>
+    <div class="err" id="dlMsg"></div>
+    <p class="sub" style="margin:12px 0 0">Read our <a href="terms.html" target="_blank" rel="noopener">Terms</a>, <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a> and <a href="cookies.html" target="_blank" rel="noopener">Cookie notice</a>.</p>
+  </div>
+  <div class="card" id="emailCard" data-pt="priv">
     <b>Email preferences</b>
     <p class="sub" style="margin:6px 0 10px">We will always email you about your bookings, payments and membership. You can turn news and offers off here.</p>
     <label class="chk"><input type="checkbox" id="pNews"><span>News and offers from MY GYM London</span></label>
     <div class="ok" id="pNewsMsg"></div>
   </div>
+<details class="card danger" id="delCard" data-pt="priv">
+    <summary>Delete my account and data</summary>
+    <p class="sub" style="margin:10px 0">This permanently deletes your account, bookings, workouts, weight log and health answers. It cannot be undone. We keep only what the law needs: payment and accounting records, and a note that you do not want marketing emails.</p>
+    <p class="sub" style="margin:0 0 10px">You must cancel any membership and upcoming bookings first. Any unused class credits will be lost.</p>
+    <div class="field"><label for="delWord">Type DELETE to confirm</label><input id="delWord" autocomplete="off" autocapitalize="characters" placeholder="DELETE"></div>
+    <div class="err" id="delMsg"></div>
+    <button class="btn-danger" id="delBtn" type="button" disabled>Delete everything</button>
+  </details>
 </section>
 
 <footer>MY GYM London · Main Avenue, Bush Hill Park, Enfield EN1 1DS · <a href="mailto:info@mygymlondon.co.uk">info@mygymlondon.co.uk</a><br><span style="font-size:11px"><a href="terms.html">App terms</a> · <a href="privacy.html">Privacy</a> · <a href="cookies.html">Cookies</a></span></footer>

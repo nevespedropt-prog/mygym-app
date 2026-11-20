@@ -375,9 +375,32 @@
       const { data, error } = await sb.rpc('my_membership');
       return error ? null : data;
     },
-    async requestChange(type, from, reason, message) {
+    async getStreak() {
+      if (!LIVE) return null;
+      const { data, error } = await sb.rpc('my_streak');
+      return error ? null : data;
+    },
+    async exportData() {
       if (!LIVE) throw new Error('Not available in demo mode.');
-      const { error } = await sb.rpc('request_membership_change', { p_type: type, p_from: from, p_reason: reason || null, p_message: message || null });
+      const { data, error } = await sb.rpc('my_data_export');
+      if (error) throw new Error('Could not prepare your data. Try again.');
+      return data;
+    },
+    async deleteAccount() {
+      if (!LIVE) throw new Error('Not available in demo mode.');
+      const { error } = await sb.rpc('delete_my_account');
+      if (error) throw new Error(error.message || 'Could not delete. Try again.');
+      try { await sb.auth.signOut(); } catch (e) { /* the login no longer exists */ }
+    },
+    async planOptions() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.rpc('my_plan_options');
+      if (error) throw new Error('Could not load the plans.');
+      return data || [];
+    },
+    async requestChange(type, from, reason, message, target) {
+      if (!LIVE) throw new Error('Not available in demo mode.');
+      const { error } = await sb.rpc('request_membership_change', { p_type: type, p_from: from, p_reason: reason || null, p_message: message || null, p_target: target || null });
       if (error) throw new Error(error.message || 'Could not send. Try again.');
     },
     async withdrawRequest(id) {

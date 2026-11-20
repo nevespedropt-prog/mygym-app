@@ -147,6 +147,7 @@
     try {
       if (authMode === 'up') {
         const wantsNews = $('#aNews').checked;   // ticked by default; the wording says it can be switched off any time
+        try { localStorage.setItem('mygym_news_pref', wantsNews ? '1' : '0'); } catch (_e) { /* private window */ }
         const res = await DB.signUp(email, pass, $('#aName').value.trim());
         if (DB.isLive() && !(res && res.session)) {
           $('#authSub').textContent = '✅ Account created — check your email to confirm, then log in.';
@@ -157,7 +158,8 @@
           $('#newsField').style.display = 'none';
           $('#aSubmit').textContent = 'Log in';
         } else {
-          if (wantsNews) { try { await DB.setMarketing(true, 'app-signup'); } catch (_e) { /* they can switch it on in Profile */ } }
+          if (wantsNews) { try { await DB.setMarketing(true, 'app-signup'); } catch (_e) { /* they can switch it on in Account, Privacy and data */ } }
+          try { localStorage.removeItem('mygym_news_pref'); } catch (_e) { /* private window */ }
           await afterAuth();
         }
       } else {
@@ -186,6 +188,7 @@
     me = await DB.getUser();
     if (!me) return;
     authed = true;
+    applyNewsPref();
     profile = await DB.getProfile().catch(() => null);
     classes = await DB.getClasses().catch(() => []);
     gymState = null;
@@ -465,6 +468,8 @@
     $('#healthBanner').style.display = (authed && healthRec !== undefined && !healthOk()) ? 'block' : 'none';
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
     renderMemHome();
+    renderStreak();
+    renderRemPrompt();
     try {
       await ensureClasses();
       await refreshCancelled();
@@ -1600,20 +1605,94 @@
     if (authed && h && document.getElementById(h) && document.getElementById(h).classList.contains('view')) go(h);
   });
 
+  /* a new account that confirmed its email: record the news-and-offers choice made on the sign-up screen (ticked by default) */
+  async function applyNewsPref() {
+    let v = null; try { v = localStorage.getItem('mygym_news_pref'); } catch (_e) { v = null; }
+    if (v === null) return;
+    try { if (v === '1') await DB.setMarketing(true, 'app-signup'); localStorage.removeItem('mygym_news_pref'); } catch (_e) { /* tried again next time */ }
+  }
+  /* class reminders: a phone cannot be switched on silently (it must ask permission), so Home offers a one-tap "Turn on" until they choose */
+  async function renderRemPrompt() {
+    const box = $('#remPrompt'); if (!box) return;
+    box.hidden = true; box.textContent = '';
+    try {
+      if (!authed || !DB.isLive() || !pushOk() || (isIOS && !standalone()) || Notification.permission !== 'default') return;
+      if (await currentSub()) return;
+      const t = Number(localStorage.getItem('mygym_rem_later') || 0); if (t && Date.now() - t < 14 * 864e5) return;
+    } catch (_e) { return; }
+    box.hidden = false;
+    box.appendChild(el('b', '', 'Get a reminder before your class'));
+    box.appendChild(el('p', 'sub', 'We send one notification an hour before each booking, so you never miss a session. Recommended.'));
+    const row = el('div', ''); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const on = el('button', 'btn-small', 'Turn on reminders'); on.type = 'button';
+    const later = el('button', 'btn-small ghost', 'Not now'); later.type = 'button';
+    on.addEventListener('click', async () => { on.disabled = true; await turnOnReminders(); renderRemPrompt(); });
+    later.addEventListener('click', () => { try { localStorage.setItem('mygym_rem_later', String(Date.now())); } catch (_e) { /* private window */ } box.hidden = true; });
+    row.append(on, later); box.appendChild(row);
+  }
+
+  /* ---- Streak and milestones strip on Home: weeks in a row with at least one session ---- */
+  const SESSION_MILESTONES = [10, 25, 50, 100, 250, 500];
+  const STREAK_MILESTONES = [2, 4, 8, 12, 26, 52];
+  async function renderStreak() {
+    const box = $('#streakCard'); if (!box) return;
+    let s = null; try { s = await DB.getStreak(); } catch (e) { s = null; }
+    box.textContent = '';
+    if (!s || !authed) { box.hidden = true; return; }
+    box.hidden = false;
+    const n = s.streak || 0;
+    const top = el('div', 'sk1');
+    if (n > 0) top.append(el('b', '', String(n)), el('span', '', n === 1 ? 'week in a row' : 'weeks in a row'));
+    else top.append(el('span', '', 'Start your streak this week'));
+    box.appendChild(top);
+    const dots = el('div', 'dots');
+    (s.weeks || []).forEach((on, i, arr) => { const d = el('i', (on ? 'on' : '') + (i === arr.length - 1 ? ' now' : '')); dots.appendChild(d); });
+    box.appendChild(dots);
+    box.appendChild(el('div', 'sk2', s.this_week ? 'You have trained this week. Keep it going.' : n > 0 ? 'Train this week to keep your streak alive.' : 'Book a class or log a workout to begin.'));
+    const nextS = SESSION_MILESTONES.find((m) => m > (s.total || 0));
+    const line = (s.total || 0) + (s.total === 1 ? ' session so far' : ' sessions so far') + (nextS ? ' · ' + (nextS - s.total) + ' to reach ' + nextS : '');
+    const l2 = el('div', 'sk2', line); l2.style.marginTop = '4px'; box.appendChild(l2);
+    const earned = [];
+    SESSION_MILESTONES.filter((m) => m <= (s.total || 0)).forEach((m) => earned.push(m + ' sessions'));
+    STREAK_MILESTONES.filter((m) => m <= (s.best || 0)).forEach((m) => earned.push(m + '-week streak'));
+    if (earned.length) { const b = el('div', 'badges'); earned.forEach((t) => b.appendChild(el('span', '', t))); box.appendChild(b); }
+  }
+
+  /* ---- Privacy and data: download a copy, delete account ---- */
+  document.addEventListener('click', async (e) => {
+    const dl = e.target.closest && e.target.closest('#dlData'); if (!dl) return;
+    const msg = $('#dlMsg'); msg.textContent = ''; dl.disabled = true;
+    try {
+      const data = await DB.exportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mygym-my-data.json'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } catch (err) { msg.textContent = err.message; }
+    dl.disabled = false;
+  });
+  document.addEventListener('input', (e) => { if (e.target && e.target.id === 'delWord') $('#delBtn').disabled = e.target.value.trim() !== 'DELETE'; });
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest && e.target.closest('#delBtn'); if (!b) return;
+    const msg = $('#delMsg'); msg.textContent = ''; b.disabled = true; b.textContent = 'Deleting…';
+    try { await DB.deleteAccount(); alert('Your account and data have been deleted.'); location.reload(); }
+    catch (err) { msg.textContent = err.message; b.textContent = 'Delete everything'; b.disabled = $('#delWord').value.trim() !== 'DELETE'; }
+  });
+
   /* ---- Account tabs: Membership | Details | Health | Settings ---- */
   function pTab(t) {
     const pv = $('#profile'); if (!pv) return;
-    if (['mem', 'det', 'health', 'set'].indexOf(t) === -1) t = 'mem';
+    if (['mem', 'det', 'health', 'notif', 'priv'].indexOf(t) === -1) t = 'mem';
     pv.setAttribute('data-tab', t);
     $$('#pTabs button').forEach((b) => b.classList.toggle('sel', b.getAttribute('data-t') === t));
     try { sessionStorage.setItem('mygym_ptab', t); } catch (e) { /* private window */ }
   }
-  document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#pTabs button'); if (b) { pTab(b.getAttribute('data-t')); window.scrollTo({ top: 0 }); } });
+  document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#pTabs button'); if (b) { pTab(b.getAttribute('data-t')); window.scrollTo({ top: 0 }); b.scrollIntoView({ inline: 'center', block: 'nearest' }); } });
   pTab('mem');
 
   /* ---- Membership hub (Account → Membership): card, usage, billing, manage plan ---- */
   const fmtD = (d) => d ? new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const isoPlus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  let memSent = '';   // one-time confirmation shown after a request is sent
   const money = (a) => '£' + Number(a).toFixed(a % 1 ? 2 : 0);
   /* the visual membership card: used in the hub and, smaller, on Home */
   function memCardVisual(m) {
@@ -1627,6 +1706,12 @@
     const l = el('div', ''); l.append(el('span', '', 'Member'), el('b', '', (profile && profile.full_name) || ''));
     const r = el('div', ''); r.style.textAlign = 'right'; r.append(el('span', '', 'Member since'), el('b', '', fmtD(m.member_since || p.started)));
     bt.append(l, r); c.appendChild(bt);
+    const q = m.request;                   // the latest request, so the member always sees where it stands
+    if (q && (q.status === 'received' || ((q.status === 'done' || q.status === 'declined') && q.resolved_at && Date.now() - new Date(q.resolved_at).getTime() < 14 * 864e5))) {
+      const what = { pause: 'Pause', cancel: 'Cancellation', change: 'Plan change' }[q.type] || 'Request';
+      const state = q.status === 'received' ? 'received' : q.status === 'done' ? 'confirmed' : 'declined';
+      const s = el('div', 'mreq ' + state); s.append(el('span', '', what + ' request'), el('b', '', state.charAt(0).toUpperCase() + state.slice(1))); c.appendChild(s);
+    }
     return c;
   }
   async function renderMembership() {
@@ -1665,39 +1750,88 @@
     }
     if (m.credits > 0) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. Ask us at the gym to use it.'); c.style.cssText = 'margin-top:12px;background:#e6f5ec;border-radius:12px;padding:10px 12px;font-size:14px'; card.appendChild(c); }
     const q = m.request;
+    const lblOf = { pause: 'Pause', cancel: 'Cancellation', change: 'Plan change' };
+    const noticeText = 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. Nothing changes until we confirm it by email.';
+    if (memSent) { card.appendChild(el('div', 'ok2', memSent)); memSent = ''; }
     if (q && q.status === 'received') {
-      const lbl = { pause: 'Pause', cancel: 'Cancel', change: 'Change plan' }[q.type];
       const b = el('div', ''); b.style.cssText = 'margin-top:12px;border:2px solid var(--acc);border-radius:14px;padding:12px';
-      b.append(el('b', '', 'Your request: ' + lbl + ' from ' + fmtD(q.from_date)), el('div', 'sub', 'Received. We reply within 2 working days and nothing changes until we confirm.'));
+      const what = q.type === 'change' && q.target ? 'Change plan to ' + q.target : (lblOf[q.type] || q.type);
+      b.append(el('b', '', 'Your request: ' + what + ' from ' + fmtD(q.from_date)), el('div', 'sub', 'Received. We reply within 2 working days and nothing changes until we confirm.'));
       const w = el('button', 'btn-small', 'Withdraw this request'); w.style.marginTop = '8px';
       w.addEventListener('click', async () => { w.disabled = true; try { await DB.withdrawRequest(q.id); } catch (e) { w.textContent = e.message; } renderMembership(); });
       b.appendChild(w); card.appendChild(b);
+      card.appendChild(el('div', 'notice1', noticeText));
     } else if (p) {
       if (q && (q.status === 'done' || q.status === 'declined') && q.resolved_at && Date.now() - new Date(q.resolved_at).getTime() < 14 * 864e5) {
-        const d = el('div', 'sub', q.status === 'done' ? 'Your last request (' + q.type + ') was confirmed on ' + fmtD(q.resolved_at) + '.' : 'Your last request could not be done. We will be in touch.'); d.style.marginTop = '10px'; card.appendChild(d);
+        const good = q.status === 'done';
+        const d = el('div', 'mstat ' + (good ? 'good' : 'bad'));
+        d.append(el('b', '', (lblOf[q.type] || q.type) + (good ? ' confirmed' : ' could not be done')), el('span', '', good ? 'Confirmed on ' + fmtD(q.resolved_at) + '.' : 'We could not do this one on ' + fmtD(q.resolved_at) + '.' + (q.note ? ' ' + q.note : ' We will be in touch.')));
+        card.appendChild(d);
       }
       card.appendChild(el('b', '', 'Manage my plan')).style.cssText = 'display:block;margin-top:16px';
+      card.appendChild(el('div', 'notice1', noticeText));
       const grid = el('div', 'mgrid'); card.appendChild(grid);
-      const form = el('div', ''); form.hidden = true; form.style.marginTop = '12px';
-      const sel = el('select', ''); [['pause', 'Pause my membership'], ['cancel', 'Cancel my membership'], ['change', 'Change my plan']].forEach(([v, t]) => { const o = el('option', '', t); o.value = v; sel.appendChild(o); });
-      const date = el('input', ''); date.type = 'date'; date.min = isoPlus(0); date.max = isoPlus(90); date.value = p.next_payment || isoPlus(7);
-      const why = el('select', ''); ['', 'Moving away', 'Cost', 'Injury or health', 'Not enough time', 'Not what I expected', 'Other'].forEach((t) => { const o = el('option', '', t || 'Mind telling us why? (optional)'); o.value = t; why.appendChild(o); });
-      const msg = el('textarea', ''); msg.rows = 3; msg.maxLength = 600; msg.placeholder = 'Anything else? (optional)';
-      const note = el('div', 'sub', 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. A request sent after that takes effect after your next payment. Nothing changes until we confirm it by email.'); note.style.margin = '8px 0';
-      const err = el('div', 'err', ''); const send = el('button', 'cta', 'Send request');
-      [['pause', 'Pause'], ['change', 'Change plan'], ['cancel', 'Cancel']].forEach(([v, t]) => {
+      const panel = el('div', ''); panel.style.marginTop = '12px'; card.appendChild(panel);
+      const dateInput = () => { const d = el('input', ''); d.type = 'date'; d.min = isoPlus(0); d.max = isoPlus(90); d.value = p.next_payment || isoPlus(7); return d; };
+      const whySel = () => { const w = el('select', ''); ['', 'Moving away', 'Cost', 'Injury or health', 'Not enough time', 'Not what I expected', 'Other'].forEach((t) => { const o = el('option', '', t || 'Mind telling us why? (optional)'); o.value = t; w.appendChild(o); }); return w; };
+      const field = (l, n) => { const f = el('div', 'field'); if (l) f.appendChild(el('label', '', l)); f.appendChild(n); return f; };
+      /* sends the request, then shows a clear confirmation */
+      const submit = async (btn, errBox, type, date, why, msg, target, doneText) => {
+        btn.disabled = true; errBox.textContent = '';
+        try { await DB.requestChange(type, date, why, msg, target); memSent = doneText; renderMembership(); }
+        catch (e) { errBox.textContent = e.message; btn.disabled = false; }
+      };
+      const simple = (type) => {          // pause or cancel: date, reason, message, send
+        panel.textContent = '';
+        const date = dateInput(), why = whySel(), msg = el('textarea', ''); msg.rows = 3; msg.maxLength = 600; msg.placeholder = 'Anything else? (optional)';
+        const err = el('div', 'err', ''); const send = el('button', 'cta', type === 'cancel' ? 'Send cancellation request' : 'Send pause request');
+        panel.append(el('b', '', type === 'cancel' ? 'Cancel my membership' : 'Pause my membership'), field('From which date?', date), field('', why), field('', msg),
+          el('div', 'sub', type === 'cancel' ? 'This is a request. Your membership carries on as normal until we confirm it by email. Please give at least 1 week’s notice before your next billing date.' : 'This is a request. Your membership carries on as normal until we confirm it by email.'), err, send);
+        send.addEventListener('click', () => submit(send, err, type, date.value, why.value, msg.value, null,
+          type === 'cancel' ? '✅ Cancellation request received. We will email you within 2 working days to confirm. Until then your membership carries on as normal.' : '✅ Pause request received. We will email you within 2 working days to confirm. Until then your membership carries on as normal.'));
+      };
+      /* Change plan: your plan beside the others, with a button on each */
+      const changeScreen = async () => {
+        panel.textContent = ''; panel.appendChild(el('div', 'sub', 'Loading plans…'));
+        let opts = []; try { opts = await DB.planOptions(); } catch (e) { opts = []; }
+        panel.textContent = '';
+        if (!opts.length) { panel.appendChild(el('div', 'err', 'We could not load the plans. Please try again, or email info@mygymlondon.co.uk.')); return; }
+        panel.appendChild(el('b', '', 'Change my plan'));
+        panel.appendChild(el('div', 'sub', 'Your plan is on the left. Choose a plan and we will confirm the change by email.'));
+        const cmp = el('div', 'cmp'); panel.appendChild(cmp);
+        const same = (n) => String(n).toLowerCase() === String(p.name).toLowerCase();
+        const cur = opts.find((o) => same(o.name)) || { name: p.name, price: p.amount, per: ({ MONTH: 'every month', WEEK: 'every week', YEAR: 'every year' }[p.unit] || ''), includes: [] };
+        const mk = (o, isCur) => {
+          const c = el('div', 'pc' + (isCur ? ' cur' : ''));
+          if (isCur) c.appendChild(el('span', 'pcflag', 'Your plan'));
+          c.appendChild(el('div', 'pcn', o.name));
+          const pr = el('div', 'pcp'); pr.append(el('b', '', money(o.price)), el('span', '', ' ' + o.per)); c.appendChild(pr);
+          const ul = el('ul', ''); (o.includes || []).forEach((x) => ul.appendChild(el('li', '', x))); c.appendChild(ul);
+          if (!isCur) {
+            const up = Number(o.price) > Number(cur.price) && String(o.per) === String(cur.per);
+            const bt = el('button', 'btn-small pcb', up ? 'Upgrade to this' : 'Switch to this'); bt.type = 'button';
+            bt.addEventListener('click', () => confirmChange(o)); c.appendChild(bt);
+          }
+          return c;
+        };
+        cmp.appendChild(mk(cur, true));
+        opts.filter((o) => !same(o.name)).forEach((o) => cmp.appendChild(mk(o, false)));
+      };
+      const confirmChange = (o) => {
+        panel.textContent = '';
+        const date = dateInput(), msg = el('textarea', ''); msg.rows = 3; msg.maxLength = 600; msg.placeholder = 'Anything else? (optional)';
+        const err = el('div', 'err', ''); const send = el('button', 'cta', 'Send request'); const back = el('button', 'btn-small ghost', '‹ Back to plans'); back.type = 'button';
+        back.addEventListener('click', changeScreen);
+        panel.append(back, el('b', '', 'Change to ' + o.name), el('div', 'sub', money(o.price) + ' ' + o.per), field('From which date?', date), field('', msg),
+          el('div', 'sub', 'This is a request. Nothing changes until we confirm it by email, and your current plan carries on until then.'), err, send);
+        send.addEventListener('click', () => submit(send, err, 'change', date.value, null, msg.value, o.name,
+          '✅ Plan change request received (' + o.name + '). We will email you within 2 working days to confirm. Until then your current plan carries on as normal.'));
+      };
+      [['pause', 'Pause', () => simple('pause')], ['change', 'Change plan', changeScreen], ['cancel', 'Cancel', () => simple('cancel')]].forEach(([v, t, fnc]) => {
         const b = el('button', '', t); b.type = 'button';
-        b.addEventListener('click', () => { sel.value = v; Array.from(card.querySelectorAll('.mgrid button')).forEach((x) => x.classList.toggle('sel', x === b)); form.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+        b.addEventListener('click', () => { Array.from(card.querySelectorAll('.mgrid button')).forEach((x) => x.classList.toggle('sel', x === b)); fnc(); panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
         grid.appendChild(b);
       });
-      [['What would you like to do?', sel], ['From which date?', date], ['', why], ['', msg]].forEach(([l, n]) => { const f = el('div', 'field'); if (l) f.appendChild(el('label', '', l)); f.appendChild(n); form.appendChild(f); });
-      form.append(note, err, send);
-      send.addEventListener('click', async () => {
-        send.disabled = true; err.textContent = '';
-        try { await DB.requestChange(sel.value, date.value, why.value, msg.value); renderMembership(); }
-        catch (e) { err.textContent = e.message; send.disabled = false; }
-      });
-      card.appendChild(form);
     }
   }
   /* Bring a friend: a personal link that gives a friend a free class (shown once the friend link is switched on) */

@@ -107,14 +107,17 @@ async function handle(req: Request): Promise<Response> {
   // ---------------------------------------------------------------- CANCEL
   if (action === "cancel") {
     const id = String(body?.booking_id ?? "");
-    const { data: row } = await db.from("class_bookings").select("id, class_id, user_id, date, wix_booking_id").eq("id", id).eq("user_id", user.id).maybeSingle();
+    const { data: row } = await db.from("class_bookings").select("id, class_id, user_id, date, wix_booking_id, credit_id").eq("id", id).eq("user_id", user.id).maybeSingle();
     if (!row) return json(200, { ok: true });                       // nothing to cancel
     const { error: de } = await uc.from("class_bookings").delete().eq("id", id).eq("user_id", user.id);
     if (de) return json(400, { error: memberSafeError(de.code, de.message), code: de.code });
     if (viaWix && row.wix_booking_id) {
       if (!(await wixCancel(row.wix_booking_id))) {
         // put the app row back (server insert for a Wix booking skips the checks and sends no email)
-        await db.from("class_bookings").insert({ class_id: row.class_id, user_id: row.user_id, date: row.date, source: "wix", wix_booking_id: row.wix_booking_id });
+        // a class booked with a credit got its credit back when the row was deleted: spend it again for the restored row
+        let creditId: string | null = null;
+        if (row.credit_id) { const { data: cid } = await db.rpc("consume_class_credit", { p_email: user.email, p_used_for: "booking restored", p_booking_ref: null }); creditId = cid ?? null; }
+        await db.from("class_bookings").insert({ class_id: row.class_id, user_id: row.user_id, date: row.date, source: "wix", wix_booking_id: row.wix_booking_id, credit_id: creditId });
         await issue("cancel failed in Wix, app row restored");
         return json(502, { error: "We couldn't cancel this just now. Please try again in a minute." });
       }
@@ -148,6 +151,14 @@ async function handle(req: Request): Promise<Response> {
   // the same rules the database applies, checked BEFORE Wix is touched (so a refused booking never flickers in Wix)
   const dateErr = checkBookingDate(date, cls.day_name, today, String(cls.start_time), londonHM(new Date()), cls.kind);
   if (dateErr) return json(400, { error: dateErr, code: "P0001" });
+  // classes need a class membership or a class credit (only when the "class_plan_check" switch is on). Checked here too so a refused booking never reaches Wix.
+  if (cls.kind === "class" && cls.name !== "Kids Gym") {
+    const { data: pf0 } = await db.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    if (!pf0?.is_admin) {
+      const { data: allowed } = await db.rpc("_class_booking_allowed", { p_email: user.email });
+      if (allowed === false) return json(400, { error: "Classes are for members. Join a plan, or use a class credit if you have one. Paid as you go? Book on our website.", code: "P0001" });
+    }
+  }
   if (cls.kind === "gym") {
     const { data: pf } = await db.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
     if (!pf?.is_admin) {

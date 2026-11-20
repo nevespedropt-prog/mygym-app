@@ -416,6 +416,7 @@
         b.addEventListener('click', async () => {
           if (hasStarted(iso, c.start_time)) { ttFlash = 'That ' + (gym ? 'hour' : 'class') + ' has already started.'; refreshAfterBooking(); return; }
           if (healthRec !== undefined && !healthOk()) { openHealth(true); return; }
+          if (!gym && !(await classAccessOk(c))) return;
           b.disabled = true; b.textContent = 'Cancel'; b.className = 'btn-small ghost busy';
           try { await DB.book(c.id, iso); refreshAfterBooking(); }
           catch (e) {
@@ -450,7 +451,7 @@
       const bits = [];
       if (p.next_payment && p.status === 'active' && !p.cancelling) bits.push('Next payment ' + fmtD(p.next_payment));
       if (p.payment_failed) bits.push('Payment needs attention');
-      if (m.credits > 0) bits.push(m.credits + (m.credits === 1 ? ' class credit' : ' class credits'));
+      if (m.credits > 0 && !(/class/i.test(p.name || '') && !/payg|pay as you go/i.test(p.name || ''))) bits.push(m.credits + (m.credits === 1 ? ' class credit' : ' class credits'));
       if (m.request && m.request.status === 'received') bits.push('Request received');
       if (bits.length) { const l = el('div', 'sub', bits.join(' · ') + ' · tap the card for details'); l.style.cssText = 'margin:8px 4px 0;text-align:center'; box.appendChild(l); }
       return;
@@ -566,6 +567,7 @@
       const rb = el('button', 'btn-small', nextBooked ? 'Booked next week' : 'Same time next week');
       rb.disabled = nextBooked; rb.style.marginLeft = '6px'; rb.title = 'Book ' + x.class.name + ' again, ' + fmtShort(nextIso);
       rb.addEventListener('click', async () => {
+        if (!isGym(x.class) && !(await classAccessOk(x.class))) return;
         rb.disabled = true; rb.textContent = 'Booking...';
         try { await DB.book(x.class.id, nextIso); bkCache = null; renderBookings(); }
         catch (e) { rb.disabled = false; rb.textContent = 'Same time next week'; rb.title = (e && e.message) || 'Could not book that. Check the Timetable.'; up.insertBefore(el('p', 'note', (e && e.message) || 'Could not book next week. Check the Timetable.'), up.firstChild); }
@@ -1631,6 +1633,19 @@
     row.append(on, later); box.appendChild(row);
   }
 
+  /* Classes: a class membership books freely; everyone else spends one class credit (only once the staff switch is on).
+     Ask before spending it, and explain clearly when there is nothing to spend. The database enforces the same rule. */
+  async function classAccessOk(c) {
+    try {
+      const f = await ensureFeatures();
+      if (!f.class_plan_check || f.class_plan || (c && c.name === 'Kids Gym')) return true;
+      const m = await DB.getMembership().catch(() => null);
+      const n = (m && m.credits) || 0;
+      if (n > 0) return window.confirm('This class will use 1 of your ' + n + ' class credit' + (n === 1 ? '' : 's') + '. Continue?');
+      window.alert('Classes are for members. Join a plan on our website, or use a class credit if you have one. Paid as you go? You can book on our website.');
+      return false;
+    } catch (_e) { return true; }   // never block on a lookup problem: the server decides
+  }
   /* ---- Streak and milestones strip on Home: weeks in a row with at least one session ---- */
   const SESSION_MILESTONES = [10, 25, 50, 100, 250, 500];
   const STREAK_MILESTONES = [2, 4, 8, 12, 26, 52];
@@ -1731,9 +1746,11 @@
     }
     if (p) box.appendChild(memCardVisual(m));
     const u = m.usage || {};
+    const classPlan = !!(p && /class/i.test(p.name || '') && !/payg|pay as you go/i.test(p.name || ''));   // classes are included: credits are only for pay as you go
+    const showCredits = !classPlan && m.credits > 0;
     if (p) {
       const st = el('div', 'stats'); st.style.marginTop = '12px';
-      [[u.month || 0, 'visits this month'], [u.d30 || 0, 'last 30 days'], [m.credits || 0, m.credits === 1 ? 'class credit' : 'class credits']].forEach(([n, t]) => { const s = el('div', 'stat'); s.append(el('b', '', String(n)), el('small', '', t)); st.appendChild(s); });
+      [[u.month || 0, 'visits this month'], [u.d30 || 0, 'last 30 days']].concat(showCredits ? [[m.credits, m.credits === 1 ? 'class credit' : 'class credits']] : []).forEach(([n, t]) => { const s = el('div', 'stat'); s.append(el('b', '', String(n)), el('small', '', t)); st.appendChild(s); });
       box.appendChild(st);
     }
     const card = el('div', 'card'); box.appendChild(card);
@@ -1748,7 +1765,7 @@
       if (u.last_visit) add('Last visit', fmtShort(u.last_visit));
       const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:12px'; card.appendChild(upd);
     }
-    if (m.credits > 0) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. Ask us at the gym to use it.'); c.style.cssText = 'margin-top:12px;background:#e6f5ec;border-radius:12px;padding:10px 12px;font-size:14px'; card.appendChild(c); }
+    if (showCredits) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. ' + (feat && feat.class_plan_check ? 'A credit is used automatically when you book a class.' : 'Ask us at the gym to use it.')); c.style.cssText = 'margin-top:12px;background:#e6f5ec;border-radius:12px;padding:10px 12px;font-size:14px'; card.appendChild(c); }
     const q = m.request;
     const lblOf = { pause: 'Pause', cancel: 'Cancellation', change: 'Plan change' };
     const noticeText = 'Monthly plans have no minimum term. To cancel, give us at least 1 week’s notice before your next billing date. Nothing changes until we confirm it by email.';

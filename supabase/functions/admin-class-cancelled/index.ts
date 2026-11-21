@@ -58,8 +58,9 @@ async function wixPost(url: string, body: unknown) {
   return await res.json();
 }
 
-// confirmed website bookings for this class on this date, straight from Wix (not stored)
-async function wixPeople(c: ClassRow, date: string): Promise<{ id: string; first: string; last: string; email: string | null }[]> {
+// website bookings for this class on this date, straight from Wix (not stored): the confirmed ones, plus (once the class is cancelled) the ones that were cancelled
+// in Wix AFTER the class was cancelled, i.e. by the cancel step itself, so "Email people" still reaches them later. People who cancelled earlier are never included.
+async function wixPeople(c: ClassRow, date: string, since: string | null): Promise<{ id: string; first: string; last: string; email: string | null }[]> {
   const fromUtc = new Date(Date.parse(date + "T00:00:00Z") - 3 * 3600 * 1000).toISOString();
   const toUtc = new Date(Date.parse(date + "T00:00:00Z") + 27 * 3600 * 1000).toISOString();
   const svc = await wixPost("https://www.wixapis.com/_api/bookings/v2/services/query", { query: { paging: { limit: 100 } } });
@@ -67,7 +68,7 @@ async function wixPeople(c: ClassRow, date: string): Promise<{ id: string; first
   for (const s of svc.services ?? []) names.set(s.id, String(s.name ?? "").trim());
   const out: { id: string; first: string; last: string; email: string | null }[] = [];
   let body: Record<string, unknown> = {
-    query: { filter: { $and: [{ status: { $in: ["CONFIRMED"] } }, { startDate: { $gte: fromUtc } }, { startDate: { $lt: toUtc } }] }, sort: [{ fieldName: "startDate", order: "ASC" }], cursorPaging: { limit: 100 } },
+    query: { filter: { $and: [{ status: { $in: since ? ["CONFIRMED", "CANCELED"] : ["CONFIRMED"] } }, { startDate: { $gte: fromUtc } }, { startDate: { $lt: toUtc } }] }, sort: [{ fieldName: "startDate", order: "ASC" }], cursorPaging: { limit: 100 } },
   };
   for (let page = 0; page < 20; page++) {
     const data = await wixPost("https://www.wixapis.com/_api/bookings-reader/v2/extended-bookings/query", body);
@@ -75,6 +76,7 @@ async function wixPeople(c: ClassRow, date: string): Promise<{ id: string; first
       const b = x.booking ?? {};
       const slot = b.bookedEntity?.slot ?? b.bookedEntity?.item?.slot;
       if (!b.id || !slot?.serviceId || !b.startDate) continue;
+      if (b.status === "CANCELED" && !(since && String(b.updatedDate ?? "") >= new Date(Date.parse(since) - 60_000).toISOString())) continue;
       const name = names.get(slot.serviceId) ?? "";
       const isGym = GYM.test(name);
       const sameKind = c.kind === "gym" ? isGym : (!isGym && name.toLowerCase() === c.name.trim().toLowerCase());
@@ -117,6 +119,8 @@ Deno.serve(async (req) => {
   if (date < londonDate(new Date())) return json(req, 422, { ok: false, error: "That date has already passed." });
 
   try {
+    const { data: cx } = await admin.from("class_cancellations").select("created_at").eq("class_id", classId).eq("date", date).maybeSingle();
+    const since: string | null = cx?.created_at ? new Date(cx.created_at).toISOString() : null;
     // 1. app bookings (members), with their email and name
     const { data: bk } = await admin.from("class_bookings").select("id, user_id, wix_booking_id").eq("class_id", classId).eq("date", date);
     const people: Person[] = [];
@@ -132,7 +136,7 @@ Deno.serve(async (req) => {
     // 2. website bookings, asked of Wix now. A member who booked on the website is already above (same email), so they are not listed twice.
     let wixOk = true;
     try {
-      for (const w of await wixPeople(cls, date)) {
+      for (const w of await wixPeople(cls, date, since)) {
         if (w.email && seen.has(w.email)) continue;
         if (w.email) seen.add(w.email);
         const full = (w.first + " " + w.last).trim();

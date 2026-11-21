@@ -5,8 +5,8 @@
 //   1. Reads CONFIRMED Wix class and gym bookings for the next 22 days (Wix only returns what the booking window allows).
 //   2. Matches each to a member by email and to a timetable row by service, weekday and start time (London time).
 //   3. Adds the booking to public.class_bookings with source = 'wix' (so no app email is sent: Wix sends its own),
-//      and removes app rows that came from Wix and are no longer confirmed there (cancelled in Wix).
-//   Bookings made in the app (source = 'app') are never changed or removed.
+//      and removes app rows that have a Wix booking id and are no longer confirmed there (cancelled in Wix), whether the booking was
+//      made in Wix or in the app. App rows without a Wix booking id, rows newer than 10 minutes and rows beyond the 22 days are never touched.
 //   4. Bookings by people with no app account (or another email) are kept in public.wix_other_bookings as anonymous rows
 //      (class, date and Wix booking id only: no name, no email) so the spaces left in the app count everyone.
 //
@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
     // 3. what the app has
     const { data: cls, error: e1 } = await db.from("classes").select("id, day_name, start_time, name, kind").eq("active", true);
     if (e1) throw e1;
-    const { data: ex, error: e2 } = await db.from("class_bookings").select("id, class_id, user_id, date, source, wix_booking_id").gte("date", today);
+    const { data: ex, error: e2 } = await db.from("class_bookings").select("id, class_id, user_id, date, source, wix_booking_id, created_at").gte("date", today);
     if (e2) throw e2;
     const { data: exOther, error: e2b } = await db.from("wix_other_bookings").select("wix_booking_id, date").gte("date", today);
     if (e2b) throw e2b;
@@ -120,6 +120,7 @@ Deno.serve(async (req) => {
     const plan = planSync({
       bookings, serviceNames, classes: (cls ?? []) as ClassRow[], userByEmail, existing: (ex ?? []) as ExistingRow[],
       existingOther: (exOther ?? []) as ExistingOther[], windowFromDate: today,
+      windowToDate: new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(Date.now() + (WINDOW_DAYS - 1) * 86400 * 1000)),
     });
 
     if (!apply) return await finish({ ok: true, counts: plan.counts });
@@ -136,7 +137,7 @@ Deno.serve(async (req) => {
       added = plan.add.length;
     }
     if (plan.remove.length) {
-      const { error } = await db.from("class_bookings").delete().in("id", plan.remove).eq("source", "wix");
+      const { error } = await db.from("class_bookings").delete().in("id", plan.remove);
       if (error) throw error;
       removed = plan.remove.length;
     }

@@ -1,6 +1,6 @@
 // MY GYM London: pure matching logic for the Wix to app booking sync.
 // No network and no database here, so it can be tested on its own with made-up data.
-// Wix is the boss of these bookings: the app only mirrors CONFIRMED Wix bookings.
+// Wix and the app are mirrors: a booking cancelled in Wix disappears from the app too (whether it was made in Wix or in the app).
 //   * a booking by a member with an app account becomes a normal app booking (source 'wix')
 //   * a booking by anyone else is kept as an anonymous "other" booking (class, date and Wix id only, no name or email)
 //     so the spaces left in the app always count EVERYONE who is booked
@@ -10,7 +10,7 @@ export const GYM = /gym access|open gym/i; // the open-gym service; everything e
 
 export type WixBooking = { id: string; startDate: string; serviceId: string; email: string | null };
 export type ClassRow = { id: number; day_name: string; start_time: string; name: string; kind: string };
-export type ExistingRow = { id: string; class_id: number; user_id: string; date: string; source: string; wix_booking_id: string | null };
+export type ExistingRow = { id: string; class_id: number; user_id: string; date: string; source: string; wix_booking_id: string | null; created_at?: string };
 export type ExistingOther = { wix_booking_id: string; date: string };
 export type NewRow = { class_id: number; user_id: string; date: string; wix_booking_id: string };
 export type OtherRow = { wix_booking_id: string; class_id: number; date: string };
@@ -57,9 +57,12 @@ export function planSync(input: {
   existing: ExistingRow[];
   existingOther: ExistingOther[];
   windowFromDate: string;
+  windowToDate?: string;   // last London date Wix was asked about: rows after it are never removed (Wix did not answer for them)
+  nowMs?: number;
   removeLimit?: number;
 }): Plan {
   const { bookings, serviceNames, classes, userByEmail, existing, existingOther, windowFromDate } = input;
+  const toDate = input.windowToDate ?? "9999-12-31", nowMs = input.nowMs ?? Date.now();
   const counts = {
     fetched: bookings.length, noClass: 0, members: 0, noEmail: 0, noMember: 0,
     toAdd: 0, alreadyThere: 0, toRemove: 0, removeBlocked: false,
@@ -95,9 +98,11 @@ export function planSync(input: {
   }
   counts.toAdd = add.length;
 
-  // member rows that came from Wix, are in the window, and are no longer confirmed in Wix
+  // member rows with a Wix booking id (made in Wix, or made in the app and sent to Wix), inside the window, that are no longer confirmed in Wix.
+  // App-made rows get 10 minutes of grace so a booking made while this check was running is never removed by mistake.
   const liveIds = new Set(bookings.map((b) => b.id));
-  const wixRows = existing.filter((r) => r.source === "wix" && r.wix_booking_id && r.date >= windowFromDate);
+  const old = (r: ExistingRow) => r.source === "wix" || !r.created_at || nowMs - Date.parse(r.created_at) > 10 * 60_000;
+  const wixRows = existing.filter((r) => r.wix_booking_id && r.date >= windowFromDate && r.date <= toDate && old(r));
   const gone = wixRows.filter((r) => !liveIds.has(r.wix_booking_id as string));
   const limit = input.removeLimit ?? Math.max(5, Math.ceil(wixRows.length / 2));
   counts.toRemove = gone.length;

@@ -1,13 +1,14 @@
 // MY GYM London: back office "Class cancelled" (Schedule page). Admin only.
 //   {"action":"preview", class_id, date}          who is booked on that class on that date (app members AND people who booked on the website)
-//   {"action":"send", class_id, date, reason}     emails everyone in that list that the gym cancelled the class
-// It does NOT delete bookings or touch Wix. Emailing is optional: the page only calls "send" when the owner chooses to.
+//   {"action":"send", class_id, date, reason, cancel_wix?}   emails everyone in that list that the gym cancelled the class
+// By default it does NOT delete bookings or touch Wix. Only when the page sends cancel_wix:true (the owner ticks a box) is each person's own Wix booking cancelled too, one by one, along with their email, with no Wix email. The Wix session itself is never cancelled here.
+// Emailing is optional: the page only calls "send" when the owner chooses to.
 // People who booked only on the website are asked of Wix live, every time, and are NEVER stored here (the database keeps them as anonymous rows on purpose).
 // Verify JWT stays ON (a signed-in person is required) and the code then checks that person is an admin.
 // Secrets used: CRON_SECRET (to call send-email), WIX_API_KEY and WIX_SITE_ID (same as the booking sync; the key needs to read bookings).
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = ["https://admin.mygymlondon.co.uk", "http://localhost:8137"];
+const ALLOWED_ORIGINS = ["https://admin.mygymlondon.co.uk", "https://mygym-admin.pages.dev", "http://localhost:8137"];
 const cors = (req: Request) => ({
   "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(req.headers.get("origin") ?? "") ? req.headers.get("origin")! : ALLOWED_ORIGINS[0],
   "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Vary": "Origin",
@@ -25,8 +26,26 @@ function londonParts(iso: string): { date: string; time: string } {
 }
 const firstOf = (s: string) => (s ?? "").trim().split(/\s+/)[0] || "there";
 
-interface Person { key: string; name: string; source: "app" | "website"; email: string | null; user_id: string | null; first: string }
+interface Person { key: string; name: string; source: "app" | "website"; email: string | null; user_id: string | null; first: string; wix_id: string | null }
 interface ClassRow { id: number; name: string; day_name: string; start_time: string; kind: string }
+
+// cancels one person's booking in Wix (no Wix email). True when it is cancelled or already gone. Tries twice with a fresh revision each time.
+async function wixCancelBooking(bookingId: string): Promise<boolean> {
+  const headers = { "Content-Type": "application/json", "Authorization": Deno.env.get("WIX_API_KEY")!, "wix-site-id": Deno.env.get("WIX_SITE_ID")! };
+  const base = "https://www.wixapis.com";
+  for (let i = 0; i < 2; i++) {
+    const g = await fetch(base + "/_api/bookings-reader/v2/extended-bookings/query", { method: "POST", headers, body: JSON.stringify({ query: { filter: { id: { $eq: bookingId } }, cursorPaging: { limit: 1 } } }), signal: AbortSignal.timeout(8000) }).then((r) => r.json()).catch(() => null);
+    if (!g) continue;
+    const bs = g.extendedBookings ?? [];
+    if (bs.length === 0) return true;
+    const b = bs[0]?.booking;
+    if (b?.status === "CANCELED") return true;
+    if (b?.revision === undefined) continue;
+    const c = await fetch(base + `/bookings/v2/bookings/${encodeURIComponent(bookingId)}/cancel`, { method: "POST", headers, body: JSON.stringify({ revision: b.revision, participantNotification: { notifyParticipants: false }, flowControlSettings: { ignoreCancellationPolicy: true } }), signal: AbortSignal.timeout(8000) }).catch(() => null);
+    if (c?.ok) return true;
+  }
+  return false;
+}
 
 async function wixPost(url: string, body: unknown) {
   const res = await fetch(url, {
@@ -82,7 +101,7 @@ Deno.serve(async (req) => {
   const { data: prof } = await admin.from("profiles").select("is_admin").eq("id", u.user.id).maybeSingle();
   if (prof?.is_admin !== true) return json(req, 403, { ok: false, error: "Admins only." });
 
-  let input: { action?: string; class_id?: unknown; date?: unknown; reason?: unknown };
+  let input: { action?: string; class_id?: unknown; date?: unknown; reason?: unknown; cancel_wix?: unknown };
   try { input = await req.json(); } catch { return json(req, 400, { ok: false, error: "Bad request" }); }
   const action = input.action === "send" ? "send" : input.action === "preview" ? "preview" : null;
   if (!action) return json(req, 400, { ok: false, error: "Unknown action." });
@@ -98,16 +117,16 @@ Deno.serve(async (req) => {
 
   try {
     // 1. app bookings (members), with their email and name
-    const { data: bk } = await admin.from("class_bookings").select("id, user_id").eq("class_id", classId).eq("date", date);
+    const { data: bk } = await admin.from("class_bookings").select("id, user_id, wix_booking_id").eq("class_id", classId).eq("date", date);
     const people: Person[] = [];
     const seen = new Set<string>();
-    for (const b of (bk ?? []) as { id: string; user_id: string }[]) {
+    for (const b of (bk ?? []) as { id: string; user_id: string; wix_booking_id: string | null }[]) {
       const { data: pr } = await admin.from("profiles").select("full_name").eq("id", b.user_id).maybeSingle();
       const { data: au } = await admin.auth.admin.getUserById(b.user_id);
       const email = au?.user?.email ? au.user.email.toLowerCase() : null;
       const full = String(pr?.full_name ?? "").trim();
       if (email) seen.add(email);
-      people.push({ key: "gymcancel-" + b.id, name: full || "Member", source: "app", email, user_id: b.user_id, first: firstOf(full) });
+      people.push({ key: "gymcancel-" + b.id, name: full || "Member", source: "app", email, user_id: b.user_id, first: firstOf(full), wix_id: b.wix_booking_id ?? null });
     }
     // 2. website bookings, asked of Wix now. A member who booked on the website is already above (same email), so they are not listed twice.
     let wixOk = true;
@@ -116,7 +135,7 @@ Deno.serve(async (req) => {
         if (w.email && seen.has(w.email)) continue;
         if (w.email) seen.add(w.email);
         const full = (w.first + " " + w.last).trim();
-        people.push({ key: "gymcancel-wix-" + w.id, name: full || "Website booking", source: "website", email: w.email, user_id: null, first: w.first || "there" });
+        people.push({ key: "gymcancel-wix-" + w.id, name: full || "Website booking", source: "website", email: w.email, user_id: null, first: w.first || "there", wix_id: w.id });
       }
     } catch (e) {
       wixOk = false;
@@ -138,8 +157,10 @@ Deno.serve(async (req) => {
     // send: if the website could not be checked, send nothing rather than email only half the people
     if (!wixOk) return json(req, 502, { ok: false, error: "Could not check the website bookings, so nothing was sent. Please try again in a minute." });
     const cron = Deno.env.get("CRON_SECRET") ?? "";
-    let sent = 0, skipped = 0, failed = 0;
+    let sent = 0, skipped = 0, failed = 0, wixCancelled = 0, wixFailed = 0;
+    const alsoWix = input.cancel_wix === true;
     for (const p of people) {
+      if (alsoWix && p.wix_id) { if (await wixCancelBooking(p.wix_id)) wixCancelled++; else wixFailed++; }
       if (!p.email && !p.user_id) { skipped++; continue; }
       try {
         const r = await fetch(Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email", {
@@ -151,8 +172,8 @@ Deno.serve(async (req) => {
         if (!r.ok || !out.ok) failed++; else if (out.skipped) skipped++; else sent++;
       } catch { failed++; }
     }
-    await admin.from("staff_access_log").insert({ user_id: u.user.id, action: "class_cancelled_email", target: `${classId}:${date}` });
-    return json(req, 200, { ok: true, class_name: className, when, count: people.length, sent, skipped, failed });
+    await admin.from("staff_access_log").insert({ user_id: u.user.id, action: "class_cancelled_email", target: `${classId}:${date}` + (alsoWix ? ":wix" : "") });
+    return json(req, 200, { ok: true, class_name: className, when, count: people.length, sent, skipped, failed, ...(alsoWix ? { wix_cancelled: wixCancelled, wix_failed: wixFailed } : {}) });
   } catch (e) {
     console.error("admin-class-cancelled failed", String((e as Error)?.message ?? e));
     return json(req, 500, { ok: false, error: "Something went wrong." });

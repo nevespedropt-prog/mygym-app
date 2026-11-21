@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       if (list.length < 1000) break;
     }
     let uid: string, existed = false;
-    if (existing) { uid = existing.id; existed = true; }
+    if (existing) { uid = existing.id; existed = true; if (await isTeam(uid)) return json(req, 400, { ok: false, error: "That person is already on the team. Change them in the list below." }); }
     else {
       const bad = passwordProblem(b.password); if (bad) return json(req, 400, { ok: false, error: bad });
       const c = await db.auth.admin.createUser({ email, password: String(b.password), email_confirm: true, user_metadata: { full_name: name, must_change_password: b.must_change !== false } });
@@ -92,6 +92,11 @@ Deno.serve(async (req) => {
   const uid = String(b.user_id ?? "");
   if (!GUID.test(uid)) return json(req, 400, { ok: false, error: "Bad request." });
   if (!(await isTeam(uid))) return json(req, 404, { ok: false, error: "That person is not on the team." });
+  // the owner is the oldest admin account: no other admin can reset, change or remove them
+  const { data: admins } = await db.from("profiles").select("id").eq("is_admin", true);
+  let ownerId: string | null = null, ownerAt = "";
+  for (const r of admins ?? []) { const { data: g } = await db.auth.admin.getUserById(r.id); const at = g?.user?.created_at ?? "9999"; if (!ownerId || at < ownerAt) { ownerId = r.id; ownerAt = at; } }
+  if (uid === ownerId && caller.id !== ownerId) return json(req, 403, { ok: false, error: "Only the owner can change the owner's account." });
 
   if (action === "set_password") {
     const bad = passwordProblem(b.password); if (bad) return json(req, 400, { ok: false, error: bad });

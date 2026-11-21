@@ -11,6 +11,10 @@
   }
 
   const $ = (s) => document.querySelector(s);
+  const XC = window.MYGYM_CONFIG || {};
+  const MEMBERSHIPS_URL = (XC.WIX_BASE || 'https://www.mygymlondon.co.uk') + (XC.WIX_MEMBERSHIPS || '/pricing-plans/memberships');
+  const CARD_URL = (XC.WIX_BASE || 'https://www.mygymlondon.co.uk') + (XC.WIX_CARD || '/my-subscriptions');
+  const CLASSES_URL = XC.WEBSITE_CLASSES || 'https://www.mygymlondon.co.uk/our-classes';   // all payment and plan links come from config.js, so the move is one edit
   const $$ = (s) => Array.from(document.querySelectorAll(s));
 
   /* ---------- helpers ---------- */
@@ -83,6 +87,10 @@
     authMode = b.dataset.t;
     $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x === b));
     $('#nameField').style.display = authMode === 'up' ? 'block' : 'none';
+    $('#lastField').style.display = authMode === 'up' ? 'block' : 'none';
+    $('#phoneField').style.display = authMode === 'up' ? 'block' : 'none';
+    $('#photoRow').style.display = authMode === 'up' ? 'block' : 'none';
+    if (authMode === 'up' && !$('#photoRow').firstChild) renderPhotoPicker();
     $('#aPass').autocomplete = authMode === 'up' ? 'new-password' : 'current-password';
     $('#aSubmit').textContent = authMode === 'up' ? 'Create account' : 'Log in';
     $('#authTitle').textContent = authMode === 'up' ? 'Join MY GYM' : 'Member login';
@@ -141,6 +149,8 @@
     const pass = $('#aPass').value;
     const err = $('#aErr');
     if (!email || !pass) return toast(err, 'Enter your email and password.', true);
+    if (authMode === 'up' && (!$('#aName').value.trim() || !$('#aLast').value.trim())) return toast(err, 'Please add your first and last name.', true);
+    if (authMode === 'up' && $('#aPhone').value.replace(/\D/g, '').length < 7) return toast(err, 'Please add a phone number we can reach you on.', true);
     if (authMode === 'up' && pass.length < 8) return toast(err, 'Password must be at least 8 characters.', true);
     if (authMode === 'up' && !$('#aAgree').checked) return toast(err, 'Please tick the box to agree to the Terms and Privacy Policy.', true);
     $('#aSubmit').disabled = true;
@@ -148,16 +158,19 @@
       if (authMode === 'up') {
         const wantsNews = $('#aNews').checked;   // ticked by default; the wording says it can be switched off any time
         try { localStorage.setItem('mygym_news_pref', wantsNews ? '1' : '0'); } catch (_e) { /* private window */ }
-        const res = await DB.signUp(email, pass, $('#aName').value.trim());
+        const res = await DB.signUp(email, pass, $('#aName').value.trim() + ' ' + $('#aLast').value.trim(), $('#aPhone').value.trim());
         if (DB.isLive() && !(res && res.session)) {
           $('#authSub').textContent = '✅ Account created — check your email to confirm, then log in.';
           authMode = 'in';
           $$('#authSeg button').forEach((x) => x.classList.toggle('sel', x.dataset.t === 'in'));
           $('#nameField').style.display = 'none';
+          $('#lastField').style.display = 'none';
+          $('#phoneField').style.display = 'none';
           $('#agreeField').style.display = 'none';
           $('#newsField').style.display = 'none';
           $('#aSubmit').textContent = 'Log in';
         } else {
+          if (signupPhoto) { try { await DB.uploadPhoto(signupPhoto); } catch (_e) { /* they will be asked again on Home */ } signupPhoto = null; }
           if (wantsNews) { try { await DB.setMarketing(true, 'app-signup'); } catch (_e) { /* they can switch it on in Account, Privacy and data */ } }
           try { localStorage.removeItem('mygym_news_pref'); } catch (_e) { /* private window */ }
           await afterAuth();
@@ -242,7 +255,7 @@
       card.appendChild(el('b', '', 'Gym booking is for Gym & Exercise Class members'));
       card.appendChild(el('p', 'sub', 'Your current plan doesn’t include open-gym access. Upgrade on our website and your hours unlock here.'));
       const a = el('a', 'btn-small', 'See memberships →');
-      a.href = 'https://www.mygymlondon.co.uk/pricing-plans/memberships'; a.target = '_blank'; a.rel = 'noopener';
+      a.href = MEMBERSHIPS_URL; a.target = '_blank'; a.rel = 'noopener';
       a.style.display = 'inline-block'; a.style.textDecoration = 'none';
       card.appendChild(a);
     }
@@ -469,6 +482,7 @@
     $('#healthBanner').style.display = (authed && healthRec !== undefined && !healthOk()) ? 'block' : 'none';
     $('#helloName').textContent = first ? 'Hi ' + first + ", let's move! 👋" : "Hi! Let's check your activity 👋";
     renderMemHome();
+    renderPhotoCard($('#photoPrompt'), { onlyMissing: true });
     renderStreak();
     renderRemPrompt();
     try {
@@ -1638,6 +1652,13 @@
   async function classAccessOk(c) {
     try {
       const f = await ensureFeatures();
+      if (c && c.name !== 'Kids Gym') {
+        const fe = await DB.freeEligible();
+        if (fe && fe.eligible) {
+          if (window.confirm('Your first sessions are free! Request your free class on our website now? We confirm your place by email.')) window.open(CLASSES_URL, '_blank', 'noopener');
+          return false;
+        }
+      }
       if (!f.class_plan_check || f.class_plan || (c && c.name === 'Kids Gym')) return true;
       const m = await DB.getMembership().catch(() => null);
       const n = (m && m.credits) || 0;
@@ -1646,6 +1667,107 @@
       return false;
     } catch (_e) { return true; }   // never block on a lookup problem: the server decides
   }
+  /* ---- Free sessions (2 in total, any mix of classes and gym sessions): what was asked for, what happened, and a membership suggestion ---- */
+  async function renderFreeSessions(box) {
+    let free = [], el0 = {};
+    try { [free, el0] = await Promise.all([DB.freeRequests(), DB.freeEligible()]); } catch (_e) { return; }
+    if (!free.length && !(el0 && el0.eligible)) return;
+    const card = el('div', 'card'); box.appendChild(card);
+    card.appendChild(el('h3', '', 'Your free sessions'));
+    const left = el0 && el0.remaining != null ? el0.remaining : 2;
+    card.appendChild(el('p', 'sub', left > 0 ? 'You have ' + left + ' free ' + (left === 1 ? 'session' : 'sessions') + ' left. Try any class or gym session, in any mix. Request one on our website.' : 'You have used your free sessions.'));
+    const LBL = { requested: 'Requested', booked: 'Confirmed', done: 'Done', closed: 'Closed' };
+    free.forEach((f) => {
+      const r = el('div', ''); r.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)';
+      const t = el('div', ''); t.appendChild(el('b', '', f.what + (f.date ? ' · ' + fmtShort(f.date) : '')));
+      t.appendChild(el('div', 'sub', f.state === 'requested' ? 'We will email you to confirm.' : f.state === 'booked' ? 'Your place is booked.' : f.state === 'done' ? 'Thanks for coming.' : 'This request was closed.'));
+      const chip = el('span', '', LBL[f.state] || f.state); chip.style.cssText = 'padding:2px 12px;border-radius:99px;font-size:13px;font-weight:700;background:' + (f.state === 'booked' ? '#e6f5ec' : f.state === 'done' ? 'var(--line)' : '#fff6d6');
+      r.append(t, chip); card.appendChild(r);
+    });
+    if (left > 0) { const b = el('a', 'btn-small', 'Choose a free class →'); b.href = CLASSES_URL; b.target = '_blank'; b.rel = 'noopener'; b.style.cssText = 'display:inline-block;margin-top:10px'; card.appendChild(b); }
+    if (free.length) {
+      let plans = []; try { plans = await DB.publicPlans(); } catch (_e) { plans = []; }
+      const want = free[0].kind === 'gym' ? ['Gym Membership', 'Gym & Exercise Class Membership'] : ['Gym & Exercise Class Membership', 'Exercise Class Only Membership'];
+      const pick = want.map((n) => plans.find((p) => p.name === n)).filter(Boolean);
+      if (pick.length) {
+        const s = el('div', 'card'); box.appendChild(s);
+        s.appendChild(el('h3', '', 'Ready to join?'));
+        s.appendChild(el('p', 'sub', 'Here is what we suggest after your free ' + (free[0].kind === 'gym' ? 'gym session' : 'class') + '. No joining fee, and monthly plans have no minimum term.'));
+        pick.forEach((p, i) => {
+          const row = el('div', ''); row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)';
+          const t = el('div', ''); t.appendChild(el('b', '', p.name)); t.appendChild(el('div', 'sub', money(p.price) + ' ' + p.per + (i === 0 ? ' · best value' : '')));
+          const a = el('a', i === 0 ? 'btn-small' : 'btn-small ghost', 'Join'); a.href = MEMBERSHIPS_URL; a.target = '_blank'; a.rel = 'noopener';
+          row.append(t, a); s.appendChild(row);
+        });
+      }
+    }
+  }
+
+  /* ---- Member photo: ideally a clear picture of the face, so the team can recognise people at the gym. Shrunk here to a 600 pixel square. ---- */
+  const CAMERA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  function preparePhoto(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !/^image\//.test(file.type || '')) return reject(new Error('Please choose a picture.'));
+      const fr = new FileReader();
+      fr.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const s = Math.min(img.naturalWidth, img.naturalHeight), out = Math.min(600, s), c = document.createElement('canvas'); c.width = c.height = out;
+            c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, out, out);
+            c.toBlob((b) => b ? resolve(b) : reject(new Error('We could not read that picture. Please try another.')), 'image/jpeg', 0.82);
+          } catch (_e) { reject(new Error('We could not read that picture. Please try another.')); }
+        };
+        img.onerror = () => reject(new Error('We could not read that picture. Please try another one (JPEG or PNG).'));
+        img.src = fr.result;
+      };
+      fr.onerror = () => reject(new Error('We could not read that picture.'));
+      fr.readAsDataURL(file);
+    });
+  }
+  function photoInputs(onFile) {
+    const mk = (cap) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.hidden = true; if (cap) i.setAttribute('capture', 'user'); i.addEventListener('change', () => { const f = i.files && i.files[0]; i.value = ''; if (f) onFile(f); }); return i; };
+    return { cam: mk(true), gal: mk(false) };
+  }
+  function avatarEl(src) { const a0 = el('div', 'pavatar' + (src ? ' has' : '')); if (src) { const i = document.createElement('img'); i.alt = 'Your photo'; i.src = src; a0.appendChild(i); } else a0.innerHTML = CAMERA_SVG; return a0; }
+  async function renderPhotoCard(box, opts) {
+    if (!box) return; opts = opts || {};
+    box.textContent = '';
+    const has = !!(profile && profile.photo_at) || (!DB.isLive() && !!(await DB.photoDataUrl().catch(() => null)));
+    if (opts.onlyMissing && has) { box.hidden = true; return; }
+    box.hidden = false;
+    const src = has ? await DB.photoDataUrl().catch(() => null) : null;
+    const c = el('div', 'card photocard' + (has ? ' done' : '')), body = el('div', 'pbody');
+    body.appendChild(el('span', 'pchip', has ? 'Photo added' : 'Please add your photo'));
+    body.appendChild(el('h3', '', has ? 'Looking good' : 'Add your photo'));
+    body.appendChild(el('p', 'sub', has ? 'Thank you. Our team can recognise you when you come to the gym. You can change it any time.' : 'Ideally a clear photo of your face, so we know you are a real person and can recognise you when you come to the gym. We never reject a photo, and you can change it any time.'));
+    const msg = el('div', 'err', ''); const acts = el('div', 'acts');
+    const pick = photoInputs((f) => {
+      msg.textContent = ''; acts.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      preparePhoto(f).then((blob) => DB.uploadPhoto(blob)).then(async () => { profile = Object.assign(profile || {}, { photo_at: new Date().toISOString() }); await renderPhotoCard(box, opts); if (opts.after) opts.after(); })
+        .catch((e) => { acts.querySelectorAll('button').forEach((b) => { b.disabled = false; }); msg.textContent = e.message || 'Something went wrong. Please try again.'; });
+    });
+    const b1 = el('button', 'btn-small', has ? 'Take a new photo' : 'Take a photo'); b1.type = 'button'; b1.addEventListener('click', () => pick.cam.click());
+    const b2 = el('button', 'btn-small ghost', has ? 'Choose another' : 'Choose a photo'); b2.type = 'button'; b2.addEventListener('click', () => pick.gal.click());
+    acts.append(b1, b2);
+    if (has) { const b3 = el('button', 'btn-small ghost', 'Remove'); b3.type = 'button'; b3.addEventListener('click', async () => { if (!window.confirm('Remove your photo?')) return; await DB.removePhoto(); profile = Object.assign(profile || {}, { photo_at: null }); await renderPhotoCard(box, opts); if (opts.after) opts.after(); }); acts.appendChild(b3); }
+    body.append(acts, msg, el('p', 'sub', 'Only you and our coaches and management can see your photo. We do not use face recognition.'));
+    c.append(avatarEl(src), body, pick.cam, pick.gal); box.appendChild(c);
+  }
+  /* sign-up: optional picker that keeps the picture until the account exists */
+  let signupPhoto = null;
+  function renderPhotoPicker() {
+    const box = $('#photoRow'); if (!box) return; box.textContent = ''; signupPhoto = null;
+    const wrap = el('div', 'ppicker'); let av = avatarEl(null); const body = el('div', 'pbody');
+    body.appendChild(el('b', '', 'Add your photo'));
+    body.appendChild(el('div', 'sub', 'Ideally a clear photo of your face, so we know you are a real person and can recognise you at the gym. You can change it any time.'));
+    const msg = el('div', 'err', '');
+    const pick = photoInputs((f) => preparePhoto(f).then((blob) => { signupPhoto = blob; const fr = new FileReader(); fr.onload = () => { const n = avatarEl(fr.result); wrap.replaceChild(n, av); av = n; }; fr.readAsDataURL(blob); msg.textContent = ''; }).catch((e) => { msg.textContent = e.message; }));
+    const row = el('div', 'acts'), b1 = el('button', 'btn-small', 'Take a photo'), b2 = el('button', 'btn-small ghost', 'Choose one'); b1.type = b2.type = 'button';
+    b1.addEventListener('click', () => pick.cam.click()); b2.addEventListener('click', () => pick.gal.click());
+    row.append(b1, b2); body.append(row, msg); wrap.append(av, body, pick.cam, pick.gal); box.appendChild(wrap);
+  }
+
   /* ---- Streak and milestones strip on Home: weeks in a row with at least one session ---- */
   const SESSION_MILESTONES = [10, 25, 50, 100, 250, 500];
   const STREAK_MILESTONES = [2, 4, 8, 12, 26, 52];
@@ -1740,8 +1862,26 @@
       const card = el('div', 'card'); box.appendChild(card);
       card.appendChild(el('h3', '', 'My membership'));
       card.appendChild(el('p', 'sub', 'Your account is ready. You do not have a membership yet. Members book classes and gym slots here. You can also pay as you go for a single class on our website.'));
-      const a1 = el('a', 'btn-small', 'See memberships →'); a1.href = 'https://www.mygymlondon.co.uk/pricing-plans/memberships'; a1.target = '_blank'; a1.rel = 'noopener'; card.appendChild(a1);
-      const a2 = el('a', 'btn-small', 'Pay as you go →'); a2.href = 'https://www.mygymlondon.co.uk/our-classes'; a2.target = '_blank'; a2.rel = 'noopener'; a2.style.marginLeft = '8px'; card.appendChild(a2);
+      const a1 = el('a', 'btn-small', 'See memberships →'); a1.href = MEMBERSHIPS_URL; a1.target = '_blank'; a1.rel = 'noopener'; card.appendChild(a1);
+      const a2 = el('a', 'btn-small', 'Pay as you go →'); a2.href = CLASSES_URL; a2.target = '_blank'; a2.rel = 'noopener'; a2.style.marginLeft = '8px'; card.appendChild(a2);
+      /* paid with another email? staff check it and link it by hand */
+      const hc = el('div', ''); hc.style.cssText = 'margin-top:16px;padding-top:14px;border-top:1px solid var(--line)'; card.appendChild(hc);
+      hc.appendChild(el('b', '', 'Paid but cannot see your plan?'));
+      hc.appendChild(el('div', 'sub', 'We match your plan by email. If you used a different email at checkout, tell us which one and we will check and link it.'));
+      const ho = el('button', 'btn-small ghost', 'Tell us the email I paid with'); ho.type = 'button'; ho.style.marginTop = '8px'; hc.appendChild(ho);
+      const hf = el('div', ''); hf.hidden = true; hf.style.marginTop = '10px'; hc.appendChild(hf);
+      const hOther = el('input', ''); hOther.type = 'email'; hOther.placeholder = 'The email you used at checkout'; hOther.autocomplete = 'email';
+      const hMsg = el('textarea', ''); hMsg.rows = 2; hMsg.maxLength = 500; hMsg.placeholder = 'Anything that helps us find it (optional)';
+      const hErr = el('div', 'err', ''); const hSend = el('button', 'cta', 'Send to the gym');
+      [['Email used at checkout', hOther], ['', hMsg]].forEach(([l, n]) => { const f = el('div', 'field'); if (l) f.appendChild(el('label', '', l)); f.appendChild(n); hf.appendChild(f); });
+      hf.append(hErr, hSend);
+      ho.addEventListener('click', () => { hf.hidden = !hf.hidden; });
+      hSend.addEventListener('click', async () => {
+        hSend.disabled = true; hErr.textContent = '';
+        try { await DB.requestPlanHelp(hOther.value.trim(), hMsg.value); hf.textContent = ''; hf.appendChild(el('div', 'ok2', 'Thank you. We will check and email you within 2 working days.')); }
+        catch (e) { hErr.textContent = e.message; hSend.disabled = false; }
+      });
+      renderFreeSessions(box);
       return;
     }
     if (p) box.appendChild(memCardVisual(m));
@@ -1763,7 +1903,7 @@
       add('You can book', p.type === 'gym_classes' ? 'Classes and gym slots' : p.type === 'classes' ? 'Classes' : p.type === 'gym' ? 'Gym slots' : 'See your plan');
       if (u.next) add('Next booking', fmtShort(u.next.date) + ' · ' + (u.next.time || '').slice(0, 5) + ' ' + (u.next.name || ''));
       if (u.last_visit) add('Last visit', fmtShort(u.last_visit));
-      const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = 'https://www.mygymlondon.co.uk/my-subscriptions'; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:12px'; card.appendChild(upd);
+      const upd = el('a', 'btn-small', 'Update my card or see receipts →'); upd.href = CARD_URL; upd.target = '_blank'; upd.rel = 'noopener'; upd.style.cssText = 'display:inline-block;margin-top:12px'; card.appendChild(upd);
     }
     if (showCredits) { const c = el('div', '', '🎟️ ' + m.credits + (m.credits === 1 ? ' class credit' : ' class credits') + ' available. ' + (feat && feat.class_plan_check ? 'A credit is used automatically when you book a class.' : 'Ask us at the gym to use it.')); c.style.cssText = 'margin-top:12px;background:#e6f5ec;border-radius:12px;padding:10px 12px;font-size:14px'; card.appendChild(c); }
     const q = m.request;
@@ -1876,6 +2016,7 @@
   }
   async function renderProfile() {
     renderFriend();
+    renderPhotoCard($('#photoCard'), {});
     renderReminders();
     renderMembership();
     renderHealthProfile();

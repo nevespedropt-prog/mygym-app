@@ -277,14 +277,14 @@
     isLive: () => LIVE,
 
     /* ---- auth ---- */
-    async signUp(email, password, fullName) {
+    async signUp(email, password, fullName, phone) {
       if (!LIVE) {
         const users = dGet('users', {});
         if (users[email]) throw new Error('An account with this email already exists');
         users[email] = { id: uid(), password, full_name: fullName || '' };
         dSet('users', users);
         dSet('session', { email });
-        dSet('profile_' + email, { full_name: fullName || '', phone: '', weight_kg: null, goal: '', is_admin: false });
+        dSet('profile_' + email, { full_name: fullName || '', phone: phone || '', weight_kg: null, goal: '', is_admin: false });
         return { email };
       }
       const r = await fetch(CFG.SUPABASE_URL + '/functions/v1/member-signup', {
@@ -296,6 +296,7 @@
       if (!r.ok) throw new Error(out.error || 'Could not create the account. Please try again.');
       const { data, error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (error) throw error;
+      if (phone && data.session) { try { await sb.from('profiles').update({ phone }).eq('id', data.session.user.id); } catch (_e) { /* they can add it in Account, My details */ } }
       return { email, session: data.session };
     },
 
@@ -388,9 +389,47 @@
     },
     async deleteAccount() {
       if (!LIVE) throw new Error('Not available in demo mode.');
+      try { const u0 = await DB.getUser(); if (u0) await sb.storage.from('member-photos').remove([u0.id + '/photo.jpg']); } catch (_e) { /* the rest is deleted anyway */ }
       const { error } = await sb.rpc('delete_my_account');
       if (error) throw new Error(error.message || 'Could not delete. Try again.');
       try { await sb.auth.signOut(); } catch (e) { /* the login no longer exists */ }
+    },
+    async freeEligible() {
+      if (!LIVE) return { eligible: false };
+      const { data, error } = await sb.rpc('my_free_class_eligible');
+      return error ? { eligible: false } : data;
+    },
+    async freeRequests() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.rpc('my_free_requests');
+      return error ? [] : (data || []);
+    },
+    async publicPlans() {
+      if (!LIVE) return [];
+      const { data, error } = await sb.rpc('public_plans');
+      return error ? [] : (data || []);
+    },
+    /* ---- member photo: a private file per member; only staff can look at it ---- */
+    async uploadPhoto(blob) {
+      const u = await DB.getUser(); if (!u) throw new Error('Not signed in');
+      if (!LIVE) { const fr = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); }); dSet('photo_' + u.email, fr); return; }
+      const up = await sb.storage.from('member-photos').upload(u.id + '/photo.jpg', blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' });
+      if (up.error) throw new Error('We could not save your photo. Please try again.');
+      const r = await sb.rpc('my_photo_saved', { p_on: true });
+      if (r.error) throw new Error('We could not save your photo. Please try again.');
+    },
+    async removePhoto() {
+      const u = await DB.getUser(); if (!u) return;
+      if (!LIVE) { localStorage.removeItem(DK + 'photo_' + u.email); return; }
+      await sb.storage.from('member-photos').remove([u.id + '/photo.jpg']);
+      await sb.rpc('my_photo_saved', { p_on: false });
+    },
+    async photoDataUrl() {
+      const u = await DB.getUser(); if (!u) return null;
+      if (!LIVE) return dGet('photo_' + u.email, null);
+      const { data, error } = await sb.storage.from('member-photos').download(u.id + '/photo.jpg');
+      if (error || !data) return null;
+      return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(data); });
     },
     async planOptions() {
       if (!LIVE) return [];

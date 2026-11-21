@@ -1,7 +1,8 @@
 // MY GYM London: back office "Class cancelled" (Schedule page). Admin only.
 //   {"action":"preview", class_id, date}          who is booked on that class on that date (app members AND people who booked on the website)
-//   {"action":"send", class_id, date, reason, cancel_wix?}   emails everyone in that list that the gym cancelled the class
-// By default it does NOT delete bookings or touch Wix. Only when the page sends cancel_wix:true (the owner ticks a box) is each person's own Wix booking cancelled too, one by one, along with their email, with no Wix email. The Wix session itself is never cancelled here.
+//   {"action":"wix", class_id, date}              cancels each person's own booking in Wix (website and app bookings), no Wix email. The page calls this automatically whenever the class is cancelled, so Wix mirrors the app.
+//   {"action":"send", class_id, date, reason}     emails everyone in that list that the gym cancelled the class (optional; Wix is NOT touched by this)
+// The Wix session itself is never cancelled here, only the people's bookings.
 // Emailing is optional: the page only calls "send" when the owner chooses to.
 // People who booked only on the website are asked of Wix live, every time, and are NEVER stored here (the database keeps them as anonymous rows on purpose).
 // Verify JWT stays ON (a signed-in person is required) and the code then checks that person is an admin.
@@ -101,9 +102,9 @@ Deno.serve(async (req) => {
   const { data: prof } = await admin.from("profiles").select("is_admin").eq("id", u.user.id).maybeSingle();
   if (prof?.is_admin !== true) return json(req, 403, { ok: false, error: "Admins only." });
 
-  let input: { action?: string; class_id?: unknown; date?: unknown; reason?: unknown; cancel_wix?: unknown };
+  let input: { action?: string; class_id?: unknown; date?: unknown; reason?: unknown };
   try { input = await req.json(); } catch { return json(req, 400, { ok: false, error: "Bad request" }); }
-  const action = input.action === "send" ? "send" : input.action === "preview" ? "preview" : null;
+  const action = input.action === "send" ? "send" : input.action === "wix" ? "wix" : input.action === "preview" ? "preview" : null;
   if (!action) return json(req, 400, { ok: false, error: "Unknown action." });
   const classId = Number(input.class_id), date = String(input.date ?? "");
   const reason = String(input.reason ?? "").replace(/[\r\n]+/g, " ").trim().slice(0, 200);
@@ -154,13 +155,20 @@ Deno.serve(async (req) => {
       });
     }
 
+    // wix: cancel every booked person's Wix booking (app members use the id stored on their booking, website-only people come straight from Wix)
+    if (action === "wix") {
+      if (!wixOk) return json(req, 502, { ok: false, error: "Could not check the website bookings, so nothing was cancelled in Wix. Please try again in a minute." });
+      let done = 0, notDone = 0;
+      for (const p of people) { if (!p.wix_id) continue; if (await wixCancelBooking(p.wix_id)) done++; else notDone++; }
+      await admin.from("staff_access_log").insert({ user_id: u.user.id, action: "class_cancelled_wix", target: `${classId}:${date}` });
+      return json(req, 200, { ok: true, count: people.length, wix_cancelled: done, wix_failed: notDone });
+    }
+
     // send: if the website could not be checked, send nothing rather than email only half the people
     if (!wixOk) return json(req, 502, { ok: false, error: "Could not check the website bookings, so nothing was sent. Please try again in a minute." });
     const cron = Deno.env.get("CRON_SECRET") ?? "";
-    let sent = 0, skipped = 0, failed = 0, wixCancelled = 0, wixFailed = 0;
-    const alsoWix = input.cancel_wix === true;
+    let sent = 0, skipped = 0, failed = 0;
     for (const p of people) {
-      if (alsoWix && p.wix_id) { if (await wixCancelBooking(p.wix_id)) wixCancelled++; else wixFailed++; }
       if (!p.email && !p.user_id) { skipped++; continue; }
       try {
         const r = await fetch(Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email", {
@@ -172,8 +180,8 @@ Deno.serve(async (req) => {
         if (!r.ok || !out.ok) failed++; else if (out.skipped) skipped++; else sent++;
       } catch { failed++; }
     }
-    await admin.from("staff_access_log").insert({ user_id: u.user.id, action: "class_cancelled_email", target: `${classId}:${date}` + (alsoWix ? ":wix" : "") });
-    return json(req, 200, { ok: true, class_name: className, when, count: people.length, sent, skipped, failed, ...(alsoWix ? { wix_cancelled: wixCancelled, wix_failed: wixFailed } : {}) });
+    await admin.from("staff_access_log").insert({ user_id: u.user.id, action: "class_cancelled_email", target: `${classId}:${date}` });
+    return json(req, 200, { ok: true, class_name: className, when, count: people.length, sent, skipped, failed });
   } catch (e) {
     console.error("admin-class-cancelled failed", String((e as Error)?.message ?? e));
     return json(req, 500, { ok: false, error: "Something went wrong." });

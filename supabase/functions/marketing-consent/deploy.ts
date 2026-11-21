@@ -61,9 +61,17 @@ Deno.serve(async (req) => {
   try { b = await req.json(); } catch { return json(req, 400, { ok: false }); }
   const action = b.a === "confirm" ? "confirm" : b.a === "unsubscribe" ? "unsubscribe" : null;
   if (!action) return json(req, 400, { ok: false, error: "Unknown link." });
-  const email = await checkToken(Deno.env.get("EMAIL_TOKEN_SECRET") ?? "", action, b.t);
-  if (!email) return json(req, 400, { ok: false, error: "This link is not valid. Please use the latest email we sent you." });
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  // at most 20 WRONG links per hour from one address (stops guessing of tokens). A genuine link is never counted or blocked, so nobody is stopped from unsubscribing.
+  const ip = (req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
+  const rlKey = "consent:" + ip, rlCutoff = new Date(Date.now() - 3600_000).toISOString();
+  const email = await checkToken(Deno.env.get("EMAIL_TOKEN_SECRET") ?? "", action, b.t);
+  if (!email) {
+    const { data: rlRow } = await admin.from("rate_limits").select("hits, window_start").eq("key", rlKey).maybeSingle();
+    if (rlRow && rlRow.window_start > rlCutoff && rlRow.hits >= 20) return json(req, 429, { ok: false, error: "Too many requests. Please try again later." });
+    await admin.from("rate_limits").upsert((!rlRow || rlRow.window_start <= rlCutoff) ? { key: rlKey, hits: 1, window_start: new Date().toISOString() } : { key: rlKey, hits: rlRow.hits + 1, window_start: rlRow.window_start });
+    return json(req, 400, { ok: false, error: "This link is not valid. Please use the latest email we sent you." });
+  }
   const now = new Date().toISOString();
   if (action === "confirm") {
     // only confirms a request that exists and was not withdrawn after it was made

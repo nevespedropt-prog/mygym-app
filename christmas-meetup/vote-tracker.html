@@ -1,7 +1,7 @@
 <title>Christmas Meetup Votes</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-/* Layout: one narrow column. Tally first, then add-a-vote form, voter list, dinner order for the restaurant, then the confirmation email builder. */
+/* Layout: one narrow column. Tally first, then add-a-vote form, voter list, then the results email builder. */
 :root {
   --bg: #f4f6f3;
   --surface: #ffffff;
@@ -96,7 +96,6 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
         <label for="vA"><input type="radio" name="choice" id="vA" value="drinks" required><span>Drinks</span></label>
         <label for="vB"><input type="radio" name="choice" id="vB" value="dinner"><span>Dinner</span></label>
       </div>
-      <label for="vDish" style="flex-basis:100%">Dinner choices and allergies (for dinner votes)<input type="text" id="vDish" maxlength="400" placeholder="e.g. Starter: halloumi. Main: seabass. Dessert: tiramisu. Drink: Prosecco. No nuts"></label>
       <button type="submit" id="addBtn">Add vote</button>
     </form>
     <div class="note">One vote per name. Adding the same name again changes that person's vote.</div>
@@ -107,12 +106,6 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     <h2>Votes <span class="note" id="total"></span></h2>
     <ul id="list"></ul>
     <div class="note" id="empty">Nothing here yet. Add the first reply above.</div>
-  </section>
-
-  <section class="panel">
-    <h2>Dinner order for Ada <span class="note" id="dTotal"></span></h2>
-    <label for="oText">Everyone who voted dinner, with their choices<textarea id="oText" readonly></textarea></label>
-    <div class="row"><button id="copyOrder" type="button">Copy order</button><span class="note" id="orderMsg"></span></div>
   </section>
 
   <section class="panel">
@@ -168,13 +161,11 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     else v = label(w) + " leads " + Math.max(c.drinks, c.dinner) + " to " + Math.min(c.drinks, c.dinner) + ".";
     $("verdict").textContent = v;
     $("total").textContent = n ? "(" + n + ")" : "";
-    $("dTotal").textContent = c.dinner ? "(" + c.dinner + ")" : "";
 
     var ul = $("list"); ul.textContent = "";
     votes.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).forEach(function (x) {
       var li = document.createElement("li");
       var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = x.name;
-      if (x.dishes) { var ds = document.createElement("div"); ds.className = "note"; ds.textContent = x.dishes; nm.appendChild(ds); }
       var tg = document.createElement("span"); tg.className = "tag " + x.choice; tg.textContent = label(x.choice);
       var bt = document.createElement("button"); bt.type = "button"; bt.className = "ghost"; bt.textContent = "Remove";
       bt.setAttribute("aria-label", "Remove vote from " + x.name);
@@ -184,15 +175,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
       li.appendChild(nm); li.appendChild(tg); li.appendChild(bt); ul.appendChild(li);
     });
     $("empty").hidden = n > 0;
-    buildOrder();
     buildEmail();
-  }
-
-  function buildOrder() {
-    var d = votes.filter(function (v) { return v.choice === "dinner"; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
-    if (!d.length) { $("oText").value = "No dinner votes yet."; return; }
-    $("oText").value = "Ada Restaurant, Saturday 19 December. " + d.length + " for the three-course set menu.\n\n" +
-      d.map(function (x) { return x.name + ": " + (x.dishes || "choices still to come"); }).join("\n");
   }
 
   function mailHtml(plan, c, n, tied) {
@@ -222,7 +205,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;"><div style="' + lab + 'color:#66656d;">When</div>' + when + '<div style="' + lab + 'color:#66656d;padding-top:14px;">Where</div><div style="font-size:16px;line-height:1.5;padding-top:4px;">' + where + '</div>' + extra + '</td></tr></table></td></tr>');
     if (plan === "dinner") {
       h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdecec;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;font-size:15px;line-height:1.6;"><div style="' + lab + 'color:#e03939;padding-bottom:6px;">Nothing to pay in advance</div>We have paid Ada\'s &pound;50 booking deposit, and it comes off the final bill. We\'ll settle the bill at the restaurant at the end.</td></tr></table></td></tr>');
-      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">We\'ll send your starter, main, dessert and drink choices to the restaurant. If you need to change a dish or tell us about an allergy, reply to this email as soon as you can.</p><p style="margin:0 0 16px 0;">If people want a drink afterwards, we can finish the night at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there to celebrate Christmas together.</p></td></tr>');
+      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">There is nothing to choose now. We\'ll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.</p><p style="margin:0 0 16px 0;">If people want a drink afterwards, we can finish the night at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there to celebrate Christmas together.</p></td></tr>');
     } else {
       h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Just come along. There is nothing to pay in advance.</p><p style="margin:0;"><strong>Please arrive on time so we can all sit together.</strong> We\'d love to see every one of you there to celebrate Christmas together.</p></td></tr>');
     }
@@ -258,7 +241,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
       lines.push("");
       lines.push("We have paid Ada's £50 booking deposit, and it comes off the final bill. You pay nothing in advance. We'll settle the bill at the restaurant at the end.");
       lines.push("");
-      lines.push("We'll send your starter, main, dessert and drink choices to the restaurant. If you need to change a dish or tell us about an allergy, reply to this email as soon as you can.");
+      lines.push("There is nothing to choose now. We'll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.");
       lines.push("");
       lines.push("If people want a drink afterwards, we can finish the night at The Old Wheatsheaf.");
       lines.push("");
@@ -286,7 +269,6 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     sel.removeAllRanges();
     $("copyMsg").textContent = ok ? "Copied. Paste it into a new Gmail message." : "Could not copy. Select the email and copy it by hand.";
   });
-  $("copyOrder").addEventListener("click", function () { copyFrom($("oText"), $("orderMsg")); });
 
   $("voteForm").addEventListener("submit", function (ev) {
     ev.preventDefault(); showErr("");
@@ -295,8 +277,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var ch = document.querySelector('input[name="choice"]:checked');
     if (!name || !ch) return;
     var btn = $("addBtn"); btn.disabled = true;
-    col.doc(slug(name)).set({ name: name, choice: ch.value, dishes: $("vDish").value.trim(), at: Date.now() }).then(function () {
-      $("vName").value = ""; $("vDish").value = ""; ch.checked = false; $("vName").focus();
+    col.doc(slug(name)).set({ name: name, choice: ch.value, at: Date.now() }).then(function () {
+      $("vName").value = ""; ch.checked = false; $("vName").focus();
     }).catch(function (e) {
       showErr(e && e.code === "invalid_argument" ? "You need edit access to add votes." : "Could not save that vote (" + (e && e.code || "error") + ").");
     }).then(function () { btn.disabled = false; });
@@ -310,7 +292,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     col = db.collection("votes");
     col.onSnapshot(function (snap) {
       if (!snap.metadata.fromCache) { clearTimeout(timer); $("status").textContent = ""; }
-      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice === "dinner" ? "dinner" : (x.choice === "drinks" ? "drinks" : "other"), dishes: String(x.dishes || ""), at: x.at || 0 }; })
+      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice === "dinner" ? "dinner" : (x.choice === "drinks" ? "drinks" : "other"), at: x.at || 0 }; })
         .filter(function (v) { return v.choice !== "other"; });
       render();
     }, function (e) { clearTimeout(timer); $("status").textContent = "Could not load votes (" + (e && e.code || "error") + ")."; });

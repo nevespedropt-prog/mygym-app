@@ -1,4 +1,4 @@
-<title>Christmas Meetup Votes</title>
+<title>MY GYM London Meetup Votes</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: one narrow column. Tally first, then add-a-vote form, voter list, then the results email builder. */
@@ -74,7 +74,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
 <main>
   <header>
-    <h1>Christmas meetup votes</h1>
+    <h1>MY GYM London meetup votes</h1>
     <p class="sub">Saturday 19 December. Replies due Tuesday 1 December <span id="left"></span></p>
   </header>
 
@@ -184,7 +184,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var lab = "font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;";
     var h = [];
     h.push('<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;' + F + 'color:#1d1d20;border-top:6px solid #e03939;">');
-    h.push('<tr><td align="center" style="background:#9f3535;padding:28px 24px 30px 24px;"><div style="' + H + 'font-size:13px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#fdecec;">MY GYM London Christmas meetup</div><div style="' + H + 'font-size:40px;line-height:1.05;font-weight:bold;text-transform:uppercase;color:#ffffff;padding-top:8px;">' + label(plan) + ' it is.<br>It\'s confirmed.</div></td></tr>');
+    h.push('<tr><td align="center" style="background:#9f3535;padding:28px 24px 30px 24px;"><div style="' + H + 'font-size:13px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#fdecec;">MY GYM London meetup</div><div style="' + H + 'font-size:40px;line-height:1.05;font-weight:bold;text-transform:uppercase;color:#ffffff;padding-top:8px;">' + label(plan) + ' it is.<br>It\'s confirmed.</div></td></tr>');
     var intro = tied ? "Thanks for voting. We got " + n + " replies and we're going with " + label(plan).toLowerCase() + "." : "Thanks for voting. " + label(plan) + " got the most votes, so that's the plan.";
     h.push('<tr><td style="padding:28px 32px 8px 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Hi everyone,</p><p style="margin:0 0 16px 0;">' + intro + ' Here are the results and the details.</p></td></tr>');
     function cell(k, name) {
@@ -205,9 +205,9 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;"><div style="' + lab + 'color:#66656d;">When</div>' + when + '<div style="' + lab + 'color:#66656d;padding-top:14px;">Where</div><div style="font-size:16px;line-height:1.5;padding-top:4px;">' + where + '</div>' + extra + '</td></tr></table></td></tr>');
     if (plan === "dinner") {
       h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdecec;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;font-size:15px;line-height:1.6;"><div style="' + lab + 'color:#e03939;padding-bottom:6px;">Nothing to pay in advance</div>We have paid Ada\'s &pound;50 booking deposit, and it comes off the final bill. We\'ll settle the bill at the restaurant at the end.</td></tr></table></td></tr>');
-      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">There is nothing to choose now. We\'ll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.</p><p style="margin:0 0 16px 0;">If people want a drink afterwards, we can finish the night at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there to celebrate Christmas together.</p></td></tr>');
+      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">There is nothing to choose now. We\'ll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.</p><p style="margin:0 0 16px 0;">If people want a drink afterwards, we can finish the night at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there for our first MY GYM London meetup.</p></td></tr>');
     } else {
-      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Just come along. There is nothing to pay in advance.</p><p style="margin:0;"><strong>Please arrive on time so we can all sit together.</strong> We\'d love to see every one of you there to celebrate Christmas together.</p></td></tr>');
+      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Just come along. There is nothing to pay in advance.</p><p style="margin:0;"><strong>Please arrive on time so we can all sit together.</strong> We\'d love to see every one of you there for our first MY GYM London meetup.</p></td></tr>');
     }
     h.push('<tr><td style="padding:20px 32px 32px 32px;font-size:16px;line-height:1.6;"><p style="margin:0;">See you there,<br>Pedro<br><span style="color:#66656d;">MY GYM London</span></p></td></tr></table>');
     return h.join("");
@@ -221,7 +221,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     }
     var n = c.drinks + c.dinner, lead = c[plan], other = c[plan === "drinks" ? "dinner" : "drinks"], tied = !(lead > other);
     $("mail").innerHTML = mailHtml(plan, c, n, tied);
-    $("subj").textContent = "Subject: Confirmed: Christmas " + (plan === "drinks" ? "drinks at The Old Wheatsheaf" : "dinner at Ada") + ", Saturday 19 December";
+    $("subj").textContent = "Subject: Confirmed: MY GYM London meetup, " + (plan === "drinks" ? "drinks at The Old Wheatsheaf" : "dinner at Ada") + ", Saturday 19 December";
     var lines = ["Hi everyone,", ""];
     if (!tied) lines.push("Thanks for voting. " + label(plan) + " got the most votes, so that's the plan.");
     else lines.push("Thanks for voting. We got " + n + " replies and we're going with " + label(plan).toLowerCase() + ".");
@@ -233,7 +233,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
       lines.push("");
       lines.push("Just come along. There is nothing to pay in advance.");
       lines.push("");
-      lines.push("Please arrive on time so we can all sit together. We'd love to see every one of you there to celebrate Christmas together.");
+      lines.push("Please arrive on time so we can all sit together. We'd love to see every one of you there for our first MY GYM London meetup.");
     } else {
       lines.push("When: Saturday 19 December. Arrive from 7:00 pm for a drink, we sit down to eat at 8:00 pm.");
       lines.push("Where: Ada Restaurant, 43 Silver St, Enfield EN1 3TN");
@@ -245,7 +245,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
       lines.push("");
       lines.push("If people want a drink afterwards, we can finish the night at The Old Wheatsheaf.");
       lines.push("");
-      lines.push("Please be on time, so we don't lose our table. We'd love to see every one of you there to celebrate Christmas together.");
+      lines.push("Please be on time, so we don't lose our table. We'd love to see every one of you there for our first MY GYM London meetup.");
     }
     lines.push("");
     lines.push("See you there,");

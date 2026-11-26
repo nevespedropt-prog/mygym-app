@@ -80,8 +80,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
   <section class="panel" aria-live="polite">
     <div class="tally">
-      <div class="opt a" id="optA"><div class="label">Option A, Drinks</div><div class="when">The Old Wheatsheaf, from 7:00 pm</div><div class="count" id="cA">0</div></div>
-      <div class="opt b" id="optB"><div class="label">Option B, Dinner</div><div class="when">Ada Restaurant, 8:00 pm, &pound;37.50 each</div><div class="count" id="cB">0</div></div>
+      <div class="opt a" id="optA"><div class="label">Option A, Drinks</div><div class="when">The Old Wheatsheaf, from 7:00 pm</div><div class="count" id="cA">0</div><div class="note" id="nA"></div></div>
+      <div class="opt b" id="optB"><div class="label">Option B, Dinner</div><div class="when">Ada Restaurant, 8:00 pm, &pound;37.50 each</div><div class="count" id="cB">0</div><div class="note" id="nB"></div></div>
     </div>
     <div class="bar" aria-hidden="true"><span class="ba" id="barA" style="width:0"></span><span class="bb" id="barB" style="width:0"></span></div>
     <div class="verdict" id="verdict">No votes yet.</div>
@@ -96,6 +96,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
         <label for="vA"><input type="radio" name="choice" id="vA" value="drinks" required><span>Drinks</span></label>
         <label for="vB"><input type="radio" name="choice" id="vB" value="dinner"><span>Dinner</span></label>
       </div>
+      <label for="vP" style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);flex:0 0 auto"><input type="checkbox" id="vP"> Partner coming</label>
       <button type="submit" id="addBtn">Add vote</button>
     </form>
     <div class="note">One vote per name. Adding the same name again changes that person's vote.</div>
@@ -111,8 +112,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   <section class="panel">
     <h2>Results email for clients</h2>
     <p class="note" style="margin:0">It updates with the live count. Press copy, then paste into a new Gmail message. The logo and fonts are in the invitation draft if you want to match them.</p>
-    <label for="cDay">Plan to announce
-      <select id="cDay"><option value="auto">Winner by votes</option><option value="drinks">Drinks at The Old Wheatsheaf</option><option value="dinner">Dinner at Ada</option></select>
+    <label for="cDay">Winner to announce
+      <select id="cDay"><option value="auto">Winner by votes</option><option value="drinks">Drinks won</option><option value="dinner">Dinner won</option></select>
     </label>
     <div class="note" id="subj"></div>
     <div id="mail" class="mailpreview"></div>
@@ -132,8 +133,9 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     return t || ("v" + Date.now());
   }
   function counts() {
-    var c = { drinks: 0, dinner: 0 };
-    votes.forEach(function (v) { if (c[v.choice] !== undefined) c[v.choice]++; });
+    var c = { drinks: 0, dinner: 0 }, r = { drinks: 0, dinner: 0 };
+    votes.forEach(function (v) { if (c[v.choice] !== undefined) { c[v.choice] += v.partner ? 2 : 1; r[v.choice]++; } });
+    c.replies = r;
     return c;
   }
   function winner(c) { return c.drinks === c.dinner ? null : (c.drinks > c.dinner ? "drinks" : "dinner"); }
@@ -151,6 +153,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   function render() {
     var c = counts(), n = c.drinks + c.dinner, w = winner(c);
     $("cA").textContent = c.drinks; $("cB").textContent = c.dinner;
+    $("nA").textContent = "people, " + c.replies.drinks + (c.replies.drinks === 1 ? " reply" : " replies");
+    $("nB").textContent = "people, " + c.replies.dinner + (c.replies.dinner === 1 ? " reply" : " replies");
     $("barA").style.width = n ? (c.drinks / n * 100) + "%" : "0";
     $("barB").style.width = n ? (c.dinner / n * 100) + "%" : "0";
     $("optA").classList.toggle("lead", w === "drinks");
@@ -158,14 +162,14 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var v;
     if (!n) v = "No votes yet.";
     else if (!w) v = "Tied at " + c.drinks + " each. You pick the plan, or wait for more replies.";
-    else v = label(w) + " leads " + Math.max(c.drinks, c.dinner) + " to " + Math.min(c.drinks, c.dinner) + ".";
+    else v = label(w) + " leads " + Math.max(c.drinks, c.dinner) + " to " + Math.min(c.drinks, c.dinner) + " people.";
     $("verdict").textContent = v;
-    $("total").textContent = n ? "(" + n + ")" : "";
+    $("total").textContent = n ? "(" + votes.length + " replies, " + n + " people)" : "";
 
     var ul = $("list"); ul.textContent = "";
     votes.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).forEach(function (x) {
       var li = document.createElement("li");
-      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = x.name;
+      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = x.name + (x.partner ? " + partner" : "");
       var tg = document.createElement("span"); tg.className = "tag " + x.choice; tg.textContent = label(x.choice);
       var bt = document.createElement("button"); bt.type = "button"; bt.className = "ghost"; bt.textContent = "Remove";
       bt.setAttribute("aria-label", "Remove vote from " + x.name);
@@ -182,33 +186,27 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var F = "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
     var H = "font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;";
     var lab = "font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;";
+    var MAPW = "https://maps.app.goo.gl/hRLAf1fx6HeoQafh7";
+    var MAPA = "https://www.google.com/maps/place/Ada+Restaurant/@51.6534946,-0.0803884,190m/data=!3m1!1e3!4m6!3m5!1s0x48761f3ac2ac072b:0x7d58fb054d5af8b2!8m2!3d51.6534946!4d-0.0803884!16s%2Fg%2F11b7p_3l95";
     var h = [];
     h.push('<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;' + F + 'color:#1d1d20;border-top:6px solid #e03939;">');
-    h.push('<tr><td align="center" style="background:#9f3535;padding:28px 24px 30px 24px;"><div style="' + H + 'font-size:13px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#fdecec;">MY GYM London meetup</div><div style="' + H + 'font-size:40px;line-height:1.05;font-weight:bold;text-transform:uppercase;color:#ffffff;padding-top:8px;">' + label(plan) + ' it is.<br>It\'s confirmed.</div></td></tr>');
-    var intro = tied ? "Thanks for voting. We got " + n + " replies and we're going with " + label(plan).toLowerCase() + "." : "Thanks for voting. " + label(plan) + " got the most votes, so that's the plan.";
-    h.push('<tr><td style="padding:28px 32px 8px 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Hi everyone,</p><p style="margin:0 0 16px 0;">' + intro + ' Here are the results and the details.</p></td></tr>');
+    h.push('<tr><td align="center" style="background:#9f3535;padding:28px 24px 30px 24px;"><div style="' + H + 'font-size:13px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#fdecec;">MY GYM London meetup</div><div style="' + H + 'font-size:40px;line-height:1.05;font-weight:bold;text-transform:uppercase;color:#ffffff;padding-top:8px;">Here\'s the plan<br>for Saturday 19 December</div></td></tr>');
+    var intro;
+    if (plan === "dinner") intro = (tied ? "Thanks for voting. We're going with dinner." : "Thanks for voting. Dinner got the most votes, so dinner at Ada is on.") + " We want everyone together, whether you're having dinner or not, so the night has two parts.";
+    else intro = (tied ? "Thanks for voting. We're going with drinks." : "Thanks for voting. Drinks got the most votes, so the night starts with drinks.") + " For everyone who wants dinner, we're still heading to Ada afterwards, so the night has two parts.";
+    h.push('<tr><td style="padding:28px 32px 8px 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Hi everyone,</p><p style="margin:0 0 16px 0;">' + intro + '</p></td></tr>');
     function cell(k, name) {
       var win = k === plan;
-      return '<td width="50%" valign="top" style="padding:0 6px 0 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid ' + (win ? '#e03939' : '#d9d7d7') + ';"><tr><td style="padding:12px 16px;"><div style="' + lab + 'color:#66656d;">' + name + '</div><div style="' + H + 'font-size:44px;line-height:1.1;font-weight:bold;color:' + (win ? '#e03939' : '#1d1d20') + ';">' + c[k] + '</div><div style="font-size:13px;color:#66656d;">' + (c[k] === 1 ? "vote" : "votes") + '</div></td></tr></table></td>';
+      return '<td width="50%" valign="top" style="padding:0 6px 0 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid ' + (win ? '#e03939' : '#d9d7d7') + ';"><tr><td style="padding:12px 16px;"><div style="' + lab + 'color:#66656d;">' + name + '</div><div style="' + H + 'font-size:44px;line-height:1.1;font-weight:bold;color:' + (win ? '#e03939' : '#1d1d20') + ';">' + c[k] + '</div><div style="font-size:13px;color:#66656d;">' + (c[k] === 1 ? "person" : "people") + '</div></td></tr></table></td>';
     }
-    h.push('<tr><td style="padding:0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cell("drinks", "Drinks") + cell("dinner", "Dinner") + '</tr></table><div style="font-size:13px;color:#66656d;padding-top:8px;">' + n + ' replies in total.</div></td></tr>');
-    var when, where, extra;
-    if (plan === "drinks") {
-      when = '<div style="' + H + 'font-size:30px;font-weight:bold;text-transform:uppercase;line-height:1.1;padding-top:4px;">Saturday 19 December, from 7:00 pm</div>';
-      where = '<strong>The Old Wheatsheaf</strong><br>3 Windmill Hill, Enfield EN2 6SE<br><a href="https://maps.app.goo.gl/hRLAf1fx6HeoQafh7" style="color:#e03939;font-weight:bold;">Open in Google Maps</a>';
-      extra = "";
-    } else {
-      when = '<div style="' + H + 'font-size:30px;font-weight:bold;text-transform:uppercase;line-height:1.1;padding-top:4px;">Saturday 19 December</div><div style="font-size:16px;line-height:1.5;padding-top:4px;">Arrive from <strong>7:00 pm</strong> for a drink. We sit down to eat at <strong>8:00 pm</strong>.</div>';
-      where = '<strong>Ada Restaurant</strong><br>43 Silver St, Enfield EN1 3TN<br><a href="https://www.google.com/maps/place/Ada+Restaurant/@51.6534946,-0.0803884,190m/data=!3m1!1e3!4m6!3m5!1s0x48761f3ac2ac072b:0x7d58fb054d5af8b2!8m2!3d51.6534946!4d-0.0803884!16s%2Fg%2F11b7p_3l95" style="color:#e03939;font-weight:bold;">Open in Google Maps</a>';
-      extra = '<div style="' + lab + 'color:#66656d;padding-top:14px;">Menu</div><div style="font-size:16px;line-height:1.5;padding-top:4px;">Three-course set menu, &pound;37.50 per person, including a complimentary glass of wine, Prosecco or Bellini.</div>';
+    h.push('<tr><td style="padding:0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cell("drinks", "Voted drinks") + cell("dinner", "Voted dinner") + '</tr></table><div style="font-size:13px;color:#66656d;padding-top:8px;">' + n + ' people in total, partners included.</div></td></tr>');
+    function card(time, title, body, last) {
+      return '<tr><td style="padding:' + (last ? '14px' : '20px') + ' 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;"><div style="' + lab + 'color:#66656d;">' + time + '</div><div style="' + H + 'font-size:30px;font-weight:bold;text-transform:uppercase;line-height:1.1;padding-top:4px;">' + title + '</div><div style="font-size:16px;line-height:1.55;padding-top:6px;">' + body + '</div></td></tr></table></td></tr>';
     }
-    h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5f4;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;"><div style="' + lab + 'color:#66656d;">When</div>' + when + '<div style="' + lab + 'color:#66656d;padding-top:14px;">Where</div><div style="font-size:16px;line-height:1.5;padding-top:4px;">' + where + '</div>' + extra + '</td></tr></table></td></tr>');
-    if (plan === "dinner") {
-      h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdecec;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;font-size:15px;line-height:1.6;"><div style="' + lab + 'color:#e03939;padding-bottom:6px;">Nothing to pay in advance</div>We have paid Ada\'s &pound;50 booking deposit, and it comes off the final bill. We\'ll settle the bill at the restaurant at the end.</td></tr></table></td></tr>');
-      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">There is nothing to choose now. We\'ll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.</p><p style="margin:0 0 16px 0;">If people want a drink afterwards, we can finish the night at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there for our first MY GYM London meetup.</p></td></tr>');
-    } else {
-      h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;">Just come along. There is nothing to pay in advance.</p><p style="margin:0;"><strong>Please arrive on time so we can all sit together.</strong> We\'d love to see every one of you there for our first MY GYM London meetup.</p></td></tr>');
-    }
+    h.push(card("7:00 pm, everyone", "Drinks at The Old Wheatsheaf", '3 Windmill Hill, Enfield EN2 6SE<br><a href="' + MAPW + '" style="color:#e03939;font-weight:bold;">Open in Google Maps</a><br>Come for a drink and a chat, whether or not you\'re having dinner. Partners are welcome.', false));
+    h.push(card("8:00 pm, for everyone who voted dinner", "Dinner at Ada", '43 Silver St, Enfield EN1 3TN<br><a href="' + MAPA + '" style="color:#e03939;font-weight:bold;">Open in Google Maps</a><br>Three-course set menu, &pound;37.50 per person, including a complimentary glass of wine, Prosecco or Bellini.', true));
+    h.push('<tr><td style="padding:20px 32px 0 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdecec;border-left:4px solid #e03939;"><tr><td style="padding:16px 18px;font-size:15px;line-height:1.6;"><div style="' + lab + 'color:#e03939;padding-bottom:6px;">Nothing to pay in advance</div>We have paid Ada\'s &pound;50 booking deposit, and it comes off the final bill. We\'ll settle the bill at the restaurant at the end. There is nothing to choose now, we\'ll all order there on the night. If you have allergy concerns, tell the waiter when you order.</td></tr></table></td></tr>');
+    h.push('<tr><td style="padding:20px 32px 0 32px;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px 0;"><strong>Not having dinner?</strong> Come for the drinks at 7:00 pm. It\'s a chance to get to know each other a little better outside the gym.</p><p style="margin:0 0 16px 0;">Have your plans changed, or is your partner now able to come? Reply to this email so we can update the numbers.</p><p style="margin:0;"><strong>Please be on time, so we don\'t lose our table.</strong> We\'d love to see every one of you there for our first MY GYM London meetup.</p></td></tr>');
     h.push('<tr><td style="padding:20px 32px 32px 32px;font-size:16px;line-height:1.6;"><p style="margin:0;">See you there,<br>Pedro<br><span style="color:#66656d;">MY GYM London</span></p></td></tr></table>');
     return h.join("");
   }
@@ -221,32 +219,23 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     }
     var n = c.drinks + c.dinner, lead = c[plan], other = c[plan === "drinks" ? "dinner" : "drinks"], tied = !(lead > other);
     $("mail").innerHTML = mailHtml(plan, c, n, tied);
-    $("subj").textContent = "Subject: Confirmed: MY GYM London meetup, " + (plan === "drinks" ? "drinks at The Old Wheatsheaf" : "dinner at Ada") + ", Saturday 19 December";
+    $("subj").textContent = "Subject: MY GYM London meetup, Saturday 19 December: here's the plan";
     var lines = ["Hi everyone,", ""];
-    if (!tied) lines.push("Thanks for voting. " + label(plan) + " got the most votes, so that's the plan.");
-    else lines.push("Thanks for voting. We got " + n + " replies and we're going with " + label(plan).toLowerCase() + ".");
-    lines.push("The results: Drinks " + c.drinks + ", Dinner " + c.dinner + " (" + n + " replies).");
+    if (plan === "dinner") lines.push((tied ? "Thanks for voting. We're going with dinner." : "Thanks for voting. Dinner got the most votes, so dinner at Ada is on.") + " We want everyone together, whether you're having dinner or not, so the night has two parts.");
+    else lines.push((tied ? "Thanks for voting. We're going with drinks." : "Thanks for voting. Drinks got the most votes, so the night starts with drinks.") + " For everyone who wants dinner, we're still heading to Ada afterwards, so the night has two parts.");
+    lines.push("The results: Drinks " + c.drinks + ", Dinner " + c.dinner + " (" + n + " people, partners included).");
     lines.push("");
-    if (plan === "drinks") {
-      lines.push("When: Saturday 19 December, from 7:00 pm");
-      lines.push("Where: The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE");
-      lines.push("");
-      lines.push("Just come along. There is nothing to pay in advance.");
-      lines.push("");
-      lines.push("Please arrive on time so we can all sit together. We'd love to see every one of you there for our first MY GYM London meetup.");
-    } else {
-      lines.push("When: Saturday 19 December. Arrive from 7:00 pm for a drink, we sit down to eat at 8:00 pm.");
-      lines.push("Where: Ada Restaurant, 43 Silver St, Enfield EN1 3TN");
-      lines.push("Menu: three-course set menu, £37.50 per person, including a complimentary glass of wine, Prosecco or Bellini.");
-      lines.push("");
-      lines.push("We have paid Ada's £50 booking deposit, and it comes off the final bill. You pay nothing in advance. We'll settle the bill at the restaurant at the end.");
-      lines.push("");
-      lines.push("There is nothing to choose now. We'll all order at the restaurant on the night, once we know numbers, and your complimentary glass comes with the set menu. If you have allergy concerns, tell the waiter when you order.");
-      lines.push("");
-      lines.push("If people want a drink afterwards, we can finish the night at The Old Wheatsheaf.");
-      lines.push("");
-      lines.push("Please be on time, so we don't lose our table. We'd love to see every one of you there for our first MY GYM London meetup.");
-    }
+    lines.push("7:00 pm, everyone: drinks at The Old Wheatsheaf, 3 Windmill Hill, Enfield EN2 6SE. Come for a drink and a chat, whether or not you're having dinner. Partners are welcome.");
+    lines.push("");
+    lines.push("8:00 pm, everyone who voted dinner: dinner at Ada Restaurant, 43 Silver St, Enfield EN1 3TN. Three-course set menu, £37.50 per person, including a complimentary glass of wine, Prosecco or Bellini.");
+    lines.push("");
+    lines.push("Nothing to pay in advance: we have paid Ada's £50 booking deposit, and it comes off the final bill. We'll settle the bill at the restaurant at the end. There is nothing to choose now, we'll all order there on the night. If you have allergy concerns, tell the waiter when you order.");
+    lines.push("");
+    lines.push("Not having dinner? Come for the drinks at 7:00 pm. It's a chance to get to know each other a little better outside the gym.");
+    lines.push("");
+    lines.push("Have your plans changed, or is your partner now able to come? Reply to this email so we can update the numbers.");
+    lines.push("");
+    lines.push("Please be on time, so we don't lose our table. We'd love to see every one of you there for our first MY GYM London meetup.");
     lines.push("");
     lines.push("See you there,");
     lines.push("Pedro, MY GYM London");
@@ -277,8 +266,8 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     var ch = document.querySelector('input[name="choice"]:checked');
     if (!name || !ch) return;
     var btn = $("addBtn"); btn.disabled = true;
-    col.doc(slug(name)).set({ name: name, choice: ch.value, at: Date.now() }).then(function () {
-      $("vName").value = ""; ch.checked = false; $("vName").focus();
+    col.doc(slug(name)).set({ name: name, choice: ch.value, partner: $("vP").checked, at: Date.now() }).then(function () {
+      $("vName").value = ""; $("vP").checked = false; ch.checked = false; $("vName").focus();
     }).catch(function (e) {
       showErr(e && e.code === "invalid_argument" ? "You need edit access to add votes." : "Could not save that vote (" + (e && e.code || "error") + ").");
     }).then(function () { btn.disabled = false; });
@@ -292,7 +281,7 @@ li .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     col = db.collection("votes");
     col.onSnapshot(function (snap) {
       if (!snap.metadata.fromCache) { clearTimeout(timer); $("status").textContent = ""; }
-      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice === "dinner" ? "dinner" : (x.choice === "drinks" ? "drinks" : "other"), at: x.at || 0 }; })
+      votes = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || d.id), choice: x.choice === "dinner" ? "dinner" : (x.choice === "drinks" ? "drinks" : "other"), partner: x.partner === true, at: x.at || 0 }; })
         .filter(function (v) { return v.choice !== "other"; });
       render();
     }, function (e) { clearTimeout(timer); $("status").textContent = "Could not load votes (" + (e && e.code || "error") + ")."; });
